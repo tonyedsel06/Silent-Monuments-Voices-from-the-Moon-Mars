@@ -16,12 +16,14 @@ export interface GisLandmark {
   geology: Record<Language, string>;
   summary: Record<Language, string>;
   keyMetric: Record<Language, string>;
-  nasaPhotoId: string;
+  nasaPhotoId: 'PIA22876' | 'PIA23177' | 'AS11-40-5952';
+  sourceUrl: string;
 }
 
 export interface HardwareHotspot {
-  id: 'seis' | 'wts' | 'arrays' | 'arm' | 'hp3' | 'uhf';
+  id: 'seis' | 'arrays' | 'hp3' | 'arm' | 'uhf' | 'twins' | 'legs';
   position3D: [number, number, number];
+  shortLabel: string;
   code: string;
   title: Record<Language, string>;
   specs: Record<Language, string>;
@@ -29,7 +31,8 @@ export interface HardwareHotspot {
 }
 
 export const TEAM_METADATA = {
-  projectTitle: 'SILENT MONUMENTS: Voices from the Moon & Mars — InSight’s Last Diary & Off-World Artifacts',
+  projectTitle:
+    'SILENT MONUMENTS: Voices from the Moon & Mars — InSight’s Last Diary & Off-World Artifacts',
   teamName: 'NAU EXPLORERS',
   teamId: 'NS01048',
   institution: {
@@ -76,27 +79,28 @@ export const GIS_LANDMARKS: GisLandmark[] = [
       vi: 'Đồng bằng Elysium Planitia, Sao Hỏa',
     },
     missionDates: {
-      en: 'Landed 26 Nov 2018 · Last Signal 15 Dec 2022',
+      en: 'Landed 26 Nov 2018 · Final Signal 15 Dec 2022',
       vi: 'Hạ cánh 26/11/2018 · Tín hiệu cuối 15/12/2022',
     },
     statusBadge: {
-      en: 'SILENT MONUMENT · ACTIVE ARCHIVE',
-      vi: 'ĐÀI TƯỞNG NIỆM TĨNH LẶNG · KHO DỮ LIỆU SỐNG',
+      en: 'Silent Monument · Active Archive',
+      vi: 'Đài tưởng niệm · Kho dữ liệu sống',
     },
     statusTone: 'amber',
     geology: {
-      en: 'Smooth Hesperian volcanic plains covered by a 3-to-5-meter impact-fragmented regolith layer over fractured basalt flows.',
-      vi: 'Đồng bằng núi lửa kỷ Hesperian bằng phẳng, phủ lớp đất đá vụn (regolith) dày 3–5 mét nằm trên nền đá bazan nứt nẻ.',
+      en: 'Smooth volcanic plains blanketed by 3–5 meters of impact-fragmented basaltic regolith.',
+      vi: 'Đồng bằng núi lửa bằng phẳng phủ lớp đất đá bazan vụn dày 3–5 mét.',
     },
     summary: {
-      en: 'Stationary planetary seismological station. Placed the first seismometer directly on Martian soil, recording 1,319 marsquakes and measuring the liquid iron-alloy core before iron-oxide dust starved its decagonal solar arrays.',
-      vi: 'Trạm địa chấn cố định đầu tiên đặt ống nghe trực tiếp lên mặt đất Sao Hỏa. Ghi nhận 1.319 trận động đất Sao Hỏa và đo đạc lõi sắt lỏng trước khi lớp bụi đỏ phủ kín hai cánh pin mặt trời hình thập giác.',
+      en: 'Placed the first seismometer directly on Martian soil, recording 1,319 marsquakes and sizing Mars’ molten core before red dust veiled its solar wings.',
+      vi: 'Đặt ống nghe địa chấn đầu tiên lên đất Sao Hỏa, ghi lại 1.319 trận động đất và đo lõi sắt lỏng trước khi bụi đỏ phủ kín hai cánh pin.',
     },
     keyMetric: {
-      en: '1,319 marsquakes cataloged · 1,440 Martian sols operated',
-      vi: '1.319 động đất Sao Hỏa · 1.440 ngày Sao Hỏa (sol) hoạt động',
+      en: '1,319 marsquakes · 1,440 Martian sols',
+      vi: '1.319 động đất Sao Hỏa · 1.440 sol hoạt động',
     },
     nasaPhotoId: 'PIA22876',
+    sourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A',
   },
   {
     id: 'opportunity',
@@ -111,31 +115,32 @@ export const GIS_LANDMARKS: GisLandmark[] = [
       vi: 'Xe Tự hành Opportunity (MER-B)',
     },
     siteName: {
-      en: 'Meridiani Planum / Perseverance Valley, Mars',
-      vi: 'Đồng bằng Meridiani / Thung lũng Perseverance, Sao Hỏa',
+      en: 'Perseverance Valley, Meridiani Planum',
+      vi: 'Thung lũng Perseverance, Meridiani Planum',
     },
     missionDates: {
-      en: 'Landed 25 Jan 2004 · Last Signal 10 June 2018',
+      en: 'Landed 25 Jan 2004 · Final Signal 10 June 2018',
       vi: 'Hạ cánh 25/01/2004 · Tín hiệu cuối 10/06/2018',
     },
     statusBadge: {
-      en: 'SILENT MONUMENT · 5,111 SOLS',
-      vi: 'ĐÀI TƯỞNG NIỆM TĨNH LẶNG · 5.111 SOL',
+      en: 'Silent Monument · 5,111 Sols',
+      vi: 'Đài tưởng niệm · 5.111 Sol',
     },
     statusTone: 'amber',
     geology: {
-      en: 'Ancient sulfate-rich sedimentary outcrops embedded with spherical gray hematite concretions ("blueberries") formed in acidic groundwater.',
-      vi: 'Các vỉa đá trầm tích giàu muối sunfat cổ đại chứa những viên kết hạch hematit xám hình cầu ("việt quất") hình thành trong môi trường nước ngầm.',
+      en: 'Ancient sulfate outcrops rich in spherical hematite concretions ("blueberries") formed in liquid water.',
+      vi: 'Các vỉa trầm tích giàu kết hạch hematit hình cầu ("việt quất") hình thành trong nước ngầm cổ đại.',
     },
     summary: {
-      en: 'Engineered for a 90-sol warranty, Opportunity drove 45.16 km across four craters over 14.4 Earth years. A planet-encircling dust storm in June 2018 raised atmospheric opacity (tau > 10.8), cutting off sunlight to its solar deck.',
-      vi: 'Được thiết kế cho 90 sol nhưng đã lăn bánh 45,16 km qua bốn miệng hố va chạm suốt 14,4 năm Trái Đất. Cơn bão bụi toàn cầu tháng 6/2018 đã che khuất hoàn toàn ánh nắng chiếu xuống tấm pin.',
+      en: 'Built for a 90-sol mission, Opportunity drove 45.16 km over 14.4 years until a planet-encircling 2018 dust storm turned noon into night.',
+      vi: 'Thiết kế cho 90 sol nhưng đã đi 45,16 km suốt 14,4 năm, trước khi cơn bão bụi toàn cầu tháng 6/2018 che khuất hoàn toàn Mặt Trời.',
     },
     keyMetric: {
-      en: '45.16 km off-world marathon · 57x planned lifespan',
-      vi: 'Hành trình 45,16 km · Vượt 57 lần tuổi thọ thiết kế',
+      en: '45.16 km driven · 57× planned lifespan',
+      vi: 'Hành trình 45,16 km · Vượt 57 lần thiết kế',
     },
     nasaPhotoId: 'PIA23177',
+    sourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A',
   },
   {
     id: 'apollo11',
@@ -146,144 +151,173 @@ export const GIS_LANDMARKS: GisLandmark[] = [
     coordsLabel: '0.674°N, 23.473°E',
     elevationLabel: '-1,890 m LRO',
     name: {
-      en: 'Apollo 11 Lunar Laser Ranging Retroreflector (LRRR)',
-      vi: 'Gương Phản xạ Laser Mặt Trăng Apollo 11 (LRRR)',
+      en: 'Apollo 11 Lunar Laser Retroreflector (LRRR)',
+      vi: 'Gương Phản xạ Laser Mặt Trăng Apollo 11',
     },
     siteName: {
-      en: 'Mare Tranquillitatis (Sea of Tranquility), Moon',
+      en: 'Mare Tranquillitatis (Sea of Tranquility)',
       vi: 'Biển Tĩnh Lặng (Mare Tranquillitatis), Mặt Trăng',
     },
     missionDates: {
-      en: 'Deployed 20 July 1969 · Active in 2026 (57+ Years)',
-      vi: 'Lắp đặt 20/07/1969 · Đang hoạt động năm 2026 (Hơn 57 năm)',
+      en: 'Deployed 20 July 1969 · Still Active in 2026',
+      vi: 'Đặt ngày 20/07/1969 · Vẫn hoạt động năm 2026',
     },
     statusBadge: {
-      en: 'STILL ACTIVE · PASSIVE OPTICAL',
-      vi: 'VẪN ĐANG HOẠT ĐỘNG · QUANG HỌC THỤ ĐỘNG',
+      en: 'Still Active · Passive Optical',
+      vi: 'Đang hoạt động · Quang học thụ động',
     },
     statusTone: 'emerald',
     geology: {
-      en: 'Dark flood basalt lunar mare plains formed 3.8 billion years ago, blanketed in fine silicate regolith with zero atmospheric wind.',
-      vi: 'Đồng bằng bazan tối màu hình thành cách đây 3,8 tỷ năm, phủ lớp bụi silicat mịn và hoàn toàn không có gió khí quyển.',
+      en: 'Dark basaltic lunar mare plains formed 3.8 billion years ago on an airless, storm-free world.',
+      vi: 'Đồng bằng bazan tối màu 3,8 tỷ năm tuổi trên Mặt Trăng không có gió và bão bụi.',
     },
     summary: {
-      en: 'A 46-cm anodized aluminum tray holding 100 fused-silica corner-cube prisms placed by Buzz Aldrin and Neil Armstrong. Because it needs zero electrical power, Earth observatories bounce green laser pulses off it tonight to measure lunar distance to millimeter precision.',
-      vi: 'Khay nhôm 46 cm gắn 100 lăng kính góc thạch anh tinh khiết do Neil Armstrong và Buzz Aldrin đặt xuống. Không cần bất kỳ nguồn điện hay tấm pin nào, nó vẫn phản xạ chùm tia laser xanh từ Trái Đất mỗi đêm với độ chính xác từng milimét.',
+      en: '100 fused-silica corner-cube prisms left by Armstrong and Aldrin. Requiring zero watts of electricity, it still reflects Earth laser pulses tonight.',
+      vi: '100 lăng kính góc thạch anh do Armstrong và Aldrin đặt lại. Không cần một giọt điện nào, nó vẫn phản xạ tia laser từ Trái Đất mỗi đêm.',
     },
     keyMetric: {
-      en: '0 Watts required · Proves Moon recedes 3.8 cm/year',
-      vi: 'Tiêu thụ 0 Watt điện · Chứng minh Mặt Trăng lùi xa 3,8 cm/năm',
+      en: '0 Watts needed · Moon recedes 3.8 cm/yr',
+      vi: '0 Watt điện · Mặt Trăng lùi xa 3,8 cm/năm',
     },
     nasaPhotoId: 'AS11-40-5952',
+    sourceUrl: 'https://nssdc.gsfc.nasa.gov/nmc/experiment/display.action?id=1969-059C-03',
   },
 ];
 
 export const INSIGHT_HOTSPOTS: HardwareHotspot[] = [
   {
-    id: 'seis',
-    position3D: [1.45, -0.62, 0.9],
-    code: 'SEIS · CNES/JPL',
-    title: {
-      en: 'SEIS Seismometer (Planet’s Stethoscope)',
-      vi: 'Máy đo địa chấn SEIS (Ống nghe hành tinh)',
-    },
-    specs: {
-      en: 'Mass: 29 kg · Sensitivity: < 10⁻¹⁰ m/s² (smaller than a hydrogen atom)',
-      vi: 'Khối lượng: 29 kg · Độ nhạy: < 10⁻¹⁰ m/s² (nhỏ hơn bán kính nguyên tử hydro)',
-    },
-    description: {
-      en: 'Placed directly on Elysium Planitia regolith 1.63 meters from the lander deck on Dec 19, 2018. Contains three pendulum Very Broad Band (VBB) sensors sealed inside a titanium vacuum sphere.',
-      vi: 'Được cánh tay robot đặt trực tiếp lên đất Sao Hỏa cách thân trạm 1,63 mét vào ngày 19/12/2018. Bên trong quả cầu chân không bằng titan là 3 cảm biến con lắc dải tần cực rộng.',
-    },
-  },
-  {
-    id: 'wts',
-    position3D: [1.45, -0.35, 0.9],
-    code: 'WTS · THERMAL DOME',
-    title: {
-      en: 'Wind and Thermal Shield (WTS)',
-      vi: 'Lồng Chắn Gió và Nhiệt độ (WTS)',
-    },
-    specs: {
-      en: 'Diameter: 66 cm · Aerodynamic gold-Chainmail skirt + thermal blanket',
-      vi: 'Đường kính: 66 cm · Váy xích kim loại ôm sát địa hình + lớp cách nhiệt',
-    },
-    description: {
-      en: 'Lowered over SEIS on Feb 2, 2019. Blocks Martian wind gusts and cushions the 90°C daily temperature swing so thermal expansion does not mask faint seismic tremors.',
-      vi: 'Hạ xuống chụp lên trên SEIS ngày 02/02/2019. Ngăn gió Sao Hỏa làm rung cảm biến và giảm sốc nhiệt chênh lệch 90°C giữa ngày và đêm.',
-    },
-  },
-  {
     id: 'arrays',
-    position3D: [-2.15, 0.25, 0.0],
-    code: 'ULTRAFLX · 2.15m WINGS',
+    position3D: [-2.15, 0.28, 0.0],
+    shortLabel: 'SOLAR',
+    code: 'SOLAR · Twin UltraFlex Wings',
     title: {
       en: 'Twin Decagonal Solar Arrays',
       vi: 'Cặp Cánh Pin Mặt Trời Hình Thập Giác',
     },
     specs: {
-      en: 'Span: 6.0 m · Area: 7.3 m² · Output: ~5,000 Wh/sol clean → ~500 Wh/sol dusty',
-      vi: 'Sải cánh: 6,0 m · Diện tích: 7,3 m² · Công suất: ~5.000 Wh/sol → ~500 Wh/sol khi phủ bụi',
+      en: 'Span: 6.0 m · Area: 7.3 m² · ~5,000 Wh/sol clean → ~500 Wh/sol dusty',
+      vi: 'Sải cánh: 6,0 m · Diện tích: 7,3 m² · ~5.000 Wh/sol → ~500 Wh/sol khi phủ bụi',
     },
     description: {
-      en: 'Unfolded like paper fans minutes after touchdown. Because Mars orbits 1.5x farther from the Sun than Earth, InSight needed broad wings—which also acted like wide dinner plates catching falling iron-oxide dust.',
-      vi: 'Xòe ra như hai chiếc quạt giấy ngay sau khi chạm đất. Vì Sao Hỏa ở xa Mặt Trời gấp 1,5 lần Trái Đất, InSight cần diện tích thu sáng lớn—nhưng cũng chính bề mặt rộng này đã hứng trọn bụi sắt oxit lắng xuống.',
+      en: 'Unfolded like twin decagonal fans after landing. Their wide 2.15-meter wings captured weak Martian sunlight—and slowly collected falling iron-oxide dust over 1,440 sols.',
+      vi: 'Xòe ra như hai chiếc quạt thập giác rộng 2,15 mét để gom ánh nắng yếu ớt của Sao Hỏa—nhưng cũng hứng trọn lớp bụi oxit sắt lắng xuống suốt 1.440 sol.',
     },
   },
   {
-    id: 'arm',
-    position3D: [0.65, 0.55, 0.55],
-    code: 'IDA · 1.8m GRAPPLE',
+    id: 'seis',
+    position3D: [1.45, -0.38, 0.9],
+    shortLabel: 'SEIS',
+    code: 'SEIS · Copper Dome & WTS Shield',
     title: {
-      en: 'Instrument Deployment Arm (IDA) & IDC Camera',
-      vi: 'Cánh tay Robot Triển khai Thiết bị (IDA) & Camera IDC',
+      en: 'SEIS Seismometer & Wind/Thermal Shield',
+      vi: 'Máy Đo Địa Chấn SEIS & Vòm Chắn Gió Nhiệt',
     },
     specs: {
-      en: 'Reach: 1.8 meters · 4 degrees of freedom · 5-finger mechanical grapple claw',
-      vi: 'Tầm với: 1,8 mét · 4 bậc tự do · Móc gắp cơ khí 5 ngón',
+      en: 'Mass: 29 kg · Sensitivity: < 10⁻¹⁰ m/s² (atomic scale)',
+      vi: 'Khối lượng: 29 kg · Độ nhạy: < 10⁻¹⁰ m/s² (cỡ nguyên tử)',
     },
     description: {
-      en: 'Lifted SEIS, the Wind Shield, and HP³ off the upper deck and set them gently on the ground. Its elbow-mounted camera (IDC) stitched together the iconic 2018 and 2022 lander selfies.',
-      vi: 'Nâng SEIS, lồng chắn gió WTS và mũi khoan HP³ từ mặt boong đặt xuống nền đất. Camera gắn ở khuỷu tay (IDC) đã chụp ghép những bức ảnh tự sướng lịch sử năm 2018 và 2022.',
+      en: 'Set on Martian soil 1.63 m from the deck beneath a metallic dome and gold chainmail skirt. Its vacuum-sealed pendulums detected 1,319 marsquakes.',
+      vi: 'Đặt trực tiếp trên đất Sao Hỏa cách thân trạm 1,63 m dưới vòm kim loại và váy xích vàng. Các con lắc chân không đã bắt được 1.319 trận động đất.',
     },
   },
   {
     id: 'hp3',
-    position3D: [-0.85, -0.58, 1.05],
-    code: 'HP³ · DLR HEAT PROBE',
+    position3D: [-0.85, -0.52, 1.05],
+    shortLabel: 'HP³',
+    code: 'HP³ · DLR Heat Flow Probe',
     title: {
       en: 'HP³ "The Mole" Heat Flow Probe',
-      vi: 'Mũi khoan Nhiệt lượng HP³ ("Chuột Chũi")',
+      vi: 'Mũi Khoan Nhiệt Lượng HP³ ("Chuột Chũi")',
     },
     specs: {
-      en: 'Target Depth: 5.0 m · Actual Final Depth: ~40 cm · Internal tungsten hammer',
-      vi: 'Độ sâu mục tiêu: 5,0 m · Độ sâu thực tế: ~40 cm · Búa đập vonfram bên trong',
+      en: 'Target: 5.0 m · Final Depth: ~40 cm · Tungsten hammer mechanism',
+      vi: 'Mục tiêu: 5,0 m · Độ sâu thực tế: ~40 cm · Búa đập vonfram',
     },
     description: {
-      en: 'A 40-cm self-hammering spike designed to measure heat escaping Mars’ interior. Unexpectedly cohesive, cement-like duricrust soil denied the probe the friction it needed, turning a setback into a vital soil-mechanics discovery.',
-      vi: 'Cọc tự đóng dài 40 cm được chế tạo để đo dòng nhiệt thoát ra từ lòng Sao Hỏa. Lớp đất đóng vảng kết dính bất ngờ (duricrust) khiến mũi khoan thiếu ma sát thành vách, biến một giới hạn kỹ thuật thành dữ liệu địa cơ học quý giá.',
+      en: 'Designed to hammer 5 meters deep, the spike met unexpectedly cemented Martian duricrust at 40 cm—yielding crucial soil-mechanics data for future astronauts.',
+      vi: 'Thiết kế để đóng sâu 5 mét nhưng gặp lớp đất kết dính cứng ở mức 40 cm—mang lại dữ liệu cơ học đất quý giá cho các sứ mệnh tương lai.',
+    },
+  },
+  {
+    id: 'arm',
+    position3D: [0.68, 0.58, 0.55],
+    shortLabel: 'IDA',
+    code: 'IDA · 1.8m Robotic Arm & Camera',
+    title: {
+      en: 'Instrument Deployment Arm (IDA) & IDC Camera',
+      vi: 'Cánh Tay Robot (IDA) & Camera Khuỷu Tay IDC',
+    },
+    specs: {
+      en: 'Reach: 1.8 meters · 4 joints · 5-finger mechanical grapple',
+      vi: 'Tầm với: 1,8 mét · 4 khớp xoay · Móc gắp cơ khí 5 ngón',
+    },
+    description: {
+      en: 'Lifted SEIS, the Wind Shield, and HP³ onto the ground, then used its elbow camera to stitch together InSight’s iconic 2018 and 2022 selfies.',
+      vi: 'Nâng SEIS, vòm chắn gió và mũi khoan HP³ đặt xuống nền đất, đồng thời dùng camera khuỷu tay chụp những bức ảnh tự chụp lịch sử.',
     },
   },
   {
     id: 'uhf',
-    position3D: [-0.55, 0.68, -0.45],
-    code: 'UHF & RISE · TELEMETRY',
+    position3D: [0.45, 0.52, -0.48],
+    shortLabel: 'RISE',
+    code: 'RISE & UHF · X-Band Geodesy',
     title: {
-      en: 'UHF Helical Antenna & RISE X-Band Transponder',
-      vi: 'Ăng-ten Xoắn UHF & Thiết bị Vô tuyến RISE',
+      en: 'RISE X-Band Transponder & UHF Helical Antenna',
+      vi: 'Thiết Bị Vô Tuyến RISE & Ăng-ten UHF',
     },
     specs: {
-      en: 'Relay: Mars Reconnaissance Orbiter & Odyssey · Doppler precision: < 10 cm',
-      vi: 'Tiếp sóng: Tàu quỹ đạo MRO & Odyssey · Độ chính xác Doppler: < 10 cm',
+      en: 'Doppler precision: < 10 cm · Orbiter relay link',
+      vi: 'Độ chính xác Doppler: < 10 cm · Tiếp sóng tàu quỹ đạo',
     },
     description: {
-      en: 'Beamed daily seismic logs up to passing Mars orbiters and tracked tiny wobbles in Mars’ north pole spin axis (nutation), proving the planet’s 1,830-km core is molten liquid.',
-      vi: 'Truyền dữ liệu địa chấn lên các tàu quỹ đạo bay ngang qua và đo độ đảo trục quay cực nhỏ của Sao Hỏa, chứng minh lõi hành tinh (bán kính ~1.830 km) ở trạng thái lỏng.',
+      en: 'Tracked tiny wobbles in Mars’ rotation axis as it orbited the Sun, proving the planet’s 1,830-km core is molten liquid metal.',
+      vi: 'Đo độ đảo cực nhỏ của trục quay Sao Hỏa, chứng minh lõi hành tinh có bán kính ~1.830 km là kim loại nóng chảy.',
+    },
+  },
+  {
+    id: 'twins',
+    position3D: [-0.55, 0.62, -0.42],
+    shortLabel: 'TWINS',
+    code: 'TWINS · APSS Weather Boom',
+    title: {
+      en: 'TWINS Wind, Temperature & Pressure Sensors',
+      vi: 'Cảm Biến Thời Tiết, Gió & Áp Suất TWINS',
+    },
+    specs: {
+      en: 'Continuous wind speed, air temperature & magnetic monitoring',
+      vi: 'Đo tốc độ gió, nhiệt độ và từ trường liên tục',
+    },
+    description: {
+      en: 'Monitored daily Martian gusts and passing dust devils so seismologists could filter wind vibrations out of delicate marsquake recordings.',
+      vi: 'Theo dõi gió và lốc bụi mỗi ngày để các nhà địa chấn học lọc bỏ nhiễu khí quyển khỏi tín hiệu động đất Sao Hỏa.',
+    },
+  },
+  {
+    id: 'legs',
+    position3D: [0.0, -0.58, 1.15],
+    shortLabel: 'LEGS',
+    code: 'LEGS · Shock-Absorbing Tripod',
+    title: {
+      en: 'Three Titanium-Aluminum Crushable Landing Legs',
+      vi: 'Ba Chân Trụ Giảm Chấn Hợp Kim Titan – Nhôm',
+    },
+    specs: {
+      en: '3 circular footpads · Motionless seismic anchor on basalt soil',
+      vi: '3 bàn đạp tròn · Điểm tựa tĩnh lặng tuyệt đối trên nền đất',
+    },
+    description: {
+      en: 'Absorbed touchdown impact on November 26, 2018 and anchored the lander in total stillness so no wheel motor noise could disturb SEIS.',
+      vi: 'Hấp thụ xung lực tiếp đất ngày 26/11/2018 và giữ toàn bộ thân trạm đứng yên tuyệt đối để không gây tạp âm cơ học.',
     },
   },
 ];
 
-export const CHAPTER_TITLES: { num: string; title: Record<Language, string>; subtitle: Record<Language, string> }[] = [
+export const CHAPTER_TITLES: {
+  num: string;
+  title: Record<Language, string>;
+  subtitle: Record<Language, string>;
+}[] = [
   {
     num: '01',
     title: { en: 'The Message After Silence', vi: 'Tín hiệu sau sự im lặng' },
@@ -292,7 +326,7 @@ export const CHAPTER_TITLES: { num: string; title: Record<Language, string>; sub
   {
     num: '02',
     title: { en: 'Planetary GIS Observatory', vi: 'Đài quan sát Bản đồ GIS Hành tinh' },
-    subtitle: { en: 'MOLA Mars & LRO Moon Coordinate Registry', vi: 'Hệ tọa độ Sao Hỏa MOLA & Mặt Trăng LRO' },
+    subtitle: { en: 'Mars MOLA & Moon LRO Coordinate Registry', vi: 'Hệ tọa độ Sao Hỏa MOLA & Mặt Trăng LRO' },
   },
   {
     num: '03',
@@ -307,7 +341,7 @@ export const CHAPTER_TITLES: { num: string; title: Record<Language, string>; sub
   {
     num: '05',
     title: { en: '1,319 Heartbeats of Mars', vi: '1.319 Nhịp tim của Sao Hỏa' },
-    subtitle: { en: 'Seismic Oscilloscope & 60x Web Audio Sonification', vi: 'Dao động ký Địa chấn & Âm thanh hóa 60x' },
+    subtitle: { en: 'Seismic Oscilloscope & 60× Audio Sonification', vi: 'Dao động ký Địa chấn & Âm thanh hóa 60×' },
   },
   {
     num: '06',
@@ -331,8 +365,8 @@ export const CHAPTER_TITLES: { num: string; title: Record<Language, string>; sub
   },
   {
     num: '10',
-    title: { en: 'Explorer Challenge & Transparency Ledger', vi: 'Thử thách Nhà thám hiểm & Sổ cái Minh bạch' },
-    subtitle: { en: '4-Question Review, Mission Patch & Primary Archives', vi: '4 Câu hỏi Ôn tập, Huy hiệu Sứ mệnh & Nguồn dữ liệu' },
+    title: { en: 'Explorer Challenge & Mission Emblem', vi: 'Thử thách Nhà thám hiểm & Huy hiệu Sứ mệnh' },
+    subtitle: { en: '4-Question Review, 8K Emblem & Primary Archives', vi: '4 Câu hỏi Ôn tập, Huy hiệu 8K & Nguồn dữ liệu' },
   },
 ];
 
@@ -340,97 +374,97 @@ export const QUIZ_QUESTIONS = [
   {
     id: 0,
     question: {
-      en: '1. Why was InSight built as a stationary three-legged lander without wheels, unlike the Opportunity rover?',
-      vi: '1. Vì sao InSight được thiết kế là trạm đổ bộ 3 chân đứng yên không có bánh xe, khác với xe tự hành Opportunity?',
+      en: '1. Why was InSight built as a stationary three-legged lander without wheels, unlike Opportunity?',
+      vi: '1. Vì sao InSight được thiết kế là trạm đổ bộ 3 chân đứng yên không có bánh xe, khác với Opportunity?',
     },
     options: {
       en: [
         'NASA ran out of titanium wheels before the May 2018 launch.',
-        'Its SEIS seismometer required a quiet, motionless anchor to measure sub-atomic ground vibrations across the entire planet.',
-        'Elysium Planitia is covered in liquid water oceans that wheels cannot cross.',
+        'Its SEIS seismometer needed a quiet, motionless anchor to detect sub-atomic ground vibrations.',
+        'Elysium Planitia is covered in liquid water oceans.',
       ],
       vi: [
-        'NASA hết vật liệu chế tạo bánh xe titan trước ngày phóng tháng 5/2018.',
-        'Máy đo địa chấn SEIS cần một điểm tựa tĩnh lặng tuyệt đối trên mặt đất để bắt được các rung động nhỏ hơn nguyên tử hydro xuyên qua toàn hành tinh.',
-        'Đồng bằng Elysium Planitia ngập nước lỏng nên bánh xe không thể di chuyển.',
+        'NASA hết vật liệu chế tạo bánh xe titan trước ngày phóng.',
+        'Máy đo địa chấn SEIS cần điểm tựa tĩnh lặng tuyệt đối để bắt các rung động nhỏ cỡ nguyên tử.',
+        'Đồng bằng Elysium Planitia ngập nước lỏng.',
       ],
     },
     correctIndex: 1,
     explanation: {
-      en: 'Verified (NASA/JPL SEIS Archive): A rolling rover creates mechanical noise. By sitting still on Elysium Planitia and placing SEIS directly on the soil under a Wind and Thermal Shield, InSight could detect seismic waves from thousands of kilometers away.',
-      vi: 'Chính xác (Hồ sơ NASA/JPL SEIS): Xe tự hành di chuyển sẽ tạo ra tạp âm cơ học. Nhờ đứng yên tại Elysium Planitia và đặt SEIS trực tiếp lên nền đất dưới lồng chắn gió WTS, InSight có thể lắng nghe sóng địa chấn từ cách xa hàng nghìn kilômét.',
+      en: 'Verified (NASA/JPL SEIS Archive): A rolling rover creates mechanical noise. Sitting motionless on Elysium Planitia let SEIS detect quakes thousands of kilometers away.',
+      vi: 'Chính xác (Hồ sơ NASA/JPL SEIS): Xe tự hành di chuyển tạo ra tạp âm cơ học. Đứng yên tại Elysium Planitia giúp SEIS lắng nghe sóng địa chấn từ cách xa hàng nghìn kilômét.',
     },
   },
   {
     id: 1,
     question: {
-      en: '2. What caused InSight’s electrical power to drop from ~5,000 Wh/sol in late 2018 down to ~500 Wh/sol by 2022?',
-      vi: '2. Nguyên nhân nào khiến sản lượng điện của InSight giảm từ ~5.000 Wh/sol cuối năm 2018 xuống chỉ còn ~500 Wh/sol vào năm 2022?',
+      en: '2. What caused InSight’s solar power to drop from ~5,000 Wh/sol in 2018 down to ~500 Wh/sol by 2022?',
+      vi: '2. Nguyên nhân nào khiến sản lượng điện của InSight giảm từ ~5.000 Wh/sol năm 2018 xuống ~500 Wh/sol năm 2022?',
     },
     options: {
       en: [
         'The Sun cooled down by 90% between 2018 and 2022.',
-        'Martianquakes cracked the copper wires inside the robotic arm.',
-        'Fine iron-oxide Martian dust settled onto the twin decagonal solar panels without strong cleaning gusts (dust devils) to sweep them clean.',
+        'Marsquakes cracked the wires inside the robotic arm.',
+        'Fine iron-oxide Martian dust coated the twin decagonal solar panels over 1,440 sols.',
       ],
       vi: [
-        'Mặt Trời giảm 90% nhiệt lượng chiếu sáng trong giai đoạn 2018–2022.',
-        'Các trận động đất Sao Hỏa làm đứt dây đồng bên trong cánh tay robot.',
-        'Bụi mịn oxit sắt lắng đọng dày đặc trên hai cánh pin mặt trời mà không có các cơn lốc bụi đủ mạnh quét sạch.',
+        'Mặt Trời giảm 90% nhiệt lượng chiếu sáng.',
+        'Động đất Sao Hỏa làm đứt dây cáp trong cánh tay robot.',
+        'Bụi mịn oxit sắt lắng đọng dày đặc trên hai cánh pin mặt trời suốt 1.440 sol.',
       ],
     },
     correctIndex: 2,
     explanation: {
-      en: 'Verified (NASA Power Generation Archive PIA25287): Over 1,440 sols, airborne Martian dust coated the 7.3 m² solar arrays, cutting daily energy by ~90% until the batteries depleted on December 15, 2022.',
-      vi: 'Chính xác (Dữ liệu Năng lượng NASA PIA25287): Sau 1.440 sol, lớp bụi mịn trong khí quyển Sao Hỏa phủ kín 7,3 m² diện tích pin mặt trời, làm mất ~90% lượng điện mỗi ngày cho đến khi ắc-quy cạn kiệt vào ngày 15/12/2022.',
+      en: 'Verified (NASA PIA25287): Airborne Martian dust settled onto the 7.3 m² solar arrays, cutting daily energy by ~90% until final contact on December 15, 2022.',
+      vi: 'Chính xác (Dữ liệu NASA PIA25287): Lớp bụi mịn phủ kín 7,3 m² diện tích pin mặt trời, làm mất ~90% lượng điện mỗi ngày cho đến tín hiệu cuối ngày 15/12/2022.',
     },
   },
   {
     id: 2,
     question: {
-      en: '3. What did the 1,319 marsquakes recorded by SEIS and the RISE radio transponder reveal about Mars’ deep interior?',
-      vi: '3. Dữ liệu từ 1.319 trận động đất Sao Hỏa (SEIS) và tín hiệu vô tuyến RISE đã tiết lộ điều gì về cấu trúc sâu bên trong Sao Hỏa?',
+      en: '3. What did the 1,319 marsquakes recorded by SEIS and RISE reveal about Mars’ deep interior?',
+      vi: '3. Dữ liệu từ 1.319 trận động đất Sao Hỏa (SEIS) và tín hiệu RISE đã tiết lộ điều gì về lòng Sao Hỏa?',
     },
     options: {
       en: [
-        'Mars has a layered crust (~24–72 km thick), a silicate mantle, and a large molten liquid iron-alloy core (~1,830 km radius).',
-        'Mars is completely hollow inside like a ping-pong ball.',
-        'Mars has no core at all—only frozen carbon dioxide ice all the way to the center.',
+        'Mars has a layered crust (~24–72 km), a silicate mantle, and a molten liquid iron-alloy core (~1,830 km radius).',
+        'Mars is completely hollow inside like a table-tennis ball.',
+        'Mars has a solid diamond core surrounded by frozen carbon dioxide.',
       ],
       vi: [
-        'Sao Hỏa có lớp vỏ phân tầng (dày ~24–72 km), lớp manti silicat và một lõi hợp kim sắt nóng chảy kích thước lớn (bán kính ~1.830 km).',
-        'Bên trong Sao Hỏa hoàn toàn rỗng như một quả bóng bàn.',
-        'Sao Hỏa không có lõi kim loại mà chỉ toàn băng khí cacbonic đóng cứng tới tận tâm.',
+        'Sao Hỏa có vỏ phân tầng (~24–72 km), manti silicat và lõi hợp kim sắt nóng chảy (bán kính ~1.830 km).',
+        'Bên trong Sao Hỏa hoàn toàn rỗng.',
+        'Sao Hỏa có lõi kim cương rắn bao quanh bởi băng khô.',
       ],
     },
     correctIndex: 0,
     explanation: {
-      en: 'Verified (Science / NASA InSight Interior Models 2021–2025): P-wave and S-wave reflections off the core-mantle boundary proved Mars possesses a liquid iron-alloy core enriched with lighter elements, ~1,830 km in radius.',
-      vi: 'Chính xác (Mô hình Nội tâm Sao Hỏa của NASA / Tạp chí Science): Sự khúc xạ và phản xạ của sóng P và sóng S tại ranh giới manti–lõi đã chứng minh Sao Hỏa có lõi hợp kim sắt lỏng giàu nguyên tố nhẹ với bán kính khoảng 1.830 km.',
+      en: 'Verified (Science / NASA InSight Models): Seismic reflections and radio nutation tracking proved Mars has a large liquid iron-alloy core ~1,830 km in radius.',
+      vi: 'Chính xác (Mô hình Nội tâm Sao Hỏa của NASA): Sóng phản xạ địa chấn và phép đo vô tuyến chứng minh Sao Hỏa có lõi hợp kim sắt lỏng bán kính khoảng 1.830 km.',
     },
   },
   {
     id: 3,
     question: {
-      en: '4. Why does the Apollo 11 Lunar Laser Ranging Retroreflector (1969-059C) still operate in 2026 after 57+ years, while InSight and Opportunity fell silent?',
-      vi: '4. Vì sao Gương phản xạ Laser Apollo 11 (1969-059C) từ năm 1969 vẫn hoạt động tốt vào năm 2026 sau hơn 57 năm, trong khi InSight và Opportunity đều đã ngừng hoạt động?',
+      en: '4. Why does the Apollo 11 Lunar Laser Retroreflector (1969-059C) still work in 2026 after 57+ years?',
+      vi: '4. Vì sao Gương phản xạ Laser Apollo 11 (1969-059C) từ năm 1969 vẫn hoạt động tốt vào năm 2026?',
     },
     options: {
       en: [
-        'Apollo astronauts return to the Sea of Tranquility every five years to replace its AA batteries.',
-        'It is a passive optical array of 100 fused-silica corner-cube prisms that requires 0 Watts of electricity and sits on an airless Moon free of global dust storms.',
-        'It draws geothermal steam power from active lunar volcanoes.',
+        'Astronauts visit the Sea of Tranquility every five years to swap its batteries.',
+        'It is a passive array of 100 corner-cube prisms requiring 0 Watts of electricity on an airless Moon.',
+        'It runs on steam from lunar geysers.',
       ],
       vi: [
-        'Các phi hành gia quay lại Biển Tĩnh Lặng 5 năm một lần để thay pin mới.',
-        'Đây là thiết bị quang học thụ động gồm 100 lăng kính góc thạch anh không cần một giọt điện nào (0 Watt) và đặt trên Mặt Trăng không có bão bụi khí quyển.',
-        'Thiết bị chạy bằng hơi nước địa nhiệt từ các núi lửa đang phun trào trên Mặt Trăng.',
+        'Phi hành gia quay lại Biển Tĩnh Lặng 5 năm một lần để thay pin.',
+        'Đây là khay 100 lăng kính quang học thụ động không cần điện (0 Watt) trên Mặt Trăng không có bão bụi.',
+        'Thiết bị chạy bằng hơi nước địa nhiệt trên Mặt Trăng.',
       ],
     },
     correctIndex: 1,
     explanation: {
-      en: 'Verified (NSSDCA 1969-059C): Corner-cube prisms reflect incoming laser photons straight back toward Earth observatories by pure optical geometry—zero batteries, zero transmitters, and zero solar panels required.',
-      vi: 'Chính xác (Hồ sơ NSSDCA 1969-059C): Các lăng kính góc phản xạ chùm hạt photon laser quay ngược trở lại đài quan sát Trái Đất hoàn toàn nhờ định luật quang học hình học—không cần ắc-quy, không cần bộ phát sóng hay pin mặt trời.',
+      en: 'Verified (NSSDCA 1969-059C): Corner-cube prisms reflect incoming laser pulses straight back to Earth by pure optical geometry—zero batteries or solar panels needed.',
+      vi: 'Chính xác (Hồ sơ NSSDCA 1969-059C): Các lăng kính góc phản xạ chùm tia laser quay ngược về Trái Đất nhờ định luật quang học—không cần pin hay nguồn điện.',
     },
   },
 ];
@@ -439,85 +473,101 @@ export const OFFICIAL_REFERENCES = [
   {
     id: 1,
     category: 'CHALLENGE BRIEF',
-    title: '2026 NASA International Space Apps Challenge — "Abandoned but not Forgotten: Storytelling about NASA’s Discarded Equipment on the Moon and Mars"',
+    title:
+      '2026 NASA International Space Apps Challenge — "Abandoned but not Forgotten: Storytelling about NASA’s Discarded Equipment on the Moon and Mars"',
     url: 'https://www.spaceappschallenge.org/2026/challenges/nasas-discarded-equipment-storytelling/',
-    verifiedFact: 'Official challenge scope: humanizing silent/discarded lunar and Martian hardware through accurate science storytelling.',
+    verifiedFact:
+      'Official challenge scope: humanizing silent lunar and Martian hardware through accurate science storytelling.',
   },
   {
     id: 2,
     category: 'NSSDCA CATALOG',
     title: 'NASA NSSDCA Master Catalog — InSight Lander (NSSDCA ID: 2018-042A)',
     url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A',
-    verifiedFact: 'Launch: 5 May 2018; Landing: 26 Nov 2018 at 4.502°N, 135.623°E (Elysium Planitia); Last Contact: 15 Dec 2022.',
+    verifiedFact:
+      'Launch: 5 May 2018; Landing: 26 Nov 2018 at 4.502°N, 135.623°E (Elysium Planitia); Last Contact: 15 Dec 2022.',
   },
   {
     id: 3,
     category: 'NSSDCA CATALOG',
     title: 'NASA NSSDCA Master Catalog — Opportunity Rover / MER-B (NSSDCA ID: 2003-032A)',
     url: 'https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A',
-    verifiedFact: 'Landed 25 Jan 2004 at Meridiani Planum (1.946°S, 354.473°E); operated 5,111 sols (45.16 km) until 10 June 2018 global dust storm.',
+    verifiedFact:
+      'Landed 25 Jan 2004 at Meridiani Planum (1.946°S, 354.473°E); operated 5,111 sols (45.16 km) until 10 June 2018.',
   },
   {
     id: 4,
     category: 'NSSDCA CATALOG',
-    title: 'NASA NSSDCA Experiment Record — Apollo 11 Lunar Laser Ranging Retroreflector (NSSDCA ID: 1969-059C-03)',
+    title:
+      'NASA NSSDCA Experiment Record — Apollo 11 Lunar Laser Ranging Retroreflector (NSSDCA ID: 1969-059C-03)',
     url: 'https://nssdc.gsfc.nasa.gov/nmc/experiment/display.action?id=1969-059C-03',
-    verifiedFact: 'Deployed 20 July 1969 at Mare Tranquillitatis (0.674°N, 23.473°E); 100 fused-silica corner-cube prisms; passive optical operation continuing in 2026 (~3.8 cm/yr lunar recession).',
+    verifiedFact:
+      'Deployed 20 July 1969 at Mare Tranquillitatis (0.674°N, 23.473°E); 100 fused-silica corner-cube prisms; passive optical operation.',
   },
   {
     id: 5,
     category: 'NASA MISSION PORTAL',
     title: 'NASA Science — InSight Mars Lander Mission Overview & Science Objectives',
     url: 'https://science.nasa.gov/mission/insight/science/',
-    verifiedFact: 'Interior Exploration using Seismic Investigations, Geodesy and Heat Transport (crust, mantle, and core structure).',
+    verifiedFact:
+      'Interior Exploration using Seismic Investigations, Geodesy and Heat Transport (crust, mantle, and core structure).',
   },
   {
     id: 6,
     category: 'INSTRUMENT ARCHIVE',
-    title: 'NASA Science — InSight Science Instruments (SEIS, HP³, RISE, IDA)',
+    title: 'NASA Science — InSight Science Instruments (SEIS, HP³, RISE, IDA, TWINS)',
     url: 'https://science.nasa.gov/mission/insight/science-instruments/',
-    verifiedFact: 'SEIS deployed 19 Dec 2018; WTS deployed 2 Feb 2019; HP³ mole reached ~40 cm depth due to cohesive Martian duricrust.',
+    verifiedFact:
+      'SEIS deployed 19 Dec 2018; WTS deployed 2 Feb 2019; HP³ mole reached ~40 cm depth in cohesive Martian duricrust.',
   },
   {
     id: 7,
     category: 'SEISMIC CATALOG',
     title: 'NASA/JPL Photojournal — Impactor Debris & 1,319 Total Recorded Marsquakes',
     url: 'https://science.nasa.gov/photojournal/impactor-debris-scattered-within-mars-mantle-artists-concept/',
-    verifiedFact: 'First likely marsquake recorded 6 April 2019 (Sol 128); total cataloged seismic events across mission: 1,319.',
+    verifiedFact:
+      'First likely marsquake recorded 6 April 2019 (Sol 128); total cataloged seismic events across mission: 1,319.',
   },
   {
     id: 8,
     category: 'POWER TELEMETRY',
     title: 'NASA Science Resource — InSight’s Power Generation After Landing and Spring 2022',
     url: 'https://science.nasa.gov/resource/insights-power-generation-after-landing-and-spring-2022/',
-    verifiedFact: 'Clean decagonal solar arrays produced ~5,000 Wh per Martian day (sol) after landing; dust accumulation reduced output to ~500 Wh/sol (~90% drop) by Spring 2022.',
+    verifiedFact:
+      'Clean decagonal solar arrays produced ~5,000 Wh/sol after landing; dust reduced output to ~500 Wh/sol (~90% drop) by Spring 2022.',
   },
   {
     id: 9,
     category: 'SEISMIC AUDIO',
-    title: 'NASA Science Resource — Listen to NASA’s InSight at Work on Mars (60x Sonification)',
+    title: 'NASA Science Resource — Listen to NASA’s InSight at Work on Mars (60× Sonification)',
     url: 'https://science.nasa.gov/resource/listen-to-nasas-insight-at-work-on-mars/',
-    verifiedFact: 'Sub-audible Martian ground vibrations processed and sped up 60x to bring P/S waves into human hearing range.',
+    verifiedFact:
+      'Sub-audible Martian ground vibrations sped up 60× to bring P/S waves into human hearing range.',
   },
   {
     id: 10,
     category: 'NASA PHOTOJOURNAL',
-    title: 'NASA/JPL Photojournal — PIA22876 (First Selfie, Dec 2018) & PIA25287 (Final Selfie, April 2022)',
+    title:
+      'NASA/JPL Photojournal — PIA22876 (First Selfie, Dec 2018) & PIA25287 (Final Selfie, April 2022)',
     url: 'https://science.nasa.gov/photojournal/insights-final-selfie/',
-    verifiedFact: 'Visual verification of dust accumulation on the lander deck and solar wings between Sol 10 and Sol 1211.',
+    verifiedFact:
+      'Visual verification of dust accumulation on the lander deck and solar wings between Sol 10 and Sol 1211.',
   },
   {
     id: 11,
     category: 'RETIREMENT DISPATCH',
-    title: 'NASA/JPL News Release — NASA Retires InSight Mars Lander Mission After Years of Science (21 Dec 2022)',
+    title:
+      'NASA/JPL News Release — NASA Retires InSight Mars Lander Mission After Years of Science (21 Dec 2022)',
     url: 'https://www.jpl.nasa.gov/news/nasa-retires-insight-mars-lander-mission-after-years-of-science/',
-    verifiedFact: 'Final contact received 15 December 2022; mission formally declared complete on 21 December 2022 after two consecutive missed communication passes.',
+    verifiedFact:
+      'Final contact received 15 December 2022; mission formally declared complete on 21 December 2022.',
   },
   {
     id: 12,
     category: 'NASA 3D VISUALIZATION',
     title: 'NASA Eyes on the Solar System — Interactive 3D Spacecraft View (sc_insight)',
     url: 'https://eyes.nasa.gov/apps/solar-system/#/sc_insight',
-    verifiedFact: 'Official NASA/JPL real-time 3D web visualization of the InSight spacecraft geometry.',
+    verifiedFact:
+      'Official NASA/JPL real-time 3D web visualization of the InSight spacecraft geometry.',
   },
 ];

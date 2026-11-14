@@ -3,34 +3,84 @@
 
 @layer base {
   :root {
-    --bg-obsidian: #070B14;
-    --bg-slate: #121C2E;
-    --glass-panel: rgba(18, 28, 46, 0.78);
+    --bg-mars-deep: #2A1812;
+    --bg-mars-warm: #4A2518;
+    --bg-lunar-deep: #1A2436;
+    --bg-lunar-slate: #2E3D52;
     --amber-mars: #F4A261;
     --peach-sun: #FFD1A6;
     --emerald-lunar: #64DFDF;
-    --text-crisp: #F8F9FA;
+    --text-crisp: #FFF8F2;
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-serif: 'Fraunces', Georgia, serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --font-serif: 'Playfair Display', Georgia, serif;
   }
 
-  html {
+  html,
+  body {
     font-family: var(--font-sans);
-    background-color: #070B14;
-    color: #F8F9FA;
+    background-color: #2A1812;
+    color: #FFF8F2;
     scroll-behavior: smooth;
   }
 
-  h1, h2, .font-display {
+  h1,
+  h2,
+  .font-serif-editorial,
+  .font-display {
     font-family: var(--font-serif);
     text-wrap: balance;
   }
 
-  .font-mono, code, pre, .tabular-nums {
-    font-family: var(--font-mono);
+  button,
+  input,
+  select,
+  textarea,
+  .tabular-nums {
+    font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
   }
+}
+
+@keyframes kenBurnsPan {
+  0% {
+    transform: scale(1.02) translate3d(0%, 0%, 0);
+  }
+  50% {
+    transform: scale(1.09) translate3d(-1.2%, -0.8%, 0);
+  }
+  100% {
+    transform: scale(1.02) translate3d(0%, 0%, 0);
+  }
+}
+
+@keyframes horizonGlowFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurnsPan 26s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-horizon-glow {
+  background: linear-gradient(
+    90deg,
+    #F4A261 0%,
+    #FFD1A6 25%,
+    #64DFDF 55%,
+    #FFD1A6 80%,
+    #F4A261 100%
+  );
+  background-size: 220% 100%;
+  animation: horizonGlowFlow 7s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -9,58 +9,50 @@ interface SeismicModeConfig {
   title: Record<Language, string>;
   rawFreqLabel: string;
   sonifiedFreqLabel: string;
-  pWaveArrivalSec: number;
-  sWaveArrivalSec: number;
   description: Record<Language, string>;
 }
 
 const SEISMIC_MODES: SeismicModeConfig[] = [
   {
     id: 'sol128',
-    code: 'MODE 01 · SOL 128 (6 APR 2019)',
+    code: 'Sol 128 · 6 Apr 2019',
     title: {
       en: 'Sol 128 Tectonic Marsquake (First Confirmed Event)',
-      vi: 'Động đất Kiến tạo Sol 128 (Sự kiện xác nhận đầu tiên 06/04/2019)',
+      vi: 'Động Đất Kiến Tạo Sol 128 (Sự Kiện Đầu Tiên 06/04/2019)',
     },
     rawFreqLabel: '0.4 – 2.4 Hz (Sub-audible)',
-    sonifiedFreqLabel: '24 – 144 Hz (60x Speedup)',
-    pWaveArrivalSec: 1.1,
-    sWaveArrivalSec: 2.3,
+    sonifiedFreqLabel: '24 – 144 Hz (60× Speedup)',
     description: {
-      en: 'Distinct compressional P-wave arrival followed by a broader shear S-wave train echoing through dry, fractured Martian crust—similar to lunar quakes measured by Apollo.',
-      vi: 'Sóng dọc (sóng P) đến trước với biên độ nhỏ, theo sau là chuỗi sóng ngang (sóng S) dội vang qua lớp vỏ Sao Hỏa khô và nhiều vết nứt—rất giống các trận động đất Mặt Trăng thời Apollo.',
+      en: 'A quiet primary P-wave arrival followed by a deep shear S-wave echoing through dry, fractured Martian rock.',
+      vi: 'Sóng dọc P đến trước với biên độ nhỏ, theo sau là chuỗi sóng ngang S dội vang qua lớp vỏ đá khô nứt nẻ.',
     },
   },
   {
     id: 'meteorite',
-    code: 'MODE 02 · METEORITE IMPACT',
+    code: 'Meteoroid Strike',
     title: {
-      en: 'Meteorite Impact Seismic Wave (Fresh Crater Excavation)',
-      vi: 'Sóng Địa chấn do Thiên thạch Va chạm (Đào hố va chạm mới)',
+      en: 'Meteorite Impact & Fresh Crater Wave',
+      vi: 'Sóng Địa Chấn Do Thiên Thạch Va Chạm',
     },
     rawFreqLabel: '1.5 – 6.0 Hz + Acoustic Chirp',
-    sonifiedFreqLabel: '90 – 360 Hz (60x Speedup)',
-    pWaveArrivalSec: 0.7,
-    sWaveArrivalSec: 1.6,
+    sonifiedFreqLabel: '90 – 360 Hz (60× Speedup)',
     description: {
-      en: 'Sharp, impulsive high-frequency spike when a meteoroid strikes the surface, followed by an atmospheric acoustic "chirp" verified from orbit by Mars Reconnaissance Orbiter cameras.',
-      vi: 'Xung tần số cao sắc gọn khi thiên thạch đập vào bề mặt, kèm theo tiếng "bloep" âm thanh khí quyển được tàu quỹ đạo MRO chụp ảnh miệng hố mới để đối chiếu xác nhận.',
+      en: 'A sharp high-frequency strike followed by an atmospheric acoustic chirp, confirmed from orbit by fresh crater imagery.',
+      vi: 'Xung tần số cao sắc gọn khi thiên thạch chạm đất kèm âm thanh khí quyển, được tàu quỹ đạo chụp ảnh hố mới xác nhận.',
     },
   },
   {
     id: 'wind',
-    code: 'MODE 03 · ATMOSPHERIC VORTEX',
+    code: 'Elysium Wind Gusts',
     title: {
-      en: 'Martian Atmospheric Wind Vibration Across Lander Deck',
-      vi: 'Rung động do Gió Khí quyển Sao Hỏa thổi qua Thân trạm',
+      en: 'Martian Wind Gusts Across the Solar Wings',
+      vi: 'Gió Sao Hỏa Thổi Qua Hai Cánh Pin Mặt Trời',
     },
     rawFreqLabel: '0.1 – 1.2 Hz Continuous',
-    sonifiedFreqLabel: '15 – 85 Hz (60x Speedup)',
-    pWaveArrivalSec: 0.2,
-    sWaveArrivalSec: 0.5,
+    sonifiedFreqLabel: '15 – 85 Hz (60× Speedup)',
     description: {
-      en: 'Rolling afternoon wind gusts sweeping across Elysium Planitia vibrate the 2.15-meter decagonal solar wings, transferring gentle harmonic sway into the ground.',
-      vi: 'Những luồng gió chiều quét qua đồng bằng Elysium Planitia làm rung hai cánh pin mặt trời rộng 2,15 m, truyền dao động điều hòa nhẹ xuống nền đất bên dưới.',
+      en: 'Afternoon gusts sweeping across Elysium Planitia gently sway the 2.15-meter solar wings, sending harmonic vibrations into the ground.',
+      vi: 'Những luồng gió chiều quét qua đồng bằng làm rung nhẹ hai cánh pin rộng 2,15 m, truyền dao động xuống nền đất.',
     },
   },
 ];
@@ -93,7 +85,9 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
     playStartRef.current = performance.now();
 
     try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!AudioCtx) return;
 
       if (!audioCtxRef.current) {
@@ -116,7 +110,6 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
       const filter = ctx.createBiquadFilter();
 
       if (selectedMode === 'sol128') {
-        // Low tectonic P-wave rumble (58 Hz) transitioning to S-wave (82 Hz)
         osc1.type = 'sine';
         osc2.type = 'triangle';
         osc1.frequency.setValueAtTime(52, now);
@@ -133,7 +126,6 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
         masterGain.gain.linearRampToValueAtTime(0.34, now + 2.2);
         masterGain.gain.exponentialRampToValueAtTime(0.005, now + duration);
       } else if (selectedMode === 'meteorite') {
-        // Sharp high-frequency impact spike + downward acoustic chirp
         osc1.type = 'sawtooth';
         osc2.type = 'sine';
         osc1.frequency.setValueAtTime(290, now);
@@ -148,7 +140,6 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
         masterGain.gain.linearRampToValueAtTime(0.35, now + 0.25);
         masterGain.gain.exponentialRampToValueAtTime(0.005, now + duration);
       } else {
-        // Martian wind harmonic sweep
         osc1.type = 'sine';
         osc2.type = 'sine';
         osc1.frequency.setValueAtTime(65, now);
@@ -185,11 +176,10 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
           osc1.stop();
           osc2.stop();
         } catch {
-          // ignore already stopped
+          // ignore
         }
       };
     } catch {
-      // Fallback visual-only timer if Web Audio is blocked
       const timer = window.setTimeout(() => setIsPlaying(false), 4000);
       stopAudioRef.current = () => window.clearTimeout(timer);
     }
@@ -206,11 +196,10 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
     const drawFrame = (timestamp: number) => {
       const w = canvas.width;
       const h = canvas.height;
-      ctx.fillStyle = '#070B14';
+      ctx.fillStyle = '#1B0E0A';
       ctx.fillRect(0, 0, w, h);
 
-      // Oscilloscope grid
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.14)';
+      ctx.strokeStyle = 'rgba(255, 209, 166, 0.14)';
       ctx.lineWidth = 1;
       for (let x = 0; x < w; x += 60) {
         ctx.beginPath();
@@ -225,10 +214,9 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
         ctx.stroke();
       }
 
-      // P-wave and S-wave marker vertical lines
       const pX = Math.round(w * 0.24);
       const sX = Math.round(w * 0.54);
-      ctx.strokeStyle = 'rgba(100, 223, 223, 0.45)';
+      ctx.strokeStyle = 'rgba(100, 223, 223, 0.48)';
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo(pX, 0);
@@ -239,16 +227,15 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
       ctx.setLineDash([]);
 
       ctx.fillStyle = '#64DFDF';
-      ctx.font = '11px "JetBrains Mono", monospace';
-      ctx.fillText('P-WAVE (Primary)', pX + 6, 18);
-      ctx.fillText('S-WAVE (Shear)', sX + 6, 18);
+      ctx.font = '600 11.5px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('P-Wave (Primary)', pX + 8, 20);
+      ctx.fillText('S-Wave (Shear)', sX + 8, 20);
 
-      // Draw seismic waveform trace
       const elapsedSec = isPlaying ? (timestamp - playStartRef.current) / 1000 : 1.8;
       const phaseShift = isPlaying ? elapsedSec * 14 : 2.5;
 
       ctx.strokeStyle = mode === 'meteorite' ? '#64DFDF' : '#F4A261';
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 2.4;
       ctx.beginPath();
 
       for (let x = 0; x < w; x++) {
@@ -266,7 +253,6 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
             env = 0.92 * Math.exp(-(normX - 0.23) * 6.5);
           }
         } else {
-          // Wind
           env = 0.25 + 0.35 * Math.sin(normX * Math.PI * 3 + phaseShift * 0.25);
         }
 
@@ -297,13 +283,25 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
   }, []);
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-[#0B1220] p-5">
+    <div className="rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 shadow-2xl">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <span className="text-[#F4A261] font-semibold">[VERIFIED NASA/NSSDCA DATA: 1,319 MARSQUAKES]</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-[#64DFDF]">[EDUCATIONAL SIMULATION · 60x WEB AUDIO SYNTH]</span>
+        <div className="flex items-center gap-2 text-xs font-semibold">
+          <span className="text-[#F4A261]">
+            {lang === 'en' ? '1,319 Cataloged Marsquakes' : '1.319 Động đất Sao Hỏa đã ghi nhận'}
+          </span>
+          <span className="text-[#FFD1A6]/40">·</span>
+          <span className="text-[#64DFDF]">
+            {lang === 'en' ? '60× Web Audio Sonification' : 'Âm thanh hóa tăng tốc 60×'}
+          </span>
         </div>
+        <a
+          href="https://science.nasa.gov/resource/listen-to-nasas-insight-at-work-on-mars/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-3 py-1 rounded-full bg-[#311B13] border border-[#FFD1A6]/30 text-xs font-semibold text-[#FFD1A6] hover:bg-[#42251A]"
+        >
+          {lang === 'en' ? 'Source: NASA Audio ↗' : 'Nguồn: Âm thanh NASA ↗'}
+        </a>
       </div>
 
       {/* 3 Selectable Waveform Mode Buttons */}
@@ -318,13 +316,13 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
                 setMode(m.id);
                 triggerSeismicSonification(m.id);
               }}
-              className={`p-3 rounded-lg border text-left transition-colors ${
+              className={`p-3.5 rounded-xl border text-left transition-colors ${
                 active
-                  ? 'bg-[#16233B] border-[#F4A261] text-white'
-                  : 'bg-[#0E1729] border-slate-800 text-slate-300 hover:border-slate-700'
+                  ? 'bg-[#3B2117] border-[#F4A261] text-[#FFF8F2]'
+                  : 'bg-[#2C1812] border-[#F4A261]/20 text-[#F3E5D8] hover:border-[#F4A261]/50'
               }`}
             >
-              <div className="text-[11px] font-mono text-[#F4A261] mb-1">{m.code}</div>
+              <div className="text-xs font-bold text-[#F4A261] mb-1">{m.code}</div>
               <div className="text-xs font-semibold leading-snug">{m.title[lang]}</div>
             </button>
           );
@@ -332,7 +330,7 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
       </div>
 
       {/* Live HTML5 Canvas Oscilloscope */}
-      <div className="relative rounded-lg border border-slate-800 bg-[#070B14] overflow-hidden mb-4">
+      <div className="relative rounded-xl border border-[#F4A261]/25 bg-[#1B0E0A] overflow-hidden mb-4">
         <canvas
           ref={canvasRef}
           width={760}
@@ -340,56 +338,41 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
           data-testid="seismic-oscilloscope-canvas"
           className="w-full h-[180px] block"
         />
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 border-t border-slate-800/80 bg-[#0A101E] text-xs font-mono text-slate-300">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-t border-[#F4A261]/20 bg-[#261510] text-xs text-[#F3E5D8]">
           <span>
-            {lang === 'en' ? 'Raw Martian Ground Freq:' : 'Tần số nền đất thực tế:'}{' '}
-            <strong className="text-white">{currentConfig.rawFreqLabel}</strong>
+            {lang === 'en' ? 'Raw Martian Ground Frequency:' : 'Tần số nền đất thực tế:'}{' '}
+            <strong className="text-[#FFF8F2]">{currentConfig.rawFreqLabel}</strong>
           </span>
           <span>
-            {lang === 'en' ? 'Audible Sonification (60x):' : 'Âm thanh hóa (Tăng tốc 60x):'}{' '}
+            {lang === 'en' ? 'Audible Sonification (60×):' : 'Âm thanh hóa (Tăng tốc 60×):'}{' '}
             <strong className="text-[#64DFDF]">{currentConfig.sonifiedFreqLabel}</strong>
           </span>
         </div>
       </div>
 
-      <p className="text-sm text-slate-300 leading-relaxed mb-4">
+      <p className="text-sm text-[#F3E5D8] leading-relaxed mb-4">
         {currentConfig.description[lang]}
       </p>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() =>
-              isPlaying ? stopSynthesizer() : triggerSeismicSonification(mode)
-            }
-            className="px-4 py-2 text-xs font-mono font-semibold rounded-lg bg-[#F4A261] text-[#070B14] hover:bg-[#FFD1A6] transition-colors whitespace-nowrap shrink-0"
-          >
-            {isPlaying
-              ? lang === 'en'
-                ? 'Stop 60x Sonification ■'
-                : 'Dừng phát âm thanh ■'
-              : lang === 'en'
-                ? 'Synthesize 60x Seismic Audio ▶'
-                : 'Phát Âm thanh Địa chấn 60x ▶'}
-          </button>
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#F4A261]/20">
+        <button
+          type="button"
+          onClick={() => (isPlaying ? stopSynthesizer() : triggerSeismicSonification(mode))}
+          className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#F4A261] text-[#1F110C] hover:bg-[#FFD1A6] transition-colors whitespace-nowrap shrink-0"
+        >
+          {isPlaying
+            ? lang === 'en'
+              ? 'Stop 60× Sonification ■'
+              : 'Dừng phát âm thanh ■'
+            : lang === 'en'
+              ? 'Play 60× Seismic Audio ▶'
+              : 'Phát Âm thanh Địa chấn 60× ▶'}
+        </button>
 
-          <a
-            href="https://science.nasa.gov/resource/listen-to-nasas-insight-at-work-on-mars/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3.5 py-2 text-xs font-mono rounded-lg border border-slate-700 text-slate-200 hover:border-[#F4A261] hover:text-white transition-colors whitespace-nowrap shrink-0"
-          >
-            {lang === 'en'
-              ? 'Official NASA Audio Archive ↗'
-              : 'Kho âm thanh gốc của NASA ↗'}
-          </a>
-        </div>
-
-        <span className="text-[11px] font-mono text-slate-400 max-w-md">
+        <span className="text-xs text-[#F3E5D8]/80 max-w-md">
           {lang === 'en'
-            ? 'Scientific Note: Raw Martian seismic waves vibrate below 20 Hz; NASA speeds recordings up 60x so human ears can hear them.'
-            : 'Ghi chú khoa học: Sóng địa chấn Sao Hỏa gốc có tần số dưới ngưỡng nghe của tai người (<20 Hz); NASA phải tua nhanh 60 lần.'}
+            ? 'Raw Martian tremors vibrate below 20 Hz; speeding them up 60× brings them into human hearing.'
+            : 'Rung động gốc của Sao Hỏa dưới 20 Hz; tua nhanh 60× giúp tai người nghe rõ sóng P và sóng S.'}
         </span>
       </div>
     </div>

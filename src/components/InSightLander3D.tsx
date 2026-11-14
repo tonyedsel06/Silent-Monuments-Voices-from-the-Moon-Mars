@@ -7,7 +7,7 @@ interface InSightLander3DProps {
   lang: Language;
   selectedHotspotId: HardwareHotspot['id'];
   onSelectHotspot: (id: HardwareHotspot['id']) => void;
-  dustFactor?: number; // 0 to 0.9
+  dustFactor?: number;
 }
 
 function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
@@ -25,20 +25,18 @@ function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: TH
   const cx = size / 2;
   const cy = size / 2;
 
-  // Deep gallium-arsenide photovoltaic cell substrate gradient
   const grad = ctx.createRadialGradient(cx, cy, 40, cx, cy, 490);
-  grad.addColorStop(0, '#13294B');
-  grad.addColorStop(0.65, '#0F2240');
-  grad.addColorStop(1, '#091528');
+  grad.addColorStop(0, '#16325C');
+  grad.addColorStop(0.65, '#102546');
+  grad.addColorStop(1, '#0A172E');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
 
   bCtx.fillStyle = '#808080';
   bCtx.fillRect(0, 0, size, size);
 
-  // Fine orthogonal photovoltaic wafer sub-cell grid lines across the entire array
   const cellStep = 24;
-  ctx.strokeStyle = 'rgba(125, 211, 252, 0.34)';
+  ctx.strokeStyle = 'rgba(125, 211, 252, 0.36)';
   ctx.lineWidth = 1.25;
   bCtx.strokeStyle = '#303030';
   bCtx.lineWidth = 1.5;
@@ -51,7 +49,7 @@ function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: TH
 
     bCtx.beginPath();
     bCtx.moveTo(x, 0);
-    bCtx.lineTo(x, size);
+    ctx.lineTo(x, size);
     bCtx.stroke();
   }
 
@@ -67,8 +65,7 @@ function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: TH
     bCtx.stroke();
   }
 
-  // Secondary micro-busbars inside each solar cell wafer
-  ctx.strokeStyle = 'rgba(226, 232, 240, 0.22)';
+  ctx.strokeStyle = 'rgba(226, 232, 240, 0.24)';
   ctx.lineWidth = 0.75;
   for (let x = cellStep / 2; x < size; x += cellStep) {
     ctx.beginPath();
@@ -77,10 +74,9 @@ function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: TH
     ctx.stroke();
   }
 
-  // Concentric UltraFlex structural collector rings (14 rings)
   for (let r = 64; r <= 488; r += 32) {
     const isMajor = r % 96 === 0;
-    ctx.strokeStyle = isMajor ? 'rgba(226, 232, 240, 0.75)' : 'rgba(148, 163, 184, 0.48)';
+    ctx.strokeStyle = isMajor ? 'rgba(226, 232, 240, 0.78)' : 'rgba(148, 163, 184, 0.5)';
     ctx.lineWidth = isMajor ? 3.0 : 1.75;
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -93,11 +89,10 @@ function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: TH
     bCtx.stroke();
   }
 
-  // 10 primary decagonal gore radial ribs + 20 sub-gore string dividers
   for (let i = 0; i < 30; i++) {
     const angle = (i / 30) * Math.PI * 2;
     const isPrimaryGore = i % 3 === 0;
-    ctx.strokeStyle = isPrimaryGore ? '#F4A261' : 'rgba(148, 197, 255, 0.42)';
+    ctx.strokeStyle = isPrimaryGore ? '#F4A261' : 'rgba(148, 197, 255, 0.44)';
     ctx.lineWidth = isPrimaryGore ? 5.5 : 1.5;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(angle) * 48, cy + Math.sin(angle) * 48);
@@ -107,12 +102,11 @@ function createSolarWingTextures(): { colorMap: THREE.CanvasTexture; bumpMap: TH
     bCtx.strokeStyle = isPrimaryGore ? '#ffffff' : '#a8a8a8';
     bCtx.lineWidth = isPrimaryGore ? 6.0 : 1.5;
     bCtx.beginPath();
-    bCtx.moveTo(cx + Math.cos(angle) * 48, cy + Math.sin(angle) * 48);
+    ctx.moveTo(cx + Math.cos(angle) * 48, cy + Math.sin(angle) * 48);
     bCtx.lineTo(cx + Math.cos(angle) * 500, cy + Math.sin(angle) * 500);
     bCtx.stroke();
   }
 
-  // Central motorized deployment hub ring
   ctx.fillStyle = '#D97706';
   ctx.beginPath();
   ctx.arc(cx, cy, 48, 0, Math.PI * 2);
@@ -142,7 +136,6 @@ function createCopperThermalTextures(): { colorMap: THREE.CanvasTexture; bumpMap
   bumpCanvas.height = size;
   const bCtx = bumpCanvas.getContext('2d')!;
 
-  // Rich burnished metallic copper base gradient
   const grad = ctx.createLinearGradient(0, 0, size, size);
   grad.addColorStop(0, '#E07A3C');
   grad.addColorStop(0.35, '#C85A28');
@@ -154,7 +147,6 @@ function createCopperThermalTextures(): { colorMap: THREE.CanvasTexture; bumpMap
   bCtx.fillStyle = '#808080';
   bCtx.fillRect(0, 0, size, size);
 
-  // Hexagonal / quilted copper foil thermal blanket pattern
   const step = 28;
   ctx.strokeStyle = 'rgba(255, 224, 186, 0.35)';
   ctx.lineWidth = 1.4;
@@ -183,16 +175,6 @@ function createCopperThermalTextures(): { colorMap: THREE.CanvasTexture; bumpMap
     bCtx.moveTo(x, 0);
     bCtx.lineTo(x, size);
     bCtx.stroke();
-  }
-
-  // Diagonal foil quilt seams
-  ctx.strokeStyle = 'rgba(120, 42, 12, 0.35)';
-  ctx.lineWidth = 1.0;
-  for (let d = -size; d <= size; d += step * 2) {
-    ctx.beginPath();
-    ctx.moveTo(d, 0);
-    ctx.lineTo(d + size, size);
-    ctx.stroke();
   }
 
   const colorMap = new THREE.CanvasTexture(canvas);
@@ -226,7 +208,6 @@ function createCopperDomeShaderMaterial(
     reflectivity: 1.0,
   });
 
-  // Enhance with custom GLSL metallic copper anisotropic + rose-gold Fresnel sheen shader
   mat.customProgramCacheKey = () => 'insight-copper-dome-shader-v1';
   mat.onBeforeCompile = (shader) => {
     shader.fragmentShader = shader.fragmentShader.replace(
@@ -253,14 +234,18 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
   dustFactor = 0.08,
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
+  const calloutLineRef = useRef<SVGLineElement | null>(null);
+  const calloutDotRef = useRef<SVGCircleElement | null>(null);
+  const calloutBoxRef = useRef<HTMLDivElement | null>(null);
+
   const [isDeployed, setIsDeployed] = useState(true);
   const [showNasaEyesInline, setShowNasaEyesInline] = useState(false);
-  const [hudCollapsed, setHudCollapsed] = useState(false);
+  const [nasaEyesReady, setNasaEyesReady] = useState(false);
 
   const stateRef = useRef({
     selectedHotspotId,
     isDeployed: true,
-    deployProgress: 1, // 0 = stowed on deck, 1 = deployed on ground
+    deployProgress: 1,
     dustFactor,
     rotY: 0.45,
     rotX: 0.18,
@@ -294,8 +279,8 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     const height = container.clientHeight || 460;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b101d);
-    scene.fog = new THREE.FogExp2(0x0b101d, 0.055);
+    scene.background = new THREE.Color(0x1f120d);
+    scene.fog = new THREE.FogExp2(0x1f120d, 0.05);
 
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
     camera.position.set(0, 2.35, 6.1);
@@ -313,7 +298,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
 
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
+    renderer.toneMappingExposure = 1.2;
     renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
 
@@ -324,12 +309,11 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
     pmremGenerator.dispose();
 
-    // Studio 3-point warm/cool lighting
-    const keyLight = new THREE.DirectionalLight(0xffd2a6, 2.6);
+    const keyLight = new THREE.DirectionalLight(0xffd8b0, 2.65);
     keyLight.position.set(5, 7, 4);
     scene.add(keyLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x88b4e6, 0x5c2c1e, 0.9);
+    const hemiLight = new THREE.HemisphereLight(0xffd1a6, 0x5c2c1e, 0.95);
     scene.add(hemiLight);
 
     const rimLight = new THREE.DirectionalLight(0x64dfdf, 1.15);
@@ -340,11 +324,11 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     rootGroup.position.y = 0.32;
     scene.add(rootGroup);
 
-    // 1. Martian Elysium Planitia Ground Terrain Patch + Contact Shadow Disc
+    // 1. Martian Elysium Planitia Ground Terrain Patch
     const groundGeo = new THREE.CylinderGeometry(3.8, 4.0, 0.18, 48);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x7c3926,
-      roughness: 0.92,
+      color: 0x86402b,
+      roughness: 0.9,
       metalness: 0.05,
     });
     const groundMesh = new THREE.Mesh(groundGeo, groundMat);
@@ -353,9 +337,9 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
 
     const shadowGeo = new THREE.CircleGeometry(2.3, 32);
     const shadowMat = new THREE.MeshBasicMaterial({
-      color: 0x05070c,
+      color: 0x0b0604,
       transparent: true,
-      opacity: 0.48,
+      opacity: 0.45,
       depthWrite: false,
     });
     const contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
@@ -363,15 +347,15 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     contactShadow.position.y = -0.715;
     rootGroup.add(contactShadow);
 
-    // 2. Central Octagonal Lander Deck & Gold Kapton Thermal Enclosure
+    // 2. Central Octagonal Lander Deck
     const deckMat = new THREE.MeshStandardMaterial({
       color: 0xd98a3c,
       roughness: 0.35,
       metalness: 0.78,
     });
     const deckTopMat = new THREE.MeshStandardMaterial({
-      color: 0xcbd5e1,
-      roughness: 0.55,
+      color: 0xe2e8f0,
+      roughness: 0.5,
       metalness: 0.45,
     });
 
@@ -383,7 +367,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     deckPlate.position.y = 0.28;
     rootGroup.add(deckPlate);
 
-    // 3. Three Shock-Absorbing Landing Legs & Circular Footpads
+    // 3. Three Shock-Absorbing Landing Legs
     const legMat = new THREE.MeshStandardMaterial({
       color: 0xe2e8f0,
       roughness: 0.4,
@@ -409,7 +393,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
       rootGroup.add(legGroup);
     });
 
-    // 4. Twin Decagonal UltraFlex Solar Array Wings (-X and +X) with Detailed Grid Lines & 3D Ribs
+    // 4. Twin Decagonal UltraFlex Solar Array Wings with Detailed Grid Lines & 3D Ribs
     const { colorMap: solarTex, bumpMap: solarBump } = createSolarWingTextures();
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
     solarTex.anisotropy = maxAniso;
@@ -449,7 +433,6 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
       );
       wingGroup.add(wing);
 
-      // 10 physical 3D radial gore ribs & concentric collector ring accents on top of each solar wing
       for (let i = 0; i < 10; i++) {
         const angle = (i / 10) * Math.PI * 2;
         const rib = new THREE.Mesh(
@@ -461,7 +444,6 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
         wingGroup.add(rib);
       }
 
-      // Concentric silver busbar rings on the solar array surface
       [0.42, 0.76, 1.05].forEach((radius) => {
         const ring = new THREE.Mesh(
           new THREE.RingGeometry(radius - 0.012, radius, 10),
@@ -477,7 +459,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
       wingGroup.add(hubCap);
     });
 
-    // 5. 1.8m Instrument Deployment Arm (IDA) + Elbow Camera (IDC) + Grapple
+    // 5. 1.8m Instrument Deployment Arm (IDA)
     const armGroup = new THREE.Group();
     armGroup.position.set(0.38, 0.32, 0.42);
     rootGroup.add(armGroup);
@@ -505,7 +487,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     grappleHook.rotation.x = Math.PI;
     armGroup.add(grappleHook);
 
-    // 6. SEIS Seismometer (Metallic Copper Hexagonal Body + Copper Sensor Dome)
+    // 6. SEIS Seismometer + 7. Wind and Thermal Shield (Metallic Copper Shader Dome)
     const { colorMap: copperTex, bumpMap: copperBump } = createCopperThermalTextures();
     const seisCopperShaderMat = createCopperDomeShaderMaterial(copperTex, copperBump, 0xd96b2b);
     const wtsCopperDomeShaderMat = createCopperDomeShaderMaterial(copperTex, copperBump, 0xe78a4e);
@@ -523,16 +505,8 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     );
     seisUpperDome.position.y = 0.08;
     seisGroup.add(seisUpperDome);
-
-    const seisGrapplePin = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.025, 0.025, 0.12, 12),
-      boomMat
-    );
-    seisGrapplePin.position.y = 0.22;
-    seisGroup.add(seisGrapplePin);
     rootGroup.add(seisGroup);
 
-    // 7. Wind and Thermal Shield (WTS Metallic Copper & Gold Thermal Dome over SEIS)
     const wtsGroup = new THREE.Group();
     const wtsSkirtMat = new THREE.MeshStandardMaterial({
       color: 0xd99b4e,
@@ -569,7 +543,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     wtsGroup.add(wtsSkirt);
     rootGroup.add(wtsGroup);
 
-    // 8. HP3 "The Mole" Heat Flow Probe Housing on Ground (-X/+Z)
+    // 8. HP3 "The Mole" Heat Flow Probe Housing on Ground
     const hp3Group = new THREE.Group();
     hp3Group.position.set(-0.85, -0.52, 1.05);
     const hp3Mat = new THREE.MeshStandardMaterial({
@@ -584,7 +558,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     hp3Group.add(hp3Foot);
     rootGroup.add(hp3Group);
 
-    // 9. UHF Helical Antenna & RISE X-band Horns on Upper Deck
+    // 9. TWINS Weather Booms & RISE / UHF Antennas on Upper Deck
     const uhfMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.45, 16), armTubeMat);
     uhfMesh.position.set(-0.55, 0.52, -0.45);
     rootGroup.add(uhfMesh);
@@ -594,19 +568,19 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     riseHorn.rotation.z = -0.35;
     rootGroup.add(riseHorn);
 
-    // 10. Interactive Hotspot Beacon Spheres for Raycasting
+    // 10. Subtle Glowing Interactive Hotspot Dots (Raycasting Targets)
     const hotspotMeshes: THREE.Mesh[] = [];
-    const hotspotGeo = new THREE.SphereGeometry(0.14, 16, 16);
+    const hotspotGeo = new THREE.SphereGeometry(0.11, 16, 16);
 
     INSIGHT_HOTSPOTS.forEach((hs) => {
       const mat = new THREE.MeshStandardMaterial({
         color: 0xf4a261,
         emissive: 0xf4a261,
-        emissiveIntensity: 0.55,
+        emissiveIntensity: 0.65,
         roughness: 0.2,
         metalness: 0.3,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.9,
       });
       const marker = new THREE.Mesh(hotspotGeo, mat);
       marker.position.set(...hs.position3D);
@@ -617,6 +591,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
+    const projVec = new THREE.Vector3();
 
     const onPointerDown = (e: PointerEvent) => {
       stateRef.current.isDragging = true;
@@ -698,12 +673,48 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
       frameId = window.setTimeout(poll, 5);
     }
 
+    function updateSingleActiveCallout() {
+      const activeMesh = hotspotMeshes.find(
+        (m) => m.userData.hotspotId === stateRef.current.selectedHotspotId
+      );
+      if (!activeMesh || !container) return;
+
+      const w = container.clientWidth || 680;
+      const h = container.clientHeight || 460;
+
+      activeMesh.getWorldPosition(projVec);
+      projVec.project(camera);
+
+      const sx = ((projVec.x + 1) / 2) * w;
+      const sy = ((-projVec.y + 1) / 2) * h;
+
+      // Anchor floating label offset cleanly toward upper-left or upper-right
+      const offsetX = sx > w * 0.55 ? -135 : 65;
+      const offsetY = sy > h * 0.55 ? -65 : -45;
+      const lx = THREE.MathUtils.clamp(sx + offsetX, 24, w - 180);
+      const ly = THREE.MathUtils.clamp(sy + offsetY, 24, h - 75);
+
+      if (calloutLineRef.current) {
+        calloutLineRef.current.setAttribute('x1', String(sx));
+        calloutLineRef.current.setAttribute('y1', String(sy));
+        calloutLineRef.current.setAttribute('x2', String(lx + 40));
+        calloutLineRef.current.setAttribute('y2', String(ly + 18));
+      }
+      if (calloutDotRef.current) {
+        calloutDotRef.current.setAttribute('cx', String(sx));
+        calloutDotRef.current.setAttribute('cy', String(sy));
+      }
+      if (calloutBoxRef.current) {
+        calloutBoxRef.current.style.transform = `translate3d(${Math.round(lx)}px, ${Math.round(ly)}px, 0)`;
+      }
+    }
+
     function stepScene() {
       const targetDeploy = stateRef.current.isDeployed ? 1 : 0;
-      const dp = stateRef.current.deployProgress + (targetDeploy - stateRef.current.deployProgress) * 0.12;
+      const dp =
+        stateRef.current.deployProgress + (targetDeploy - stateRef.current.deployProgress) * 0.12;
       stateRef.current.deployProgress = dp;
 
-      // Interpolate SEIS and WTS between Lander Deck (0) and Martian Soil (1)
       seisGroup.position.set(
         THREE.MathUtils.lerp(0.15, 1.45, dp),
         THREE.MathUtils.lerp(0.42, -0.62, dp),
@@ -716,24 +727,36 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
         THREE.MathUtils.lerp(-0.15, 0.9, dp)
       );
 
+      // Sync SEIS hotspot dot with deployed/stowed position
+      const seisMarker = hotspotMeshes.find((m) => m.userData.hotspotId === 'seis');
+      if (seisMarker) {
+        seisMarker.position.set(
+          THREE.MathUtils.lerp(-0.1, 1.45, dp),
+          THREE.MathUtils.lerp(0.55, -0.35, dp),
+          THREE.MathUtils.lerp(0.0, 0.9, dp)
+        );
+      }
+
       armGroup.rotation.y = THREE.MathUtils.lerp(0.4, -0.15, dp);
 
-      // Tint solar arrays with Martian iron-oxide dust according to dustFactor
       const cleanColor = new THREE.Color(0xffffff);
       const dustyColor = new THREE.Color(0x9e5134);
       solarWingMat.color.copy(cleanColor).lerp(dustyColor, stateRef.current.dustFactor);
 
-      // Highlight selected hotspot
       hotspotMeshes.forEach((m) => {
         const isSel = m.userData.hotspotId === stateRef.current.selectedHotspotId;
-        m.scale.setScalar(isSel ? 1.35 : 0.85);
+        m.scale.setScalar(isSel ? 1.35 : 0.72);
         const mat = m.material as THREE.MeshStandardMaterial;
         mat.color.setHex(isSel ? 0x64dfdf : 0xf4a261);
         mat.emissive.setHex(isSel ? 0x64dfdf : 0xf4a261);
+        mat.opacity = isSel ? 0.98 : 0.65;
       });
 
       rootGroup.rotation.y += (stateRef.current.rotY - rootGroup.rotation.y) * 0.16;
       rootGroup.rotation.x += (stateRef.current.rotX - rootGroup.rotation.x) * 0.16;
+
+      scene.updateMatrixWorld();
+      updateSingleActiveCallout();
 
       const moving =
         Math.abs(targetDeploy - dp) > 0.005 ||
@@ -789,26 +812,18 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
     INSIGHT_HOTSPOTS.find((h) => h.id === selectedHotspotId) ?? INSIGHT_HOTSPOTS[0];
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-[#0B1220] overflow-hidden">
+    <div className="rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 overflow-hidden shadow-2xl">
       {/* Top Bar of 3D Lander Viewport */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-slate-800 bg-[#0E1729]">
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <span className="text-[#64DFDF] font-semibold">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[#F4A261]/20 bg-[#2C1812]">
+        <div className="flex items-center gap-2 text-xs font-semibold">
+          <span className="text-[#64DFDF]">
             {showNasaEyesInline
               ? lang === 'en'
-                ? '[OFFICIAL NASA EYES 3D TELEMETRY VIEW]'
-                : '[MÔ HÌNH 3D NASA EYES CHÍNH THỨC]'
+                ? 'Official NASA Eyes 3D Live Telemetry'
+                : 'Mô hình 3D NASA Eyes Chính thức'
               : lang === 'en'
-                ? '[EDUCATIONAL SIMULATION · NOT TO SCALE]'
-                : '[MÔ PHỎNG GIÁO DỤC · KHÔNG THEO TỶ LỆ THỰC]'}
-          </span>
-          <span className="text-slate-500">·</span>
-          <span className="text-slate-300">
-            {showNasaEyesInline
-              ? 'eyes.nasa.gov/apps/solar-system/#/sc_insight'
-              : lang === 'en'
-                ? '360° Interactive InSight Rig · Copper SEIS Shader'
-                : 'Mô hình 3D InSight Xoay 360° · Vòm SEIS Đồng Kim loại'}
+                ? 'Interactive 3D InSight Rig · Copper SEIS Shader'
+                : 'Mô hình 3D InSight · Vòm SEIS Đồng Kim loại'}
           </span>
         </div>
 
@@ -817,14 +832,14 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
             <button
               type="button"
               onClick={() => setIsDeployed((prev) => !prev)}
-              className="px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-[#16233B] text-[#FFD1A6] border border-[#F4A261]/50 hover:bg-[#1E3050] transition-colors whitespace-nowrap shrink-0"
+              className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[#382017] text-[#FFD1A6] border border-[#F4A261]/45 hover:bg-[#4A2A1E] transition-colors whitespace-nowrap shrink-0"
             >
               {isDeployed
                 ? lang === 'en'
                   ? 'Stow SEIS on Deck'
                   : 'Thu SEIS lên mặt boong'
                 : lang === 'en'
-                  ? 'Deploy SEIS & Wind Shield to Soil'
+                  ? 'Deploy SEIS & Wind Shield'
                   : 'Hạ SEIS & Lồng chắn xuống đất'}
             </button>
           )}
@@ -833,144 +848,179 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
             type="button"
             data-testid="header-toggle-nasa-eyes-btn"
             onClick={() => setShowNasaEyesInline((prev) => !prev)}
-            className={`px-3 py-1.5 text-xs font-mono font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-colors whitespace-nowrap shrink-0 ${
               showNasaEyesInline
-                ? 'bg-[#64DFDF] text-[#070B14] hover:bg-[#99F6E4]'
-                : 'bg-[#F4A261] text-[#070B14] hover:bg-[#FFD1A6]'
+                ? 'bg-[#64DFDF] text-[#111C28] hover:bg-[#99F6E4]'
+                : 'bg-[#F4A261] text-[#1F110C] hover:bg-[#FFD1A6]'
             }`}
           >
             {showNasaEyesInline
               ? lang === 'en'
-                ? 'Return to 3D InSight Rig'
-                : 'Quay lại Mô hình 3D Three.js'
+                ? '← Return to 3D InSight Rig'
+                : '← Quay lại Mô hình 3D Three.js'
               : lang === 'en'
-                ? 'Toggle Official NASA Eyes 3D Live View'
-                : 'Bật Mô hình 3D NASA Eyes Chính thức'}
+                ? 'Launch Official NASA Eyes 3D Live View'
+                : 'Mở Mô hình 3D NASA Eyes Chính thức'}
           </button>
         </div>
       </div>
 
-      {/* 3D Canvas Viewport with Direct In-Viewport NASA Eyes 3D Iframe Toggle */}
-      <div className="relative w-full h-[400px] sm:h-[460px] bg-[#0B101D]">
-        {/* Three.js Interactive 3D Lander Canvas */}
-        <div
-          ref={mountRef}
-          data-testid="insight-3d-lander-canvas"
-          className={`w-full h-full cursor-grab active:cursor-grabbing ${
-            showNasaEyesInline ? ' invisible pointer-events-none' : ''
-          }`}
-        />
+      {/* Split Layout: Left 3D Stage with Single Active Callout Line + Right Subsystem Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        {/* Left 8 Cols: 3D Viewport + Pre-Warmed NASA Eyes Iframe */}
+        <div className="lg:col-span-8 relative w-full h-[380px] sm:h-[450px] bg-[#1F120D] overflow-hidden">
+          <div
+            ref={mountRef}
+            data-testid="insight-3d-lander-canvas"
+            className={`w-full h-full cursor-grab active:cursor-grabbing ${
+              showNasaEyesInline ? 'invisible pointer-events-none' : ''
+            }`}
+          />
 
-        {/* In-Viewport Top-Right Floating Toggle Button for Official NASA Eyes 3D Iframe */}
-        <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
-          <button
-            type="button"
-            data-testid="viewport-toggle-nasa-eyes-btn"
-            onClick={() => setShowNasaEyesInline((prev) => !prev)}
-            className="px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-[#0B1220] text-[#F4A261] border border-[#F4A261]/60 hover:bg-[#16233B] hover:text-[#FFD1A6] shadow-lg transition-colors"
-          >
-            {showNasaEyesInline
-              ? lang === 'en'
-                ? '← Back to Three.js 3D Lander'
-                : '← Về Mô hình Three.js 3D'
-              : lang === 'en'
-                ? '🛰 NASA Eyes 3D Live Iframe'
-                : '🛰 Khung 3D NASA Eyes Trực tiếp'}
-          </button>
-        </div>
+          {/* Single Clean Animated Callout Leader Line & Floating Label for Active Hotspot Only */}
+          {!showNasaEyesInline && (
+            <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+              <svg className="w-full h-full">
+                <line
+                  ref={calloutLineRef}
+                  x1="320"
+                  y1="220"
+                  x2="240"
+                  y2="140"
+                  stroke="#64DFDF"
+                  strokeWidth="1.8"
+                  strokeDasharray="4 3"
+                />
+                <circle
+                  ref={calloutDotRef}
+                  cx="320"
+                  cy="220"
+                  r="5"
+                  fill="#64DFDF"
+                  stroke="#FFF8F2"
+                  strokeWidth="1.5"
+                />
+              </svg>
+              <div
+                ref={calloutBoxRef}
+                style={{ transform: 'translate3d(40px, 40px, 0)' }}
+                className="absolute top-0 left-0 px-3 py-1.5 rounded-xl bg-[#23140F] border border-[#64DFDF]/75 shadow-xl transition-transform duration-75"
+              >
+                <div className="text-[11px] font-bold text-[#64DFDF] uppercase tracking-wider">
+                  {currentHotspot.shortLabel}
+                </div>
+                <div className="text-xs font-semibold text-[#FFF8F2] whitespace-nowrap">
+                  {currentHotspot.title[lang]}
+                </div>
+              </div>
+            </div>
+          )}
 
-        {/* Official NASA Eyes 3D Iframe Rendered Directly Inside the 3D Viewport */}
-        {showNasaEyesInline && (
+          {/* PRE-WARMED Official NASA Eyes 3D Iframe (Mounted in background so it opens instantaneously) */}
           <div
             data-testid="nasa-eyes-inline-viewport"
-            className="absolute inset-0 z-10 flex flex-col bg-[#070B14]"
+            aria-hidden={!showNasaEyesInline}
+            className={`absolute inset-0 flex flex-col bg-[#120B08] transition-opacity duration-300 ${
+              showNasaEyesInline
+                ? 'opacity-100 pointer-events-auto z-30'
+                : 'opacity-0 pointer-events-none -z-10'
+            }`}
           >
+            {!nasaEyesReady && showNasaEyesInline && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#1A100C]/90 text-center p-4">
+                <div className="w-44 h-1.5 rounded-full bg-[#3A2218] overflow-hidden mb-2">
+                  <div className="w-2/3 h-full animate-horizon-glow rounded-full" />
+                </div>
+                <span className="text-xs font-medium text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'Connecting to NASA Eyes 3D Telemetry (sc_insight)...'
+                    : 'Đang kết nối dữ liệu 3D NASA Eyes (sc_insight)...'}
+                </span>
+              </div>
+            )}
+
             <iframe
               src="https://eyes.nasa.gov/apps/solar-system/#/sc_insight"
               title="NASA Eyes on the Solar System — InSight 3D"
+              onLoad={() => setNasaEyesReady(true)}
               className="w-full flex-1 border-0"
-              loading="lazy"
               allowFullScreen
             />
-            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-[#0D1526] border-t border-slate-800 text-xs text-slate-300">
+
+            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-[#23140F] border-t border-[#F4A261]/25 text-xs text-[#F3E5D8]">
               <span>
                 {lang === 'en'
-                  ? 'Official NASA/JPL-Caltech 3D Spacecraft Telemetry (sc_insight). Toggle back anytime for offline Three.js inspection.'
-                  : 'Dữ liệu 3D tàu vũ trụ chính thức của NASA/JPL-Caltech (sc_insight). Chuyển lại bất cứ lúc nào để xem ngoại tuyến.'}
+                  ? 'Official NASA/JPL 3D Spacecraft View (sc_insight).'
+                  : 'Mô hình 3D tàu vũ trụ chính thức của NASA/JPL (sc_insight).'}
               </span>
               <a
                 href="https://eyes.nasa.gov/apps/solar-system/#/sc_insight"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-[#F4A261] hover:text-[#FFD1A6] underline"
+                className="font-semibold text-[#F4A261] hover:text-[#FFD1A6] underline"
               >
-                https://eyes.nasa.gov/apps/solar-system/#/sc_insight ↗
+                {lang === 'en' ? 'Open NASA Eyes in New Tab ↗' : 'Mở NASA Eyes ở Thẻ mới ↗'}
               </a>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Collapsible Bottom Control Dock (Zero side-panel occlusion, no backdrop-filter over WebGL) */}
-        {!showNasaEyesInline && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-[94%] max-w-[860px] z-10">
-            <div className="flex justify-end mb-1">
-              <button
-                type="button"
-                onClick={() => setHudCollapsed((c) => !c)}
-                className="px-2.5 py-1 text-[11px] font-mono bg-[#0B1220] text-slate-300 border border-slate-700 rounded-t-md hover:text-white"
-              >
-                {hudCollapsed
-                  ? lang === 'en'
-                    ? '▴ Show Hardware Hotspots'
-                    : '▴ Hiện các bộ phận 3D'
-                  : lang === 'en'
-                    ? '▾ Hide Controls'
-                    : '▾ Ẩn bảng điều khiển'}
-              </button>
+        {/* Right 4 Cols: Hardware Subsystem Selector & Synced Detail Card */}
+        <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[#F4A261]/20 bg-[#281610] p-4 sm:p-5 flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
+            <div className="text-xs font-semibold text-[#FFD1A6] uppercase tracking-wider">
+              {lang === 'en'
+                ? 'Select Hardware Subsystem (7)'
+                : 'Chọn Bộ phận Phần cứng (7)'}
             </div>
 
-            {!hudCollapsed && (
-              <div className="bg-[#0B1220] border border-slate-700 rounded-lg p-3 shadow-xl">
-                <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                  {INSIGHT_HOTSPOTS.map((hs) => {
-                    const active = hs.id === selectedHotspotId;
-                    return (
-                      <button
-                        key={hs.id}
-                        type="button"
-                        onClick={() => onSelectHotspot(hs.id)}
-                        className={`px-2.5 py-1 text-xs font-mono rounded transition-colors whitespace-nowrap shrink-0 ${
-                          active
-                            ? 'bg-[#64DFDF] text-[#070B14] font-semibold'
-                            : 'bg-[#121C2E] text-slate-300 hover:text-white border border-slate-800'
-                        }`}
-                      >
-                        {hs.code.split(' · ')[0]}
-                      </button>
-                    );
-                  })}
-                </div>
+            <div className="flex flex-wrap gap-1.5">
+              {INSIGHT_HOTSPOTS.map((hs) => {
+                const active = hs.id === selectedHotspotId;
+                return (
+                  <button
+                    key={hs.id}
+                    type="button"
+                    onClick={() => onSelectHotspot(hs.id)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+                      active
+                        ? 'bg-[#64DFDF] text-[#111C28] shadow-md'
+                        : 'bg-[#1D100C] text-[#F3E5D8] hover:text-white border border-[#F4A261]/25'
+                    }`}
+                  >
+                    {hs.shortLabel}
+                  </button>
+                );
+              })}
+            </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-t border-slate-800 pt-2">
-                  <div>
-                    <span className="text-xs font-mono text-[#F4A261] mr-2">
-                      {currentHotspot.code}
-                    </span>
-                    <strong className="text-sm text-white">{currentHotspot.title[lang]}</strong>
-                  </div>
-                  <span className="text-xs font-mono text-slate-400">
-                    {currentHotspot.specs[lang]}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                  {currentHotspot.description[lang]}
-                </p>
-              </div>
-            )}
+            <div className="p-4 rounded-xl bg-[#1D100C] border border-[#F4A261]/25 space-y-2">
+              <div className="text-xs font-bold text-[#F4A261]">{currentHotspot.code}</div>
+              <h3 className="text-base font-bold text-[#FFF8F2]">{currentHotspot.title[lang]}</h3>
+              <div className="text-xs font-medium text-[#64DFDF]">{currentHotspot.specs[lang]}</div>
+              <p className="text-xs text-[#F3E5D8]/90 leading-relaxed pt-1 border-t border-[#F4A261]/15">
+                {currentHotspot.description[lang]}
+              </p>
+            </div>
           </div>
-        )}
+
+          <div className="flex items-center justify-between text-xs text-[#F3E5D8]/75 pt-2 border-t border-[#F4A261]/15">
+            <span>
+              {lang === 'en'
+                ? 'Drag 3D model to orbit 360° · Click any glowing dot'
+                : 'Kéo mô hình 3D để xoay 360° · Nhấn vào điểm sáng'}
+            </span>
+            <a
+              href="https://science.nasa.gov/mission/insight/science-instruments/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#FFD1A6] hover:underline font-semibold shrink-0 ml-2"
+            >
+              {lang === 'en' ? 'Source: NASA ↗' : 'Nguồn: NASA ↗'}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
-
