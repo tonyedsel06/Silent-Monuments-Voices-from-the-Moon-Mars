@@ -2,15 +2,33 @@
 
 @layer base {
   :root {
-    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  *,
+  *::before,
+  *::after,
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  span,
+  button,
+  input,
+  p,
+  a,
+  div {
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum" 1, "tnum" 1;
   }
 
   html,
   body,
   #root {
     font-family: var(--font-sans);
-    background-color: #26130D;
+    background-color: #160B07;
     color: #FFF8F2;
     scroll-behavior: smooth;
     overflow-x: hidden;
@@ -22,8 +40,12 @@
   h1,
   h2,
   h3,
-  .font-serif-editorial {
-    font-family: var(--font-serif);
+  h4,
+  .font-serif-editorial,
+  .font-display-editorial {
+    font-family: var(--font-display);
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum" 1, "tnum" 1;
   }
 }
 
@@ -32,7 +54,7 @@
     transform: scale(1.02) translate3d(0%, 0%, 0);
   }
   50% {
-    transform: scale(1.08) translate3d(-1.2%, -0.8%, 0);
+    transform: scale(1.07) translate3d(-1%, -0.6%, 0);
   }
   100% {
     transform: scale(1.02) translate3d(0%, 0%, 0);
@@ -82,7 +104,7 @@
 }
 
 .nasa-basalt-glass {
-  background: rgba(32, 17, 12, 0.82);
+  background: rgba(28, 14, 10, 0.84);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -113,7 +135,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #1C0E09;
+  background: #140906;
 }
 
 ::-webkit-scrollbar-thumb {

@@ -298,7 +298,7 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
     ctx.stroke();
 
     ctx.fillStyle = '#FFF8F2';
-    ctx.font = '700 34px "Playfair Display", Georgia, serif';
+    ctx.font = '700 34px "Outfit", "Plus Jakarta Sans", sans-serif';
     ctx.fillText(generatedCallsign.slice(0, 26), cx, plaqueY + 53);
 
     // Verified InSight Telemetry Line
@@ -358,18 +358,15 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold text-[#64DFDF] uppercase tracking-wider">
           {lang === 'en'
-            ? '4D Interactive Holographic Mission Badge · NSSDCA 2018-042A'
-            : 'Huy Hiệu Sứ Mệnh Hologram 4D Tương Tác · NSSDCA 2018-042A'}
-        </span>
-        <span className="px-2 py-0.5 rounded-md bg-[#341C14] text-[11px] font-bold text-[#FFD1A6]">
-          1200×1200 4K PNG
+            ? 'Interactive Holographic Mission Badge · NSSDCA 2018-042A'
+            : 'Huy hiệu sứ mệnh Hologram tương tác · NSSDCA 2018-042A'}
         </span>
       </div>
 
       <h3 className="text-base sm:text-lg font-bold text-[#FFF8F2]">
         {lang === 'en'
-          ? 'Mint & Tilt Your 4D InSight Mission Archivist Badge'
-          : 'Khắc Tên & Nghiêng Thử Huy Hiệu InSight 4D Của Bạn'}
+          ? 'Mint & Tilt Your InSight Mission Archivist Badge'
+          : 'Khắc tên & nghiêng thử huy hiệu InSight của bạn'}
       </h3>
 
       <div className="space-y-1.5">
@@ -377,7 +374,7 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
           htmlFor="explorer-name-input"
           className="block text-xs font-semibold text-[#FFD1A6]"
         >
-          {lang === 'en' ? 'Explorer Name / Callsign:' : 'Tên Nhà thám hiểm / Biệt danh:'}
+          {lang === 'en' ? 'Explorer Name / Callsign:' : 'Tên nhà thám hiểm / Biệt danh:'}
         </label>
         <div className="flex flex-wrap sm:flex-nowrap gap-2">
           <input
@@ -400,13 +397,16 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
             }}
             className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-[#F4A261] text-[#1F110C] hover:bg-[#FFD1A6] whitespace-nowrap shrink-0 transition-colors"
           >
-            {lang === 'en' ? 'Engrave 4D Badge' : 'Khắc Lên Huy Hiệu 4D'}
+            {lang === 'en' ? 'Engrave Badge' : 'Khắc lên huy hiệu'}
           </button>
         </div>
       </div>
 
-      {/* 4D Interactive Tilt Stage with Holographic Foil Glare */}
-      <div className="p-3 rounded-2xl border border-[#F4A261]/25 bg-[#150B08] flex flex-col items-center space-y-2.5">
+      {/* Interactive Tilt Stage with Holographic Foil Glare */}
+      <div
+        data-no-swipe="true"
+        className="p-3 rounded-2xl border border-[#F4A261]/25 bg-[#150B08] flex flex-col items-center space-y-2.5"
+      >
         <div
           onPointerMove={handlePointerMove4D}
           onPointerLeave={handlePointerLeave4D}
@@ -430,7 +430,7 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
               data-testid="mission-emblem-8k-canvas"
               className="w-full h-full block"
             />
-            {/* Dynamic 4D Holographic Foil Sheen Layer */}
+            {/* Dynamic Holographic Foil Sheen Layer */}
             <div
               style={{
                 background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 240, 210, 0.28) 0%, rgba(100, 223, 223, 0.14) 35%, rgba(0, 0, 0, 0) 70%)`,
@@ -448,11 +448,11 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
         >
           {downloadedNotice
             ? lang === 'en'
-              ? '✓ 4K Mission Badge PNG Downloaded!'
-              : '✓ Đã Tải Xuống Huy Hiệu Sứ Mệnh 4K (PNG)!'
+              ? '✓ Mission Badge Downloaded!'
+              : '✓ Đã tải xuống huy hiệu sứ mệnh!'
             : lang === 'en'
-              ? 'Download 4K Mission Badge (PNG)'
-              : 'Tải Xuống Huy Hiệu Sứ Mệnh 4K (PNG)'}
+              ? 'Download Mission Badge'
+              : 'Tải xuống huy hiệu sứ mệnh'}
         </button>
       </div>
     </div>

@@ -29,6 +29,8 @@ export interface InSightSubsystemSpec {
 
 export interface JourneyMilestone {
   id: string;
+  stageCode: string;
+  shortStageLabel: BilingualText;
   dateLabel: BilingualText;
   title: BilingualText;
   telemetryBadge: BilingualText;
@@ -47,6 +49,7 @@ export interface DiscoveryCardItem {
   summary: BilingualText;
   detail: BilingualText;
   imageUrl: string;
+  fallbackUrl: string;
   imageCredit: string;
   sourceUrl: string;
 }
@@ -235,8 +238,8 @@ export const CHAPTER_TITLES: {
       vi: 'Bị Bỏ Lại Nhưng Không Bị Lãng Quên',
     },
     subtitle: {
-      en: '3-Question Review, 4D Holographic Mission Badge & Judge Reference Drawer',
-      vi: '3 Câu hỏi Ôn tập, Huy hiệu Hologram 4D & Hồ sơ Giám khảo Space Apps',
+      en: '3-question review, holographic mission badge & judge reference drawer',
+      vi: '3 câu hỏi ôn tập, huy hiệu sứ mệnh Hologram & hồ sơ giám khảo Space Apps',
     },
     verifyUrl:
       'https://www.jpl.nasa.gov/news/nasa-retires-insight-mars-lander-mission-after-years-of-science/',
@@ -248,17 +251,22 @@ export const CHAPTER_TITLES: {
 export const JOURNEY_MILESTONES: JourneyMilestone[] = [
   {
     id: 'launch-2018',
+    stageCode: '01',
+    shortStageLabel: {
+      en: '01 Liftoff',
+      vi: '01 Rời bệ phóng',
+    },
     dateLabel: {
-      en: '05 May 2018 · Liftoff',
-      vi: '05/05/2018 · Rời Bệ Phóng',
+      en: '05 May 2018',
+      vi: '05/05/2018',
     },
     title: {
       en: 'Launch from Vandenberg with Twin MarCO CubeSats',
       vi: 'Khởi hành từ Vandenberg cùng cặp vệ tinh MarCO',
     },
     telemetryBadge: {
-      en: 'Atlas V 401 · First Interplanetary Launch from US West Coast',
-      vi: 'Atlas V 401 · Chuyến phóng liên hành tinh đầu tiên từ Bờ Tây Hoa Kỳ',
+      en: 'Atlas V 401 · First interplanetary launch from US West Coast',
+      vi: 'Atlas V 401 · Chuyến phóng liên hành tinh đầu tiên từ bờ Tây Hoa Kỳ',
     },
     story: {
       en: 'At 4:05 a.m. PDT, I lifted off through thick California coastal fog aboard an Atlas V rocket. Riding alongside me were MarCO-A and MarCO-B ("WALL-E" and "EVE")—two briefcase-sized CubeSats testing whether miniature spacecraft could relay live landing data across deep space.',
@@ -272,16 +280,21 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
   },
   {
     id: 'touchdown-2018',
+    stageCode: '02',
+    shortStageLabel: {
+      en: '02 Touchdown',
+      vi: '02 Hạ cánh',
+    },
     dateLabel: {
-      en: '26 Nov 2018 · Sol 0 Touchdown',
-      vi: '26/11/2018 · Hạ Cánh Sol 0',
+      en: '26 Nov 2018 · Sol 0',
+      vi: '26/11/2018 · Sol 0',
     },
     title: {
       en: '485 Million km Cruise & 6.5 Minutes of Fire to Elysium Planitia',
-      vi: 'Hành trình 485 triệu km & 6,5 phút nghẹt thở xuống Elysium Planitia',
+      vi: 'Hành trình 485 triệu km và 6,5 phút nghẹt thở xuống Elysium Planitia',
     },
     telemetryBadge: {
-      en: 'Entry Speed: 19,800 km/h (12,300 mph) · Heat Shield: 1,500°C',
+      en: 'Entry speed: 19,800 km/h (12,300 mph) · Heat shield: 1,500°C',
       vi: 'Tốc độ vào khí quyển: 19.800 km/h · Lá chắn nhiệt: 1.500°C',
     },
     story: {
@@ -296,6 +309,11 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
   },
   {
     id: 'seis-deployed-2018',
+    stageCode: '03',
+    shortStageLabel: {
+      en: '03 Deployment',
+      vi: '03 Hạ đặt SEIS',
+    },
     dateLabel: {
       en: '19 Dec 2018 · Sol 22',
       vi: '19/12/2018 · Sol 22',
@@ -305,7 +323,7 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
       vi: 'Máy đo địa chấn đầu tiên được đặt trực tiếp lên mặt đất hành tinh khác',
     },
     telemetryBadge: {
-      en: 'Reach: 1.636 m from Deck · WTS Dome Lowered 02 Feb 2019 (Sol 66)',
+      en: 'Reach: 1.636 m from deck · WTS dome lowered 02 Feb 2019 (Sol 66)',
       vi: 'Khoảng cách: 1,636 m từ thân trạm · Úp vòm chắn gió ngày 02/02/2019',
     },
     story: {
@@ -319,6 +337,11 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
   },
   {
     id: 'first-quake-2019',
+    stageCode: '04',
+    shortStageLabel: {
+      en: '04 First Quake',
+      vi: '04 Động đất đầu',
+    },
     dateLabel: {
       en: '06 Apr 2019 · Sol 128',
       vi: '06/04/2019 · Sol 128',
@@ -328,7 +351,7 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
       vi: 'Trận động đất Sao Hỏa đầu tiên được ghi nhận',
     },
     telemetryBadge: {
-      en: 'Sol 128 Event · Followed by 1,318 More Marsquakes',
+      en: 'Sol 128 event · Followed by 1,318 more marsquakes',
       vi: 'Sự kiện Sol 128 · Mở đầu cho tổng cộng 1.319 trận động đất Sao Hỏa',
     },
     story: {
@@ -343,6 +366,11 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
   },
   {
     id: 'final-contact-2022',
+    stageCode: '05',
+    shortStageLabel: {
+      en: '05 Final Signal',
+      vi: '05 Tín hiệu cuối',
+    },
     dateLabel: {
       en: '15 Dec 2022 · Sol 1440',
       vi: '15/12/2022 · Sol 1440',
@@ -352,7 +380,7 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
       vi: 'Tín hiệu vô tuyến cuối cùng dưới lớp bụi sắt đỏ',
     },
     telemetryBadge: {
-      en: 'Power Drop: ~5,000 Wh/sol (2018) → ~500 Wh/sol (2022)',
+      en: 'Power drop: ~5,000 Wh/sol (2018) → ~500 Wh/sol (2022)',
       vi: 'Điện năng suy giảm: ~5.000 Wh/sol (2018) → ~500 Wh/sol (2022)',
     },
     story: {
@@ -360,24 +388,29 @@ export const JOURNEY_MILESTONES: JourneyMilestone[] = [
       vi: 'Bụi oxit sắt mịn phủ dày lên hai cánh pin mặt trời khiến sản lượng điện giảm tới 90%. Các kỹ sư đã quyết định tắt bộ sưởi bảo vệ để ưu tiên từng giọt điện cuối cùng cho máy địa chấn SEIS. Tôi gửi tín hiệu cuối cùng về Trái Đất vào ngày 15/12/2022.',
     },
     imageUrl: 'https://images-assets.nasa.gov/image/PIA25287/PIA25287~medium.jpg',
-    fallbackUrl: 'https://images-assets.nasa.gov/image/PIA22876/PIA22876~medium.jpg',
+    fallbackUrl: '/assets/aistudio/PIA22227_ae4c0612.jpg',
     imageCredit: 'NASA / JPL-Caltech · PIA25287 (Final Selfie)',
     sourceUrl:
       'https://science.nasa.gov/resource/insights-power-generation-after-landing-and-spring-2022/',
   },
   {
     id: 'mission-concluded-2022',
+    stageCode: '06',
+    shortStageLabel: {
+      en: '06 Breakthrough',
+      vi: '06 Đột phá mới',
+    },
     dateLabel: {
-      en: '21 Dec 2022 & Aug 2025 Breakthrough',
-      vi: '21/12/2022 & Phát hiện Tháng 8/2025',
+      en: '21 Dec 2022 & Aug 2025',
+      vi: '21/12/2022 & 08/2025',
     },
     title: {
-      en: 'Mission Concluded — Yet My Archive StillMakes Discoveries',
+      en: 'Mission Concluded — Yet My Archive Still Makes Discoveries',
       vi: 'Sứ mệnh khép lại — Nhưng kho dữ liệu vẫn tiếp tục lên tiếng',
     },
     telemetryBadge: {
-      en: '4 Years, 25 Days Active · Aug 2025 Science Mantle Study',
-      vi: '4 Năm, 25 Ngày Hoạt động · Công bố Khoa học Tháng 8/2025',
+      en: '4 years, 25 days active · Aug 2025 Science mantle study',
+      vi: '4 năm, 25 ngày hoạt động · Công bố khoa học tháng 8/2025',
     },
     story: {
       en: 'After two missed communication passes, NASA officially concluded my mission on December 21, 2022. Yet my open-access seismic archive continues to rewrite textbooks—including the August 2025 discovery that Mars’ mantle preserves 4.5-billion-year-old protoplanet impact fragments.',
@@ -703,12 +736,12 @@ export const INSIGHT_DISCOVERIES_4: DiscoveryCardItem[] = [
   {
     id: 'lumpy-mantle-2025',
     badge: {
-      en: 'Discovery 01 · Aug 2025 Science Study',
+      en: 'Discovery 01 · Aug 2025 Science study',
       vi: 'Khám phá 01 · Nghiên cứu Science 08/2025',
     },
     title: {
       en: 'The "Lumpy" Mantle Time Capsule (4.5-Billion-Year Impact Debris)',
-      vi: 'Hộp Thời Gian Trong Lớp Phủ "Lổn Nhổn" (Mảnh Vỡ 4,5 Tỷ Năm)',
+      vi: 'Hộp thời gian trong lớp phủ "lổn nhổn" (Mảnh vỡ 4,5 tỷ năm)',
     },
     metric: '4 km Mantle Fragments',
     summary: {
@@ -721,6 +754,7 @@ export const INSIGHT_DISCOVERIES_4: DiscoveryCardItem[] = [
     },
     imageUrl:
       '/assets/aistudio/e1-pia26636-illustration-cutaway-showing-asteroid-debris-in-mars-mantle_c4336fdb.webp',
+    fallbackUrl: '/assets/aistudio/PIA22227_ae4c0612.jpg',
     imageCredit: 'NASA / JPL-Caltech · PIA26636',
     sourceUrl:
       'https://www.nasa.gov/missions/insight/nasa-marsquake-data-reveals-lumpy-nature-of-red-planets-interior/',
@@ -728,12 +762,12 @@ export const INSIGHT_DISCOVERIES_4: DiscoveryCardItem[] = [
   {
     id: 'cerberus-fossae-quakes',
     badge: {
-      en: 'Discovery 02 · Planetary Seismology',
-      vi: 'Khám phá 02 · Địa chấn học Hành tinh',
+      en: 'Discovery 02 · Planetary seismology',
+      vi: 'Khám phá 02 · Địa chấn học hành tinh',
     },
     title: {
       en: '1,319 Marsquakes & Active Faults at Cerberus Fossae',
-      vi: '1.319 Trận Động Đất & Đứt Gãy Hoạt Động Cerberus Fossae',
+      vi: '1.319 trận động đất & đứt gãy hoạt động Cerberus Fossae',
     },
     metric: '1,319 Quakes · Max Mag 4.7',
     summary: {
@@ -744,19 +778,21 @@ export const INSIGHT_DISCOVERIES_4: DiscoveryCardItem[] = [
       en: 'On May 4, 2022 (Sol 1222), SEIS recorded a magnitude 4.7 marsquake that reverberated through the planet for over 6 hours—the strongest seismic event ever recorded on another planet.',
       vi: 'Ngày 04/05/2022 (Sol 1222), SEIS ghi nhận trận động đất mạnh 4,7 độ làm rung chuyển toàn bộ Sao Hỏa suốt hơn 6 giờ đồng hồ—chấn động mạnh nhất từng được ghi lại ngoài Trái Đất.',
     },
-    imageUrl: 'https://images-assets.nasa.gov/image/PIA23623/PIA23623~medium.jpg',
-    imageCredit: 'NASA / JPL-Caltech / U. Arizona · PIA23623',
+    imageUrl: '/assets/aistudio/PIA22227_ae4c0612.jpg',
+    fallbackUrl:
+      'https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia00/pia00407/PIA00407.jpg?w=1600',
+    imageCredit: 'NASA / JPL-Caltech · PIA22227 & Cerberus Fossae Survey',
     sourceUrl: 'https://science.nasa.gov/mission/insight/science-highlights/',
   },
   {
     id: 'meteorite-water-ice',
     badge: {
-      en: 'Discovery 03 · Acoustic Impact Locating',
-      vi: 'Khám phá 03 · Định vị Va chạm Thiên thạch',
+      en: 'Discovery 03 · Acoustic impact locating',
+      vi: 'Khám phá 03 · Định vị va chạm thiên thạch',
     },
     title: {
       en: 'Fresh Meteorite Impacts Excavating Subsurface Water Ice',
-      vi: 'Thiên Thạch Va Chạm Làm Lộ Ra Các Khối Băng Nước Ngầm',
+      vi: 'Thiên thạch va chạm làm lộ ra các khối băng nước ngầm',
     },
     metric: '150-m New Craters',
     summary: {
@@ -769,18 +805,19 @@ export const INSIGHT_DISCOVERIES_4: DiscoveryCardItem[] = [
     },
     imageUrl:
       '/assets/aistudio/1-pia26635-illustration-giant-asteroid-impacting-ancient-mars_782be599.webp',
+    fallbackUrl: '/assets/aistudio/PIA19811_1a033482.jpg',
     imageCredit: 'NASA / JPL-Caltech · PIA26635',
     sourceUrl: 'https://science.nasa.gov/mission/insight/science-highlights/',
   },
   {
     id: 'magnetic-crust-ghosts',
     badge: {
-      en: 'Discovery 04 · Ancient Planetary Dynamo',
-      vi: 'Khám phá 04 · Từ trường Cổ đại',
+      en: 'Discovery 04 · Ancient planetary dynamo',
+      vi: 'Khám phá 04 · Từ trường cổ đại',
     },
     title: {
       en: 'Crustal Magnetism 10× Stronger Than Orbiters Predicted',
-      vi: 'Từ Trường Vỏ Mạnh Gấp 10 Lần Dự Đoán Từ Vệ Tinh',
+      vi: 'Từ trường vỏ mạnh gấp 10 lần dự đoán từ vệ tinh',
     },
     metric: '10× Stronger Local Field',
     summary: {
@@ -792,6 +829,7 @@ export const INSIGHT_DISCOVERIES_4: DiscoveryCardItem[] = [
       vi: 'Hàng tỷ năm trước, lõi lỏng Sao Hỏa từng tạo ra từ trường toàn cầu mạnh mẽ giống Trái Đất, che chở cho bầu khí quyển dày và đại dương cổ đại trước khi lụi tàn.',
     },
     imageUrl: '/assets/aistudio/PIA19811_1a033482.jpg',
+    fallbackUrl: '/assets/aistudio/PIA17358_fig1_cb1bbe9d.jpg',
     imageCredit: 'NASA / JPL-Caltech · PIA19811',
     sourceUrl: 'https://science.nasa.gov/mission/insight/science-highlights/',
   },
@@ -918,8 +956,8 @@ export const JUDGE_QA_ITEMS: JudgeQaItem[] = [
       vi: '3. Công nghệ, công cụ và điểm sáng tạo nào được sử dụng?',
     },
     answer: {
-      en: 'Built with React 19, TypeScript, Tailwind CSS, Three.js WebGL (with software-GL optimization and mobile touch-lock protection), Web Audio API real-time seismic synthesis, and a 4D CSS-perspective + HTML5 Canvas holographic mission badge generator. Creative first-person narration is paired with strict representational integrity notes and clickable [Verify at NASA/JPL ↗] citations on every page.',
-      vi: 'Xây dựng bằng React 19, TypeScript, Tailwind CSS, Three.js WebGL (tối ưu hóa mượt mà kèm khóa cuộn cảm ứng trên điện thoại), Web Audio API tái tạo âm thanh địa chấn, và trình tạo Huy hiệu Hologram 4D trên Canvas. Giọng kể ngôi thứ nhất giàu cảm xúc luôn đi kèm chú thích minh bạch khoa học và nút [Kiểm chứng tại NASA/JPL ↗] trên từng trang.',
+      en: 'Built with React 19, TypeScript, Tailwind CSS, interactive 3D WebGL (with software-GL optimization and mobile touch-lock protection), Web Audio API real-time seismic synthesis, and an interactive holographic mission badge generator. Creative first-person narration is paired with strict representational integrity notes and clickable [Verify at NASA/JPL ↗] citations on every page.',
+      vi: 'Xây dựng bằng React 19, TypeScript, Tailwind CSS, đồ họa 3D tương tác (tối ưu hóa mượt mà kèm khóa cuộn cảm ứng trên điện thoại), Web Audio API tái tạo âm thanh địa chấn, và trình tạo huy hiệu sứ mệnh Hologram. Giọng kể ngôi thứ nhất giàu cảm xúc luôn đi kèm chú thích minh bạch khoa học và nút [Kiểm chứng tại NASA/JPL ↗] trên từng trang.',
     },
   },
 ];

@@ -611,7 +611,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
                 : 'bg-[#1D0F0A] text-[#F3E5D8] border border-[#F4A261]/30 hover:text-white'
             }`}
           >
-            {lang === 'en' ? '1A. 3D Lander Rig (Three.js)' : '1A. Mô Hình 3D Tương Tác'}
+            {lang === 'en' ? 'Interactive 3D Lander' : 'Mô hình 3D tương tác'}
           </button>
 
           <button
@@ -624,7 +624,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
                 : 'bg-[#1D0F0A] text-[#F3E5D8] border border-[#F4A261]/30 hover:text-white'
             }`}
           >
-            {lang === 'en' ? '1B. Official PIA17358 Blueprint' : '1B. Sơ Đồ PIA17358 Gốc'}
+            {lang === 'en' ? 'Official PIA17358 Blueprint' : 'Sơ đồ PIA17358 gốc'}
           </button>
 
           <button
@@ -670,6 +670,7 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 mobile-single-col-lock">
         {/* Left 8 Cols: 3D Viewport / PIA17358 Diagram / Pre-Warmed NASA Eyes Iframe */}
         <div
+          data-no-swipe="true"
           className={`lg:col-span-7 relative w-full h-[360px] sm:h-[460px] bg-[#1D100B] overflow-hidden ${
             activeTab === '3d' && !mobileTouchInteractive ? 'touch-pan-y' : ''
           }`}
@@ -893,20 +894,25 @@ export const InSightLander3D: React.FC<InSightLander3DProps> = ({
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[#F4A261]/20 flex items-center justify-between text-[11px] text-[#F3E5D8]/75">
-            <span>
-              {lang === 'en'
-                ? 'Only the selected subsystem callout is shown for visual clarity.'
-                : 'Chỉ hiển thị đường chỉ dẫn của thiết bị đang chọn để tránh rối mắt.'}
+          <div className="pt-2 border-t border-[#F4A261]/20 flex flex-col gap-1 text-[11px] text-[#F3E5D8]/80">
+            <span className="text-[#FFD1A6]/95 font-medium">
+              A 3D model of NASA&apos;s InSight Mars lander. NASA Visualization Technology Applications and Development (VTAD)
             </span>
-            <a
-              href="https://science.nasa.gov/mission/insight/science-instruments/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#FFD1A6] hover:underline font-semibold shrink-0 ml-2"
-            >
-              Verify at NASA/JPL ↗
-            </a>
+            <div className="flex items-center justify-between">
+              <span>
+                {lang === 'en'
+                  ? 'Only the selected subsystem callout is shown for visual clarity.'
+                  : 'Chỉ hiển thị đường chỉ dẫn của thiết bị đang chọn để tránh rối mắt.'}
+              </span>
+              <a
+                href="https://science.nasa.gov/mission/insight/science-instruments/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#FFD1A6] hover:underline font-semibold shrink-0 ml-2"
+              >
+                Verify at NASA/JPL ↗
+              </a>
+            </div>
           </div>
         </div>
       </div>

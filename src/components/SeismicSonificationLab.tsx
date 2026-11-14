@@ -6,12 +6,12 @@ interface SeismicSonificationLabProps {
   lang: Language;
 }
 
+type AudioTrackPreset = 'wind_natural' | 'wind_seis_2oct' | 'sol128_quake';
+
 export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ lang }) => {
   const [waveProgress, setWaveProgress] = useState(0.58);
   const [isSimulatingWave, setIsSimulatingWave] = useState(false);
-  const [activeAudioPreset, setActiveAudioPreset] = useState<'wind' | 'sol128' | 'sol1222' | null>(
-    null
-  );
+  const [activeAudioPreset, setActiveAudioPreset] = useState<AudioTrackPreset | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const stopAudioTimerRef = useRef<number | null>(null);
@@ -183,64 +183,126 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
     );
   }, [simState, lang]);
 
-  // Synthesize authentic low-frequency Martian acoustic profiles via Web Audio API
-  const playSynthesizedTelemetryAudio = (preset: 'wind' | 'sol128' | 'sol1222') => {
+  // Earphone-Safe Normalized Web Audio Synthesis (DynamicsCompressorNode + Warm BiquadFilter + 0.3s Fade Envelope)
+  const playNormalizedTelemetryAudio = (preset: AudioTrackPreset) => {
     try {
       if (stopAudioTimerRef.current) {
         window.clearTimeout(stopAudioTimerRef.current);
       }
       if (audioCtxRef.current) {
         audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
       }
 
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (activeAudioPreset === preset) {
+        setActiveAudioPreset(null);
+        return;
+      }
+
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
       audioCtxRef.current = ctx;
       setActiveAudioPreset(preset);
 
-      const duration = 3.2;
+      const duration = 3.8;
       const now = ctx.currentTime;
 
+      // DynamicsCompressorNode for earphone safety & clear laptop speaker presence
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-20, now);
+      compressor.knee.setValueAtTime(18, now);
+      compressor.ratio.setValueAtTime(6, now);
+      compressor.attack.setValueAtTime(0.015, now);
+      compressor.release.setValueAtTime(0.25, now);
+
+      // Warm Lowpass Filter to eliminate harshness
+      const lowpass = ctx.createBiquadFilter();
+      lowpass.type = 'lowpass';
+      lowpass.Q.setValueAtTime(1.2, now);
+
+      // Master Gain with smooth 0.3s fade-in and 0.35s fade-out
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0.001, now);
+      masterGain.gain.linearRampToValueAtTime(0.38, now + 0.3);
+      masterGain.gain.setValueAtTime(0.38, now + duration - 0.35);
+      masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      // Filtered Pink/Brown Noise Bed for authentic Martian atmospheric wind/rumble texture
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + 0.04 * white) / 1.04;
+        lastOut = data[i];
+      }
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      const noiseGain = ctx.createGain();
       const osc = ctx.createOscillator();
       const subOsc = ctx.createOscillator();
-      const gain = ctx.createGain();
 
-      if (preset === 'wind') {
+      if (preset === 'wind_natural') {
+        // Track 1: Amplified Martian Wind on Solar Panels (Natural Pitch)
+        lowpass.frequency.setValueAtTime(195, now);
+        noiseGain.gain.setValueAtTime(0.65, now);
+
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(68, now);
-        osc.frequency.exponentialRampToValueAtTime(92, now + 1.5);
-        osc.frequency.exponentialRampToValueAtTime(62, now + duration);
+        osc.frequency.setValueAtTime(62, now);
+        osc.frequency.exponentialRampToValueAtTime(84, now + 1.8);
+        osc.frequency.exponentialRampToValueAtTime(58, now + duration);
 
         subOsc.type = 'triangle';
-        subOsc.frequency.setValueAtTime(34, now);
-      } else if (preset === 'sol128') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(52, now);
+        subOsc.frequency.setValueAtTime(45, now);
+      } else if (preset === 'wind_seis_2oct') {
+        // Track 2: Amplified Martian Wind via SEIS (Pitched Up 2 Octaves for Human Ears, 4x frequency)
+        lowpass.frequency.setValueAtTime(480, now);
+        noiseGain.gain.setValueAtTime(0.45, now);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(196, now);
+        osc.frequency.exponentialRampToValueAtTime(268, now + 1.4);
+        osc.frequency.exponentialRampToValueAtTime(178, now + duration);
+
+        subOsc.type = 'triangle';
+        subOsc.frequency.setValueAtTime(110, now);
+        subOsc.frequency.exponentialRampToValueAtTime(142, now + 1.8);
+      } else {
+        // Track 3: Amplified Sol 128 Marsquake & Atmospheric Pressure Rumble
+        lowpass.frequency.setValueAtTime(240, now);
+        noiseGain.gain.setValueAtTime(0.75, now);
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(55, now);
         osc.frequency.exponentialRampToValueAtTime(118, now + 0.9);
-        osc.frequency.exponentialRampToValueAtTime(44, now + duration);
+        osc.frequency.exponentialRampToValueAtTime(48, now + duration);
 
         subOsc.type = 'sine';
         subOsc.frequency.setValueAtTime(42, now);
-      } else {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(84, now);
-        osc.frequency.exponentialRampToValueAtTime(148, now + 0.6);
-        osc.frequency.exponentialRampToValueAtTime(38, now + duration);
-
-        subOsc.type = 'sine';
-        subOsc.frequency.setValueAtTime(48, now);
+        subOsc.frequency.exponentialRampToValueAtTime(72, now + 1.2);
       }
 
-      gain.gain.setValueAtTime(0.01, now);
-      gain.gain.linearRampToValueAtTime(0.24, now + 0.35);
-      gain.gain.exponentialRampToValueAtTime(0.008, now + duration);
+      const oscGain = ctx.createGain();
+      oscGain.gain.setValueAtTime(0.28, now);
 
-      osc.connect(gain);
-      subOsc.connect(gain);
-      gain.connect(ctx.destination);
+      noiseSource.connect(noiseGain);
+      noiseGain.connect(lowpass);
+      osc.connect(oscGain);
+      subOsc.connect(oscGain);
+      oscGain.connect(lowpass);
 
+      lowpass.connect(masterGain);
+      masterGain.connect(compressor);
+      compressor.connect(ctx.destination);
+
+      noiseSource.start(now);
       osc.start(now);
       subOsc.start(now);
+      noiseSource.stop(now + duration);
       osc.stop(now + duration);
       subOsc.stop(now + duration);
 
@@ -268,12 +330,12 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
             <span className="text-xs font-bold uppercase tracking-wider text-[#64DFDF]">
               {lang === 'en'
                 ? 'Interactive P-Wave vs. S-Wave Liquid Core Simulator'
-                : 'Mô Phỏng Sóng Dọc (P) & Sóng Ngang (S) Qua Lõi Lỏng'}
+                : 'Mô phỏng sóng dọc (P) & sóng ngang (S) qua lõi lỏng'}
             </span>
             <h4 className="text-lg sm:text-xl font-bold text-[#FFF8F2]">
               {lang === 'en'
                 ? 'How S-Wave Shadow Zones Revealed Mars’ 1,830-km Molten Core'
-                : 'Cách "Vùng Tối Sóng S" Tiết Lộ Lõi Sắt Nóng Chảy Rộng 1.830 km'}
+                : 'Cách "vùng tối sóng S" tiết lộ lõi sắt nóng chảy rộng 1.830 km'}
             </h4>
           </div>
 
@@ -286,12 +348,15 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
             }}
             className="px-4 py-2 rounded-xl bg-[#F4A261] text-[#1D0F0A] text-xs font-bold hover:bg-[#FFD1A6] transition-colors shadow-lg shrink-0"
           >
-            {lang === 'en' ? '▶ Trigger Marsquake Wavefronts' : '▶ Kích Hoạt Sóng Địa Chấn'}
+            {lang === 'en' ? '▶ Trigger Marsquake Wavefronts' : '▶ Kích hoạt sóng địa chấn'}
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center mobile-single-col-lock">
-          <div className="lg:col-span-7 bg-[#150B08] rounded-2xl border border-[#F4A261]/25 p-3 flex flex-col items-center">
+          <div
+            data-no-swipe="true"
+            className="lg:col-span-7 bg-[#150B08] rounded-2xl border border-[#F4A261]/25 p-3 flex flex-col items-center"
+          >
             <canvas
               ref={canvasRef}
               width={540}
@@ -330,7 +395,7 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
               <div className="text-xs font-bold text-[#64DFDF]">
                 {lang === 'en'
                   ? 'Primary (P) Compressional Waves (~7.8 km/s)'
-                  : 'Sóng Dọc Sơ Cấp — Sóng P (~7,8 km/s)'}
+                  : 'Sóng dọc sơ cấp — Sóng P (~7,8 km/s)'}
               </div>
               <p className="text-xs text-[#F3E5D8]/90 leading-relaxed">
                 {lang === 'en'
@@ -343,7 +408,7 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
               <div className="text-xs font-bold text-[#F4A261]">
                 {lang === 'en'
                   ? 'Secondary (S) Shear Waves (~4.4 km/s · Blocked by Liquid!)'
-                  : 'Sóng Ngang Thứ Cấp — Sóng S (~4,4 km/s · Bị Chặn Bởi Chất Lỏng!)'}
+                  : 'Sóng ngang thứ cấp — Sóng S (~4,4 km/s · Bị chặn bởi chất lỏng!)'}
               </div>
               <p className="text-xs text-[#F3E5D8]/90 leading-relaxed">
                 {lang === 'en'
@@ -359,23 +424,16 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
         </div>
       </div>
 
-      {/* PART B: Embedded Official NASA JPL YouTube Video & Web Audio Sonification Lab */}
+      {/* PART B: Embedded Official NASA JPL YouTube Video & 3 Earphone-Safe Amplified Audio Tracks */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mobile-single-col-lock">
         {/* Official NASA JPL Video Embed */}
         <div className="lg:col-span-7 rounded-2xl border border-[#F4A261]/30 nasa-basalt-glass p-4 sm:p-5 space-y-3 shadow-2xl">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#FFD1A6]">
-                {lang === 'en'
-                  ? 'Official NASA JPL Audio/Video Archive (Dec 2018)'
-                  : 'Tư Liệu Âm Thanh/Video Chính Thức Của NASA JPL (12/2018)'}
-              </span>
-              <h4 className="text-base sm:text-lg font-bold text-[#FFF8F2]">
-                {lang === 'en'
-                  ? 'Sounds of Mars: NASA’s InSight Senses Martian Wind'
-                  : 'Âm Thanh Sao Hỏa: InSight Lắng Nghe Tiếng Gió Trên Cánh Pin'}
-              </h4>
-            </div>
+            <h4 className="text-base sm:text-lg font-bold text-[#FFF8F2]">
+              {lang === 'en'
+                ? 'Sounds of Mars: NASA’s InSight Senses Martian Wind'
+                : 'Âm thanh Sao Hỏa: InSight lắng nghe tiếng gió trên cánh pin'}
+            </h4>
             <a
               href="https://youtu.be/yT50Q_Zbf3s"
               target="_blank"
@@ -398,81 +456,84 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
           </div>
         </div>
 
-        {/* Interactive Web Audio Synthesizer + Scientific Pitch Disclosure */}
+        {/* 3 Amplified Wind & Seismic Audio Tracks (Earphone-Safe Normalized) */}
         <div className="lg:col-span-5 rounded-2xl border border-[#F4A261]/30 nasa-basalt-glass p-4 sm:p-5 flex flex-col justify-between space-y-4 shadow-2xl">
           <div className="space-y-3">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#64DFDF]">
               {lang === 'en'
-                ? 'Interactive Web Audio Acoustic Synthesizer'
-                : 'Bộ Tổng Hợp Âm Thanh Địa Chấn Tương Tác'}
+                ? 'Earphone-Safe Normalized Acoustic Lab'
+                : 'Phòng nghe âm thanh địa chấn chuẩn hóa an toàn'}
             </span>
             <h4 className="text-base sm:text-lg font-bold text-[#FFF8F2]">
               {lang === 'en'
-                ? 'Compare Wind Vibrations vs. Deep Marsquakes'
-                : 'So Sánh Rung Động Gió & Động Đất Sao Hỏa'}
+                ? 'Listen to 3 Amplified Wind & Seismic Tracks'
+                : 'Trải nghiệm 3 bản thu gió và địa chấn khuếch đại'}
             </h4>
 
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => playSynthesizedTelemetryAudio('wind')}
+                data-testid="audio-track-wind-natural"
+                onClick={() => playNormalizedTelemetryAudio('wind_natural')}
                 className={`w-full p-3 rounded-xl border text-left transition-colors ${
-                  activeAudioPreset === 'wind'
+                  activeAudioPreset === 'wind_natural'
                     ? 'bg-[#64DFDF] text-[#101C26] border-[#64DFDF] font-bold'
                     : 'bg-[#1C0F0B] text-[#FFF8F2] border-[#F4A261]/30 hover:bg-[#2C1812]'
                 }`}
               >
                 <div className="text-xs font-bold">
                   {lang === 'en'
-                    ? '🔊 1. Sol 4 Martian Wind Across Solar Panels (1 Dec 2018)'
-                    : '🔊 1. Tiếng Gió Sao Hỏa Thổi Qua Cánh Pin Ngày Sol 4 (01/12/2018)'}
+                    ? '🔊 1. Amplified Martian Wind on Solar Panels (Natural Pitch)'
+                    : '🔊 1. Tiếng gió Sao Hỏa trên cánh pin (Cao độ tự nhiên khuếch đại)'}
                 </div>
                 <div className="text-[11px] opacity-85 mt-0.5">
                   {lang === 'en'
-                    ? '5 m/s breeze vibrating the 2.15m solar arrays like giant eardrums.'
-                    : 'Cơn gió 5 m/s làm rung hai cánh pin rộng 2,15 m như màng nhĩ khổng lồ.'}
+                    ? 'Warm low-frequency breeze vibrating the 2.15m decagonal wings on Sol 4.'
+                    : 'Cơn gió tần số trầm làm rung hai cánh pin rộng 2,15 m vào ngày Sol 4.'}
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => playSynthesizedTelemetryAudio('sol128')}
+                data-testid="audio-track-wind-seis"
+                onClick={() => playNormalizedTelemetryAudio('wind_seis_2oct')}
                 className={`w-full p-3 rounded-xl border text-left transition-colors ${
-                  activeAudioPreset === 'sol128'
+                  activeAudioPreset === 'wind_seis_2oct'
                     ? 'bg-[#64DFDF] text-[#101C26] border-[#64DFDF] font-bold'
                     : 'bg-[#1C0F0B] text-[#FFF8F2] border-[#F4A261]/30 hover:bg-[#2C1812]'
                 }`}
               >
                 <div className="text-xs font-bold">
                   {lang === 'en'
-                    ? '🔊 2. Sol 128 First Confirmed Marsquake (6 Apr 2019)'
-                    : '🔊 2. Trận Động Đất Sao Hỏa Đầu Tiên Ngày Sol 128 (06/04/2019)'}
+                    ? '🔊 2. Amplified Martian Wind via SEIS (Pitched Up 2 Octaves for Human Ears)'
+                    : '🔊 2. Tiếng gió Sao Hỏa qua SEIS (Nâng cao độ 2 quãng tám cho tai người)'}
                 </div>
                 <div className="text-[11px] opacity-85 mt-0.5">
                   {lang === 'en'
-                    ? 'Faint deep rumble proving Mars remains seismically active.'
-                    : 'Tiếng rền trầm đục đầu tiên chứng minh Sao Hỏa vẫn đang hoạt động địa chấn.'}
+                    ? 'Shifted up 2 octaves so laptop and phone speakers reveal delicate harmonic gusts.'
+                    : 'Nâng cao độ 2 quãng tám giúp loa máy tính và điện thoại tái hiện rõ từng đợt gió.'}
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => playSynthesizedTelemetryAudio('sol1222')}
+                data-testid="audio-track-sol128-quake"
+                onClick={() => playNormalizedTelemetryAudio('sol128_quake')}
                 className={`w-full p-3 rounded-xl border text-left transition-colors ${
-                  activeAudioPreset === 'sol1222'
+                  activeAudioPreset === 'sol128_quake'
                     ? 'bg-[#64DFDF] text-[#101C26] border-[#64DFDF] font-bold'
                     : 'bg-[#1C0F0B] text-[#FFF8F2] border-[#F4A261]/30 hover:bg-[#2C1812]'
                 }`}
               >
                 <div className="text-xs font-bold">
                   {lang === 'en'
-                    ? '🔊 3. Sol 1222 Record Mag 4.7 Monster Quake (4 May 2022)'
-                    : '🔊 3. Siêu Động Đất 4,7 Độ Ngày Sol 1222 (04/05/2022)'}
+                    ? '🔊 3. Amplified Sol 128 Marsquake & Atmospheric Pressure Rumble'
+                    : '🔊 3. Động đất Sao Hỏa Sol 128 & tiếng rền áp suất khí quyển'}
                 </div>
                 <div className="text-[11px] opacity-85 mt-0.5">
                   {lang === 'en'
-                    ? 'Reverberated through Mars’ crust and mantle for over 6 hours.'
-                    : 'Làm rung chuyển toàn bộ lớp vỏ và lớp phủ Sao Hỏa suốt hơn 6 giờ.'}
+                    ? 'Deep crustal trembling sped up 60× with peak-limited headphone normalization.'
+                    : 'Rung chấn vỏ hành tinh tua nhanh 60 lần kèm bộ nén âm bảo vệ tai nghe.'}
                 </div>
               </button>
             </div>
@@ -480,11 +541,11 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
 
           <div className="p-3 rounded-xl bg-[#180C08] border border-[#F4A261]/30 text-[11px] text-[#FFD1A6]/90 leading-relaxed">
             <strong className="text-[#64DFDF]">
-              {lang === 'en' ? 'Scientific Audio Disclosure: ' : 'Chú thích Khoa học Âm thanh: '}
+              {lang === 'en' ? 'Scientific Audio Note: ' : 'Chú thích âm thanh khoa học: '}
             </strong>
             {lang === 'en'
-              ? 'Raw SEIS vibrations occur at infrasonic frequencies (<10 Hz). NASA JPL pitched wind vibrations up 2 octaves (APSS sped up 100×) and sped up Sol 128 marsquake audio 60× so human ears can hear them.'
-              : 'Rung chấn SEIS gốc nằm ở dải hạ âm (<10 Hz). NASA JPL đã nâng cao độ tiếng gió lên 2 quãng tám (APSS tua nhanh 100 lần) và tua nhanh âm thanh động đất Sol 128 lên 60 lần để tai người có thể nghe được.'}
+              ? 'Raw SEIS vibrations occur below human hearing (<10 Hz). All three tracks pass through a soft dynamics compressor and 0.3s fade envelope for comfortable headphone listening.'
+              : 'Rung chấn SEIS gốc nằm ở dải hạ âm (<10 Hz). Cả 3 bản thu đều đi qua bộ cân bằng âm lượng tự động và hiệu ứng chuyển âm êm ái giúp bảo vệ thính giác.'}
           </div>
         </div>
       </div>
