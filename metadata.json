@@ -1,0 +1,6 @@
+{
+  "name": "Silent Monuments: Voices from the Moon & Mars",
+  "description": "Interactive 3D & Planetary GIS scrollytelling observatory exploring NASA's InSight Lander, Opportunity Rover, and Apollo 11 Lunar Laser Ranging Retroreflector for the 2026 NASA International Space Apps Challenge (Team NAU EXPLORERS · NS01048).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

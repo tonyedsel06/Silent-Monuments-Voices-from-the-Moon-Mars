@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --bg-obsidian: #070B14;
+    --bg-slate: #121C2E;
+    --glass-panel: rgba(18, 28, 46, 0.78);
+    --amber-mars: #F4A261;
+    --peach-sun: #FFD1A6;
+    --emerald-lunar: #64DFDF;
+    --text-crisp: #F8F9FA;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: 'Fraunces', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    background-color: #070B14;
+    color: #F8F9FA;
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, .font-display {
+    font-family: var(--font-serif);
+    text-wrap: balance;
+  }
+
+  .font-mono, code, pre, .tabular-nums {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
