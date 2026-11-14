@@ -1,16 +1,21 @@
 import React from 'react';
-import { Language, OFFICIAL_REFERENCES, TEAM_METADATA } from '../data/bilingualContent';
+import {
+  JUDGE_QA_ITEMS,
+  Language,
+  SCIENTIFIC_SOURCES,
+  TEAM_METADATA,
+} from '../data/bilingualContent';
 
 interface ReferenceDeskModalProps {
-  lang: Language;
   isOpen: boolean;
   onClose: () => void;
+  lang: Language;
 }
 
 export const ReferenceDeskModal: React.FC<ReferenceDeskModalProps> = ({
-  lang,
   isOpen,
   onClose,
+  lang,
 }) => {
   if (!isOpen) return null;
 
@@ -18,146 +23,122 @@ export const ReferenceDeskModal: React.FC<ReferenceDeskModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Reference Desk, Representational Integrity & Transparency Ledger"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 overflow-y-auto"
+      aria-labelledby="reference-desk-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md"
     >
-      <div className="w-full max-w-5xl max-h-[90vh] flex flex-col rounded-2xl border border-[#F4A261]/35 bg-[#23140F] overflow-hidden shadow-2xl">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F4A261]/25 bg-[#2C1812] shrink-0">
+      <div className="relative w-full max-w-4xl max-h-[88vh] rounded-2xl border border-[#F4A261]/40 bg-[#1F110C] text-[#FFF8F2] shadow-2xl flex flex-col overflow-hidden">
+        {/* Sticky Modal Header */}
+        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#F4A261]/25 bg-[#2A1610]">
           <div>
-            <span className="text-xs font-semibold text-[#F4A261] block">
-              NASA SPACE APPS CHALLENGE HANOI 2026 · TEAM {TEAM_METADATA.teamName} ({TEAM_METADATA.teamId})
-            </span>
-            <h2 className="text-xl font-bold text-[#FFF8F2]">
+            <div className="text-xs font-bold uppercase tracking-wider text-[#64DFDF]">
+              {TEAM_METADATA.umbrellaProjectTitle}
+            </div>
+            <h2
+              id="reference-desk-modal-title"
+              className="font-serif-editorial text-lg sm:text-2xl font-bold text-[#FFF8F2]"
+            >
               {lang === 'en'
-                ? 'Reference Desk, Representational Integrity & Transparency Ledger'
-                : 'Bàn Tra Cứu Tài Liệu, Tính Minh Bạch Khoa Học & Bản Quyền Mở'}
+                ? 'InSight (2018-042A) Reference Desk & Space Apps Judge Ledger'
+                : 'Hồ Sơ Tham Chiếu Khoa Học InSight (2018-042A) & Giám Khảo Space Apps'}
             </h2>
           </div>
+
           <button
             type="button"
+            data-testid="close-reference-desk-btn"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-bold rounded-xl bg-[#3D2219] text-[#FFF8F2] hover:bg-[#4E2C20]"
+            className="px-3.5 py-1.5 rounded-xl bg-[#3B2016] text-[#FFD1A6] border border-[#F4A261]/40 text-xs font-bold hover:bg-[#4F2B1E] transition-colors shrink-0"
           >
-            {lang === 'en' ? 'Return to Story ✕' : 'Quay lại Câu chuyện ✕'}
+            {lang === 'en' ? '✕ Close' : '✕ Đóng'}
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6">
-          {/* Team & Institution Official Registration Block */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border border-[#F4A261]/25 bg-[#2C1812]">
-            <div>
-              <div className="text-xs font-bold text-[#64DFDF] mb-1">
-                {lang === 'en' ? 'OFFICIAL TEAM REGISTRATION' : 'THÔNG TIN ĐỘI THI CHÍNH THỨC'}
-              </div>
-              <div className="text-base font-bold text-[#FFF8F2]">
-                {TEAM_METADATA.teamName} · ID:{' '}
-                <span className="text-[#F4A261]">{TEAM_METADATA.teamId}</span>
-              </div>
-              <div className="text-xs text-[#F3E5D8] mt-1">
-                {TEAM_METADATA.institution[lang]}
-              </div>
-              <div className="text-xs text-[#F3E5D8]/80 mt-0.5">
-                {TEAM_METADATA.localEvent[lang]}
-              </div>
-              <div className="text-xs font-semibold text-[#FFD1A6] mt-2">
-                {lang === 'en' ? 'License:' : 'Giấy phép mở:'} {TEAM_METADATA.license}
-              </div>
+        {/* Scrollable Content */}
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
+          {/* Team & Subsystem Metadata Card */}
+          <div className="p-4 rounded-xl bg-[#29150E] border border-[#F4A261]/30 space-y-2 text-xs">
+            <div className="font-bold text-[#FFD1A6] text-sm">
+              {TEAM_METADATA.projectTitle} · NSSDCA ID: {TEAM_METADATA.nssdcaId}
             </div>
-
-            <div>
-              <div className="text-xs font-bold text-[#F4A261] mb-1">
-                {lang === 'en' ? 'OFFICIAL TEAM MEMBERS (5)' : 'THÀNH VIÊN CHÍNH THỨC (5)'}
-              </div>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#FFF8F2] font-medium">
-                {TEAM_METADATA.members.map((member, idx) => (
-                  <li key={member}>
-                    0{idx + 1}. {member}
-                  </li>
-                ))}
-              </ul>
-              <div className="text-xs text-[#F3E5D8]/80 mt-2">
-                {lang === 'en' ? 'Target Audience:' : 'Đối tượng:'}{' '}
-                {TEAM_METADATA.targetAudience[lang]}
-              </div>
-            </div>
+            <p className="text-[#F3E5D8]/90">
+              <strong>{lang === 'en' ? 'Team:' : 'Đội thi:'}</strong> {TEAM_METADATA.teamName} (ID:{' '}
+              {TEAM_METADATA.officialTeamId}) · {TEAM_METADATA.institution} ·{' '}
+              {TEAM_METADATA.localEvent}
+            </p>
+            <p className="text-[#F3E5D8]/90">
+              <strong>{lang === 'en' ? 'Members (5):' : 'Thành viên (5):'}</strong>{' '}
+              {TEAM_METADATA.members.join(' · ')}
+            </p>
+            <p className="text-[#64DFDF]">
+              <strong>
+                {lang === 'en'
+                  ? 'Scientific Integrity Note:'
+                  : 'Chú thích Minh bạch Khoa học:'}
+              </strong>{' '}
+              {lang === 'en'
+                ? 'First-person narration ("I am InSight") is a creative pedagogical device designed for learners aged 10–15. Every coordinate, date, power figure, and seismic discovery is strictly anchored to primary NASA/JPL records.'
+                : 'Giọng kể ngôi thứ nhất ("Tôi là InSight") là phương pháp sư phạm giúp học sinh 10–15 tuổi dễ tiếp thu. Mọi tọa độ, ngày tháng, thông số điện năng và phát hiện địa chấn đều dựa hoàn toàn vào hồ sơ gốc của NASA/JPL.'}
+            </p>
           </div>
 
-          {/* Representational Integrity Matrix */}
-          <div className="rounded-xl border border-[#F4A261]/25 bg-[#2C1812] p-4">
-            <h3 className="text-sm font-bold text-[#FFD1A6] mb-3">
+          {/* Space Apps Judge Q&A Section */}
+          <div className="space-y-3">
+            <h3 className="text-base font-bold text-[#FFD1A6] uppercase tracking-wider">
               {lang === 'en'
-                ? 'REPRESENTATIONAL INTEGRITY MATRIX (VERIFIED TELEMETRY VS. EDUCATIONAL SIMULATION)'
-                : 'MA TRẬN MINH BẠCH KHOA HỌC (DỮ LIỆU GỐC NASA VS. MÔ PHỎNG GIÁO DỤC)'}
+                ? 'NASA Space Apps Judge Q&A Summary'
+                : 'Tóm Tắt Hồ Sơ Dự Thi NASA Space Apps'}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
-              <div className="p-3.5 rounded-xl bg-[#1D100C] border border-[#F4A261]/20">
-                <strong className="text-[#F4A261] block mb-1">
-                  {lang === 'en' ? 'Verified NASA/NSSDCA Telemetry' : 'Dữ liệu gốc NASA/NSSDCA đã xác minh'}
-                </strong>
-                <p className="text-[#F3E5D8]">
-                  {lang === 'en'
-                    ? 'Spacecraft NSSDCA IDs (2018-042A, 2003-032A, 1969-059C), coordinates (4.502°N 135.623°E; 1.946°S 354.473°E; 0.674°N 23.473°E), mission dates, 1,319 marsquakes, ~5,000 Wh to ~500 Wh solar power drop, ~1,830 km liquid core radius, ~40 cm HP³ mole depth, and 3.8 cm/yr lunar recession.'
-                    : 'Mã định danh NSSDCA (2018-042A, 2003-032A, 1969-059C), tọa độ đổ bộ, ngày tháng sứ mệnh, 1.319 trận động đất Sao Hỏa, mức giảm điện từ ~5.000 Wh xuống ~500 Wh/sol, lõi lỏng ~1.830 km, độ sâu HP³ ~40 cm và tốc độ Mặt Trăng lùi xa 3,8 cm/năm.'}
-                </p>
-              </div>
-              <div className="p-3.5 rounded-xl bg-[#1D100C] border border-[#F4A261]/20">
-                <strong className="text-[#64DFDF] block mb-1">
-                  {lang === 'en' ? 'Educational Simulation & Narrative Voice' : 'Mô phỏng Giáo dục & Giọng kể Nhật ký'}
-                </strong>
-                <p className="text-[#F3E5D8]">
-                  {lang === 'en'
-                    ? 'First-person diary voice (spacecraft do not literally speak), procedural Three.js 3D models, conceptual planetary cutaway proportions, Web Audio 60× synthesized seismic waveforms, and the classroom 500 Wh power allocation exercise are pedagogical models for learners aged 10–15.'
-                    : 'Giọng kể nhật ký ngôi thứ nhất, mô hình 3D Three.js, lát cắt hành tinh minh họa, bộ tổng hợp âm thanh Web Audio 60× và bài tập phân bổ 500 Wh điện là mô hình sư phạm dành cho học sinh 10–15 tuổi.'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 12 Primary NASA, JPL & NSSDCA Sources */}
-          <div>
-            <h3 className="text-sm font-bold text-[#FFF8F2] mb-3">
-              {lang === 'en'
-                ? '12 PRIMARY NASA, JPL-CALTECH & NSSDCA ARCHIVE CITATIONS'
-                : '12 NGUỒN DỮ LIỆU GỐC TỪ NASA, JPL-CALTECH & NSSDCA'}
-            </h3>
-            <ol className="space-y-2.5">
-              {OFFICIAL_REFERENCES.map((ref) => (
-                <li
-                  key={ref.id}
-                  className="p-3.5 rounded-xl border border-[#F4A261]/20 bg-[#2C1812] text-xs"
+            <div className="space-y-3">
+              {JUDGE_QA_ITEMS.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-4 rounded-xl bg-[#160B08] border border-[#F4A261]/25 space-y-1.5"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                    <span className="text-[#F4A261] font-bold">
-                      {String(ref.id).padStart(2, '0')} · {ref.category}
-                    </span>
-                    <a
-                      href={ref.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#64DFDF] font-semibold hover:underline break-all"
-                    >
-                      {ref.url} ↗
-                    </a>
+                  <div className="text-xs sm:text-sm font-bold text-[#FFF8F2]">
+                    {item.question[lang]}
                   </div>
-                  <div className="font-semibold text-[#FFF8F2] mb-0.5">{ref.title}</div>
-                  <div className="text-[#F3E5D8]/80">{ref.verifiedFact}</div>
-                </li>
+                  <p className="text-xs text-[#F3E5D8]/85 leading-relaxed">
+                    {item.answer[lang]}
+                  </p>
+                </div>
               ))}
-            </ol>
+            </div>
           </div>
 
-          {/* AI Assistance & Open Source Disclosure */}
-          <div className="p-4 rounded-xl border border-[#F4A261]/25 bg-[#1D100C] text-xs text-[#F3E5D8] leading-relaxed">
-            <strong className="text-[#FFF8F2] block mb-1">
+          {/* 12 Primary NASA/JPL Citations */}
+          <div className="space-y-3">
+            <h3 className="text-base font-bold text-[#64DFDF] uppercase tracking-wider">
               {lang === 'en'
-                ? 'AI ASSISTANCE & OPEN SOURCE LICENSE DISCLOSURE'
-                : 'TUYÊN BỐ MINH BẠCH CÔNG CỤ AI & GIẤY PHÉP MÃ NGUỒN MỞ'}
-            </strong>
-            {lang === 'en'
-              ? 'Developed by Team NAU EXPLORERS (Official Team ID: NS01048, Nghe An University) for the 2026 NASA International Space Apps Challenge Hanoi. All mission facts, NSSDCA identifiers, coordinates, and scientific disclosures were verified against primary NASA/JPL archives. Released under the OSI-approved Apache License 2.0.'
-              : 'Được phát triển bởi Đội NAU EXPLORERS (Mã đội: NS01048, Trường Đại học Nghệ An) cho cuộc thi NASA International Space Apps Challenge Hà Nội 2026. Toàn bộ số liệu sứ mệnh, mã NSSDCA và tọa độ được đối chiếu với hồ sơ gốc của NASA/JPL. Phát hành theo giấy phép mở Apache License 2.0.'}
+                ? 'Verified Primary NASA / JPL / NSSDCA References (12 Sources)'
+                : 'Danh Mục 12 Nguồn Tư Liệu Gốc NASA / JPL / NSSDCA'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {SCIENTIFIC_SOURCES.map((src) => (
+                <div
+                  key={src.id}
+                  className="p-3.5 rounded-xl bg-[#160B08] border border-[#F4A261]/25 flex flex-col justify-between space-y-2"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2 text-[11px]">
+                      <span className="font-bold text-[#F4A261]">{src.category}</span>
+                      <span className="text-[#64DFDF] font-semibold">{src.identifier}</span>
+                    </div>
+                    <div className="text-xs font-bold text-[#FFF8F2]">{src.title}</div>
+                    <p className="text-[11px] text-[#F3E5D8]/80 leading-relaxed">
+                      {src.summary[lang]}
+                    </p>
+                  </div>
+                  <a
+                    href={src.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#FFD1A6] hover:underline"
+                  >
+                    {lang === 'en' ? 'Open Official NASA Source ↗' : 'Mở Nguồn NASA Chính Thức ↗'}
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

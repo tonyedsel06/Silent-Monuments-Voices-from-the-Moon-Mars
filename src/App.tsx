@@ -1,75 +1,63 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   CHAPTER_TITLES,
-  GIS_LANDMARKS,
-  GisLandmark,
-  HardwareHotspot,
+  INSIGHT_DISCOVERIES_4,
+  INSIGHT_QUIZ_QUESTIONS_3,
+  INSIGHT_SUBSYSTEMS_9,
+  InSightSubsystemSpec,
+  JUDGE_QA_ITEMS,
+  JOURNEY_MILESTONES,
   Language,
-  OFFICIAL_REFERENCES,
-  QUIZ_QUESTIONS,
+  SCIENTIFIC_SOURCES,
   TEAM_METADATA,
 } from './data/bilingualContent';
 import {
-  calculateMissionClocks,
-  calculateSolarPowerFromDust,
-  evaluatePowerAllocation,
-  gradeExplorerQuiz,
-} from './utils/missionMath';
-import {
   CHAPTER_BACKDROPS,
-  DIRECT_NASA_PHOTO_URLS,
+  INSIGHT_MEDIA_ASSETS,
   preloadCriticalNasaAssets,
 } from './utils/nasaMedia';
-import { NasaPhotoViewer } from './components/NasaPhotoViewer';
-import { PlanetaryGisGlobe3D } from './components/PlanetaryGisGlobe3D';
+import {
+  calculateInSightTelemetry,
+  calculateSolarPowerFromDust,
+  evaluatePowerAllocation,
+  gradeInSightQuiz,
+} from './utils/missionMath';
 import { InSightLander3D } from './components/InSightLander3D';
-import { SeismicSonificationLab } from './components/SeismicSonificationLab';
 import { MartianInteriorCutaway } from './components/MartianInteriorCutaway';
-import { LunarLaserRangingLab } from './components/LunarLaserRangingLab';
+import { SeismicSonificationLab } from './components/SeismicSonificationLab';
 import { MissionEmblemGenerator } from './components/MissionEmblemGenerator';
 import { ReferenceDeskModal } from './components/ReferenceDeskModal';
 
 interface ChapterBackdropWrapperProps {
-  chapterIdx: number;
+  chapterIndex: number;
   lang: Language;
-  id: string;
-  ariaLabelledBy: string;
   children: React.ReactNode;
 }
 
 const ChapterBackdropWrapper: React.FC<ChapterBackdropWrapperProps> = ({
-  chapterIdx,
+  chapterIndex,
   lang,
-  id,
-  ariaLabelledBy,
   children,
 }) => {
-  const meta = CHAPTER_BACKDROPS[chapterIdx] ?? CHAPTER_BACKDROPS[0];
-  const [imgSrc, setImgSrc] = useState<string>(meta.primaryUrl);
+  const meta = CHAPTER_BACKDROPS[chapterIndex] ?? CHAPTER_BACKDROPS[0];
+  const [imgSrc, setImgSrc] = useState(meta.primaryUrl);
 
   useEffect(() => {
     setImgSrc(meta.primaryUrl);
   }, [meta.primaryUrl]);
 
-  const isLunar = meta.theme === 'moon';
-
   return (
     <section
-      id={id}
-      aria-labelledby={ariaLabelledBy}
-      className={`relative rounded-3xl overflow-hidden border shadow-2xl transition-colors ${
-        isLunar
-          ? 'border-[#64DFDF]/25 bg-[#1A2436]'
-          : 'border-[#F4A261]/25 bg-[#2A1812]'
-      }`}
+      id={`chapter-section-${chapterIndex}`}
+      data-testid={`page-section-${chapterIndex + 1}`}
+      className="relative rounded-3xl overflow-hidden border border-[#F4A261]/30 shadow-2xl transition-all duration-500 bg-[#24130D]"
     >
-      {/* Real NASA Photograph Background with Slow Living Ken Burns Motion */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* Living 4K Real NASA Photograph Background with Ken Burns Motion */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
         <img
           src={imgSrc}
-          alt=""
+          alt={meta.caption[lang]}
           decoding="async"
-          referrerPolicy="no-referrer"
           onError={() => {
             if (imgSrc !== meta.fallbackUrl) {
               setImgSrc(meta.fallbackUrl);
@@ -77,41 +65,26 @@ const ChapterBackdropWrapper: React.FC<ChapterBackdropWrapperProps> = ({
           }}
           className="w-full h-full object-cover opacity-35 animate-ken-burns"
         />
-        {/* Translucent Sunlit Terracotta or Lunar Silver-Slate Gradient Overlay */}
-        <div
-          className={`absolute inset-0 ${
-            isLunar
-              ? 'bg-gradient-to-br from-[#1A2436]/88 via-[#24344D]/82 to-[#162030]/92'
-              : 'bg-gradient-to-br from-[#2A1812]/88 via-[#4A2518]/80 to-[#24130E]/92'
-          }`}
-        />
-        {/* Warm Ambient Sunlight Glow */}
-        <div
-          className="absolute inset-0 opacity-35"
-          style={{
-            background: isLunar
-              ? 'radial-gradient(circle at 82% 18%, rgba(100, 223, 223, 0.22), transparent 55%)'
-              : 'radial-gradient(circle at 82% 18%, rgba(255, 209, 166, 0.26), transparent 55%)',
-          }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#23110B]/92 via-[#361A11]/82 to-[#1B0D08]/95" />
       </div>
 
-      {/* Foreground Chapter Content */}
-      <div className="relative z-10 p-5 sm:p-8 lg:p-10 space-y-8">
+      {/* Foreground Content */}
+      <div className="relative z-10 p-4 sm:p-8 lg:p-10 space-y-6">
         {children}
 
-        {/* Ultra-Compact Chapter Backdrop Photo Citation Pill */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10 text-xs text-[#F3E5D8]/75">
+        {/* Bottom Backdrop Photo Credit & Direct NASA Verification Pill */}
+        <div className="pt-3 border-t border-[#F4A261]/20 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#F3E5D8]/75">
           <span>
-            {lang === 'en' ? 'Chapter Backdrop:' : 'Ảnh nền chương:'} {meta.caption[lang]}
+            {lang === 'en' ? 'Backdrop Photography: ' : 'Ảnh nền NASA: '}
+            <strong className="text-[#FFD1A6]">{meta.caption[lang]}</strong>
           </span>
           <a
             href={meta.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/30 border border-white/15 text-[#FFD1A6] hover:text-white font-semibold transition-colors"
+            className="text-[#FFD1A6] hover:text-white transition-colors font-semibold"
           >
-            {lang === 'en' ? `Source: ${meta.credit} ↗` : `Nguồn: ${meta.credit} ↗`}
+            Source: {meta.credit} ↗
           </a>
         </div>
       </div>
@@ -119,63 +92,63 @@ const ChapterBackdropWrapper: React.FC<ChapterBackdropWrapperProps> = ({
   );
 };
 
-export default function App() {
+export function App() {
   const [lang, setLang] = useState<Language>('en');
-  const [currentChapter, setCurrentChapter] = useState<number>(0);
-  const [displayMode, setDisplayMode] = useState<'chapter' | 'all'>('chapter');
-  const [isRefModalOpen, setIsRefModalOpen] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(0); // 0..9 (Page 01 to Page 10)
+  const [displayMode, setDisplayMode] = useState<'page' | 'all'>('page');
+  const [isRefModalOpen, setIsRefModalOpen] = useState(false);
 
-  // Chapter 01 cursor-reactive Martian dust & sunlight overlay canvas over real NASA photo
+  // Page 01: Ambient Martian Wind Audio Toggle
+  const [isWindPlaying, setIsWindPlaying] = useState(false);
+  const windAudioCtxRef = useRef<AudioContext | null>(null);
   const heroCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const cursorRef = useRef({ x: 0.5, y: 0.5 });
-  const [heroPhotoUrl, setHeroPhotoUrl] = useState<string>(DIRECT_NASA_PHOTO_URLS.PIA22876);
 
-  // Chapter 02 GIS state
-  const [gisBody, setGisBody] = useState<'mars' | 'moon'>('mars');
-  const [selectedLandmarkId, setSelectedLandmarkId] = useState<GisLandmark['id']>('insight');
+  // Page 02: Stationary Lander vs Rolling Rover Comparison Toggle
+  const [landerCompareTab, setLanderCompareTab] = useState<'insight' | 'rover'>('insight');
 
-  // Chapter 03 Lander vs Rover comparison state
-  const [architectureTab, setArchitectureTab] = useState<'lander' | 'rover'>('lander');
+  // Page 03: Selected Journey Milestone (0..5)
+  const [selectedMilestoneIdx, setSelectedMilestoneIdx] = useState<number>(1);
 
-  // Chapter 04 3D Lander Hotspot & Quick Discovery Challenge
-  const [selectedHotspotId, setSelectedHotspotId] = useState<HardwareHotspot['id']>('seis');
-  const [ch4Choice, setCh4Choice] = useState<'seis' | 'panel' | 'camera' | null>(null);
+  // Page 04: Selected Mission Pillar ('seis' | 'hp3' | 'rise') & Student Discovery Check
+  const [selectedPillar, setSelectedPillar] = useState<'seis' | 'hp3' | 'rise'>('seis');
+  const [page4CheckAnswer, setPage4CheckAnswer] = useState<'earth' | 'mars' | null>(null);
 
-  // Chapter 07 Dust & Power Scrubber + Power Trade-Off Lab
-  const [dustPercent, setDustPercent] = useState<number>(75);
-  const [powerAlloc, setPowerAlloc] = useState({
+  // Page 05: Selected Hardware Subsystem (9 subsystems from PIA17358)
+  const [selectedSubsystemId, setSelectedSubsystemId] =
+    useState<InSightSubsystemSpec['id']>('seis');
+
+  // Page 08: Selected Discovery Card (0..3)
+  const [selectedDiscoveryIdx, setSelectedDiscoveryIdx] = useState<number>(0);
+
+  // Page 09: Dust Cover Scrubber (0% clean 2018 -> 90% dusty 2022) & Classroom Power Lab
+  const [dustPercent, setDustPercent] = useState<number>(85);
+  const [powerInputs, setPowerInputs] = useState({
     survivalHeatersWh: 200,
     seisSeismometerWh: 180,
-    uhfTelemetryWh: 90,
+    uhfTelemetryWh: 100,
     hp3MoleWh: 0,
   });
 
-  // Chapter 09 Baseline Comparison Toggle
-  const [baselineView, setBaselineView] = useState<'comparison' | 'raw' | 'solution'>('comparison');
+  // Page 10: 3-Question Quiz, 4D Badge Callsign & Collapsible Judge Drawer
+  const [quizAnswers, setQuizAnswers] = useState<(number | null)[]>([null, null, null]);
+  const [explorerName, setExplorerName] = useState('MINH ANH');
+  const [generatedCallsign, setGeneratedCallsign] = useState('MINH ANH');
+  const [isJudgeDrawerOpen, setIsJudgeDrawerOpen] = useState(false);
 
-  // Chapter 10 Quiz & 8K Mission Emblem Generator
-  const [quizAnswers, setQuizAnswers] = useState<(number | null)[]>([null, null, null, null]);
-  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
-  const [explorerName, setExplorerName] = useState<string>('');
-  const [generatedCallsign, setGeneratedCallsign] = useState<string>('EXPLORER-NS01048');
+  const telemetry = calculateInSightTelemetry('2026-11-14T00:00:00Z');
+  const solarMetrics = calculateSolarPowerFromDust(dustPercent);
+  const powerEval = evaluatePowerAllocation(solarMetrics.wattHoursPerSol, powerInputs);
+  const quizResult = gradeInSightQuiz(quizAnswers);
 
-  // Preload all critical NASA photographs on initial boot
   useEffect(() => {
     preloadCriticalNasaAssets();
   }, []);
 
-  const missionClocks = calculateMissionClocks('2026-11-14T00:00:00Z');
-  const solarMetrics = calculateSolarPowerFromDust(dustPercent);
-  const powerEvaluation = evaluatePowerAllocation(solarMetrics.wattHoursPerSol, powerAlloc);
-  const quizEvaluation = gradeExplorerQuiz(quizAnswers, [1, 2, 0, 1]);
-
-  const selectedLandmark =
-    GIS_LANDMARKS.find((l) => l.id === selectedLandmarkId) ?? GIS_LANDMARKS[0];
-
-  const goToChapter = (index: number) => {
-    const clamped = Math.max(0, Math.min(9, index));
-    setCurrentChapter(clamped);
-    if (displayMode === 'chapter') {
+  const goToPage = (idx: number) => {
+    const clamped = Math.max(0, Math.min(9, idx));
+    setCurrentPage(clamped);
+    if (displayMode === 'page') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       const el = document.getElementById(`chapter-section-${clamped}`);
@@ -183,56 +156,109 @@ export default function App() {
     }
   };
 
+  // Keyboard Left/Right navigation
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      if (e.key === 'ArrowRight' && currentChapter < 9) {
-        goToChapter(currentChapter + 1);
-      } else if (e.key === 'ArrowLeft' && currentChapter > 0) {
-        goToChapter(currentChapter - 1);
+      if (e.key === 'ArrowRight' && currentPage < 9) {
+        goToPage(currentPage + 1);
+      } else if (e.key === 'ArrowLeft' && currentPage > 0) {
+        goToPage(currentPage - 1);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   });
 
-  // Chapter 01 transparent Martian dust particles & warm sunlight flare overlay over real NASA photo
+  // Ambient Martian Wind Web Audio Generator for Page 01
+  const toggleMartianWindAudio = () => {
+    if (isWindPlaying) {
+      if (windAudioCtxRef.current) {
+        windAudioCtxRef.current.close().catch(() => {});
+        windAudioCtxRef.current = null;
+      }
+      setIsWindPlaying(false);
+      return;
+    }
+
+    try {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new AudioCtx();
+      windAudioCtxRef.current = ctx;
+
+      const bufferSize = ctx.sampleRate * 3;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 135;
+
+      const gain = ctx.createGain();
+      gain.gain.value = 0.14;
+
+      whiteNoise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      whiteNoise.start();
+      setIsWindPlaying(true);
+    } catch {
+      setIsWindPlaying(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (windAudioCtxRef.current) {
+        windAudioCtxRef.current.close().catch(() => {});
+      }
+    };
+  }, []);
+
+  // Page 01 Drifting Martian Dust & Warm Sunlight Flare Canvas
   useEffect(() => {
     const canvas = heroCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const particles = Array.from({ length: 38 }, (_, i) => ({
+    const particles = Array.from({ length: 36 }, (_, i) => ({
       x: ((i * 73) % 100) / 100,
       y: ((i * 41) % 100) / 100,
-      r: 1.3 + (i % 3) * 0.85,
+      r: 1.2 + (i % 3) * 0.85,
       vx: 0.00045 + (i % 4) * 0.00018,
-      vy: -0.00015 + (i % 3) * 0.0001,
+      vy: -0.00012 + (i % 3) * 0.00009,
     }));
 
     let animId = 0;
-    const renderDustOverlay = () => {
+    const renderDust = () => {
       const w = canvas.width;
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      // Warm golden-amber sunlight flare responding to cursor
-      const sunX = w * (0.76 + (cursorRef.current.x - 0.5) * 0.1);
-      const sunY = h * (0.26 + (cursorRef.current.y - 0.5) * 0.08);
-      const sunGrad = ctx.createRadialGradient(sunX, sunY, 4, sunX, sunY, 150);
-      sunGrad.addColorStop(0, 'rgba(255, 224, 186, 0.52)');
-      sunGrad.addColorStop(0.45, 'rgba(244, 162, 97, 0.22)');
+      const sunX = w * (0.5 + (cursorRef.current.x - 0.5) * 0.08);
+      const sunY = h * (0.18 + (cursorRef.current.y - 0.5) * 0.06);
+      const sunGrad = ctx.createRadialGradient(sunX, sunY, 4, sunX, sunY, 160);
+      sunGrad.addColorStop(0, 'rgba(255, 228, 196, 0.48)');
+      sunGrad.addColorStop(0.5, 'rgba(244, 162, 97, 0.18)');
       sunGrad.addColorStop(1, 'rgba(244, 162, 97, 0)');
       ctx.fillStyle = sunGrad;
       ctx.beginPath();
-      ctx.arc(sunX, sunY, 150, 0, Math.PI * 2);
+      ctx.arc(sunX, sunY, 160, 0, Math.PI * 2);
       ctx.fill();
 
-      // Floating iron-oxide dust motes drifting across the real NASA photograph
       particles.forEach((p) => {
-        p.x = (p.x + p.vx + (cursorRef.current.x - 0.5) * 0.0014 + 1) % 1;
+        p.x = (p.x + p.vx + (cursorRef.current.x - 0.5) * 0.0012 + 1) % 1;
         p.y = (p.y + p.vy + 1) % 1;
         ctx.fillStyle = 'rgba(255, 218, 180, 0.68)';
         ctx.beginPath();
@@ -240,55 +266,56 @@ export default function App() {
         ctx.fill();
       });
 
-      animId = requestAnimationFrame(renderDustOverlay);
+      animId = requestAnimationFrame(renderDust);
     };
 
-    renderDustOverlay();
+    renderDust();
     return () => cancelAnimationFrame(animId);
-  }, [currentChapter, displayMode]);
+  }, [currentPage, displayMode]);
 
-  const isChapterVisible = (idx: number) => displayMode === 'all' || currentChapter === idx;
-  const activeBackdropTheme = CHAPTER_BACKDROPS[currentChapter]?.theme ?? 'mars';
+  const isPageVisible = (idx: number) => displayMode === 'all' || currentPage === idx;
+  const activeMilestone = JOURNEY_MILESTONES[selectedMilestoneIdx] ?? JOURNEY_MILESTONES[1];
 
   return (
-    <div
-      className={`min-h-screen flex flex-col transition-colors duration-700 ${
-        activeBackdropTheme === 'moon'
-          ? 'bg-gradient-to-b from-[#1A2436] via-[#243247] to-[#172030] text-[#FFF8F2]'
-          : 'bg-gradient-to-b from-[#2A1812] via-[#3D2016] to-[#24140E] text-[#FFF8F2]'
-      }`}
-    >
-      {/* Sticky Top Navigation Bar with Continuous Animated Glowing Horizon Line */}
-      <header className="sticky top-0 z-40 bg-[#22130E]/95 shadow-xl">
-        <div className="max-w-[1360px] mx-auto px-3 sm:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-6">
-          {/* Zone 1: Brand Title */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#26130D] via-[#381C13] to-[#1D0E0A] text-[#FFF8F2] overflow-x-hidden">
+      {/* STICKY TOP NAVIGATION BAR (Modular Subsystem Header) */}
+      <header className="sticky top-0 z-40 bg-[#1F100B]/95 backdrop-blur-md shadow-xl">
+        <div className="max-w-[1360px] mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+          {/* Brand Title */}
           <a
             href="#top"
             onClick={(e) => {
               e.preventDefault();
-              goToChapter(0);
+              goToPage(0);
             }}
-            className="font-serif-editorial text-sm sm:text-lg font-bold tracking-tight text-[#FFF8F2] whitespace-nowrap shrink-0"
+            className="flex flex-col shrink-0"
           >
-            Silent Monuments
+            <span className="font-serif-editorial text-xs sm:text-base font-bold tracking-tight text-[#FFF8F2] leading-tight">
+              INSIGHT: THE LAST DIARY FROM MARS
+            </span>
+            <span className="hidden sm:inline text-[10px] font-semibold text-[#FFD1A6]/80">
+              {lang === 'en'
+                ? 'Abandoned But Not Forgotten · NSSDCA ID: 2018-042A'
+                : 'Bị Bỏ Lại Nhưng Không Bị Lãng Quên · NSSDCA ID: 2018-042A'}
+            </span>
           </a>
 
-          {/* Zone 2: Direct 10-Chapter Navigation Pills */}
+          {/* Direct 01–10 Page Pills (Desktop) */}
           <nav
-            aria-label="Chapter group navigation"
-            className="hidden lg:flex items-center gap-1 text-[11px] font-semibold text-[#F3E5D8]"
+            aria-label="10-page InSight navigation"
+            className="hidden xl:flex items-center gap-1 text-xs font-semibold"
           >
             {CHAPTER_TITLES.map((ch, idx) => {
-              const isActive = currentChapter === idx;
+              const isActive = currentPage === idx;
               return (
                 <button
                   key={ch.num}
                   type="button"
-                  onClick={() => goToChapter(idx)}
+                  onClick={() => goToPage(idx)}
                   title={`${ch.num}. ${ch.title[lang]}`}
-                  className={`px-2 py-1 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+                  className={`px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap shrink-0 ${
                     isActive
-                      ? 'bg-[#F4A261] text-[#1F110C] font-bold shadow-sm'
+                      ? 'bg-[#F4A261] text-[#1D0F0A] font-bold shadow-sm'
                       : 'text-[#F3E5D8]/85 hover:bg-[#382017] hover:text-white'
                   }`}
                 >
@@ -298,35 +325,36 @@ export default function App() {
             })}
           </nav>
 
-          {/* Zone 3: Mode Toggle + [ EN | VI ] + Reference Desk */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Controls: Mode Toggle + [ EN | VI ] + Reference Desk */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               data-testid="reading-mode-toggle-btn"
-              onClick={() => setDisplayMode((m) => (m === 'chapter' ? 'all' : 'chapter'))}
-              className="px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold rounded-xl bg-[#341D15] text-[#FFD1A6] border border-[#F4A261]/35 hover:bg-[#46271C] transition-colors whitespace-nowrap shrink-0"
+              onClick={() => setDisplayMode((m) => (m === 'page' ? 'all' : 'page'))}
+              className="hidden md:inline-flex px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-[#341C14] text-[#FFD1A6] border border-[#F4A261]/35 hover:bg-[#46271C] transition-colors whitespace-nowrap"
             >
-              {displayMode === 'chapter'
+              {displayMode === 'page'
                 ? lang === 'en'
-                  ? 'Mode: Focused Chapter'
-                  : 'Chế độ: Từng chương'
+                  ? 'Mode: Focused Page'
+                  : 'Chế độ: Từng trang'
                 : lang === 'en'
-                  ? 'Mode: Full 10-Chapter Scroll'
-                  : 'Chế độ: Cuộn 10 chương'}
+                  ? 'Mode: Full 10-Page Scroll'
+                  : 'Chế độ: Cuộn 10 trang'}
             </button>
 
             <div
               role="group"
               aria-label="Language switcher"
-              className="flex items-center bg-[#341D15] p-0.5 rounded-xl border border-[#F4A261]/35"
+              className="flex items-center bg-[#341C14] p-0.5 rounded-xl border border-[#F4A261]/35"
             >
               <button
                 type="button"
-                onClick={() => setLang('en')}
+                data-testid="lang-en-btn"
                 aria-pressed={lang === 'en'}
-                className={`px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+                onClick={() => setLang('en')}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors ${
                   lang === 'en'
-                    ? 'bg-[#F4A261] text-[#1F110C]'
+                    ? 'bg-[#F4A261] text-[#1D0F0A]'
                     : 'text-[#F3E5D8] hover:text-white'
                 }`}
               >
@@ -334,11 +362,12 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={() => setLang('vi')}
+                data-testid="lang-vi-btn"
                 aria-pressed={lang === 'vi'}
-                className={`px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+                onClick={() => setLang('vi')}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors ${
                   lang === 'vi'
-                    ? 'bg-[#F4A261] text-[#1F110C]'
+                    ? 'bg-[#F4A261] text-[#1D0F0A]'
                     : 'text-[#F3E5D8] hover:text-white'
                 }`}
               >
@@ -348,1449 +377,1481 @@ export default function App() {
 
             <button
               type="button"
+              data-testid="open-reference-desk-btn"
               onClick={() => setIsRefModalOpen(true)}
-              className="px-2.5 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-semibold rounded-xl bg-[#341D15] text-[#FFF8F2] border border-[#F4A261]/35 hover:border-[#FFD1A6] transition-colors whitespace-nowrap shrink-0"
+              className="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl bg-[#382017] text-[#FFD1A6] border border-[#F4A261]/45 hover:bg-[#4C2C20] transition-colors whitespace-nowrap"
             >
-              {lang === 'en' ? 'Reference Desk' : 'Nguồn Tư liệu'}
+              {lang === 'en' ? 'Reference Desk' : 'Nguồn Tư Liệu'}
             </button>
           </div>
         </div>
 
-        {/* Continuous Animated Glowing Horizon Line + Chapter Progress Indicator */}
-        <div className="relative h-[3px] w-full bg-[#180D09] overflow-hidden">
+        {/* Continuous Animated Glowing Horizon Line */}
+        <div className="relative w-full h-[3px] bg-[#361D14] overflow-hidden">
           <div className="absolute inset-0 animate-horizon-glow opacity-80" />
           <div
-            className="relative h-full bg-[#FFF8F2] shadow-[0_0_12px_#FFD1A6] transition-all duration-300"
-            style={{ width: `${((currentChapter + 1) / 10) * 100}%` }}
+            style={{ width: `${((currentPage + 1) / 10) * 100}%` }}
+            className="relative h-full bg-[#FFF8F2] transition-all duration-300"
           />
         </div>
       </header>
 
-      {/* Main Content Container */}
-      <main id="top" className="flex-1 max-w-[1360px] w-full mx-auto px-3 sm:px-8 py-6 sm:py-8 space-y-12">
-        {/* ================================================================
-            CHAPTER 01: THE MESSAGE AFTER SILENCE
-           ================================================================ */}
-        {isChapterVisible(0) && (
-          <ChapterBackdropWrapper
-            chapterIdx={0}
-            lang={lang}
-            id="chapter-section-0"
-            ariaLabelledBy="ch01-heading"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-              {/* Left 7 cols: Concise, Emotional First-Person Opening */}
-              <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3A2016]/90 border border-[#F4A261]/35 text-xs font-semibold text-[#FFD1A6] mb-4">
-                    <span>
-                      {lang === 'en'
-                        ? 'Chapter 01 of 10 · Elysium Planitia, Mars (4.502°N, 135.623°E)'
-                        : 'Chương 01 / 10 · Đồng bằng Elysium Planitia, Sao Hỏa (4,502°B, 135,623°Đ)'}
-                    </span>
-                  </div>
-
-                  <h1
-                    id="ch01-heading"
-                    className="font-serif-editorial text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#FFF8F2] leading-[1.08] mb-5"
+      {/* MAIN 10-PAGE CONTENT CONTAINER */}
+      <main className="flex-1 w-full max-w-[1320px] mx-auto px-3 sm:px-6 pt-5 pb-24 space-y-10">
+        {/* ===================================================================
+            PAGE 01: THE LAST DIARY (Nhật ký cuối cùng từ Sao Hỏa)
+           =================================================================== */}
+        {isPageVisible(0) && (
+          <ChapterBackdropWrapper chapterIndex={0} lang={lang}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center mobile-single-col-lock">
+              {/* Left 7 Cols: First-Person Diary Opening */}
+              <div className="lg:col-span-7 space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                    {lang === 'en'
+                      ? 'PAGE 01 OF 10 · ELYSIUM PLANITIA, MARS (4.502°N, 135.623°E)'
+                      : 'TRANG 01 / 10 · ĐỒNG BẰNG ELYSIUM PLANITIA, SAO HỎA (4,502°B, 135,623°Đ)'}
+                  </span>
+                  <a
+                    href="https://science.nasa.gov/mission/insight/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610] transition-colors"
                   >
-                    {lang === 'en' ? (
-                      <>
-                        My radio is quiet.{' '}
-                        <span className="text-[#FFD1A6] italic font-semibold">
-                          My seismic archive is still speaking.
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        Ăng-ten của tôi đã lặng tiếng.{' '}
-                        <span className="text-[#FFD1A6] italic font-semibold">
-                          Nhưng kho dữ liệu địa chấn vẫn lên tiếng.
-                        </span>
-                      </>
-                    )}
-                  </h1>
-
-                  <div className="space-y-4 text-base sm:text-lg text-[#F5E8DC] leading-relaxed max-w-2xl">
-                    <p>
-                      {lang === 'en'
-                        ? 'I am InSight (2018-042A). My three titanium feet still rest in the rust-red dust of Elysium Planitia, 1.63 meters behind the copper-colored Wind and Thermal Shield I lowered onto the Martian soil in 2018.'
-                        : 'Tôi là trạm đổ bộ InSight (2018-042A). Ba chân trụ bằng titan của tôi vẫn đứng trên lớp bụi đỏ Elysium Planitia, cách chiếc lồng chắn gió màu đồng 1,63 mét mà cánh tay tôi đã đặt xuống năm 2018.'}
-                    </p>
-                    <p>
-                      {lang === 'en'
-                        ? 'On December 15, 2022, fine iron-oxide dust veiled my twin solar wings and my transmitter fell silent. Yet across the Moon and Mars, silent explorers remain where humanity left them—not as forgotten scrap, but as enduring monuments and active optical beacons.'
-                        : 'Ngày 15/12/2022, lớp bụi mịn oxit sắt phủ kín hai cánh pin mặt trời và bộ phát sóng của tôi ngừng đập. Nhưng khắp Mặt Trăng và Sao Hỏa, những thiết bị này vẫn ở lại—không phải phế liệu bị lãng quên, mà là những cột mốc khoa học vĩnh cửu.'}
-                    </p>
-                  </div>
+                    {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                  </a>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-2">
+                <h1 className="font-serif-editorial text-3xl sm:text-5xl lg:text-[54px] font-bold tracking-tight leading-[1.08] text-[#FFF8F2]">
+                  {lang === 'en' ? (
+                    <>
+                      I am InSight.
+                      <span className="block italic font-semibold text-[#FFD1A6] mt-1">
+                        Here is my last diary from the Red Planet.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Tôi là InSight.
+                      <span className="block italic font-semibold text-[#FFD1A6] mt-1">
+                        Đây là cuốn nhật ký cuối cùng từ Hành tinh Đỏ.
+                      </span>
+                    </>
+                  )}
+                </h1>
+
+                <div className="space-y-3.5 text-sm sm:text-base text-[#FFF8F2]/92 leading-relaxed">
+                  <p>
+                    {lang === 'en'
+                      ? '“My radio fell silent in December 2022, and a quiet veil of red iron-oxide dust now covers my twin solar wings on the flat lava plains of Elysium Planitia. No rocket will ever bring my metal body back to Earth.”'
+                      : '“Đài phát sóng của tôi đã lặng im từ tháng 12 năm 2022, và một lớp bụi oxit sắt đỏ mịn giờ đây phủ kín đôi cánh pin mặt trời trên đồng bằng dung nham Elysium Planitia. Sẽ chẳng có tên lửa nào đưa cơ thể kim loại của tôi trở về Trái Đất.”'}
+                  </p>
+                  <p>
+                    {lang === 'en'
+                      ? '“Yet the 1,319 marsquakes I felt with my copper-shielded seismometer are still speaking. Open my field diary to discover how a silent lander on Mars unlocked the deep heart of a rocky world.”'
+                      : '“Thế nhưng 1.319 trận động đất Sao Hỏa mà tôi ghi lại bằng ống nghe địa chấn màu đồng vẫn đang tiếp tục lên tiếng. Hãy mở cuốn nhật ký của tôi để khám phá cách một trạm đổ bộ tĩnh lặng giải mã trái tim của cả một hành tinh.”'}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
                   <button
                     type="button"
-                    onClick={() => goToChapter(1)}
-                    className="px-5 py-3 text-sm font-bold rounded-xl bg-[#F4A261] text-[#1F110C] hover:bg-[#FFD1A6] transition-colors shadow-lg"
+                    data-testid="open-mission-diary-btn"
+                    onClick={() => goToPage(1)}
+                    className="px-5 py-3 rounded-xl bg-[#F4A261] text-[#1D0F0A] font-bold text-xs sm:text-sm hover:bg-[#FFD1A6] transition-colors shadow-lg"
                   >
                     {lang === 'en'
-                      ? 'Explore Chapter 02: Planetary GIS Observatory →'
-                      : 'Khám phá Chương 02: Đài Quan sát GIS Hành tinh →'}
+                      ? 'Open My Mission Diary (Page 02) →'
+                      : 'Mở Nhật Ký Sứ Mệnh (Trang 02) →'}
                   </button>
+
                   <button
                     type="button"
-                    onClick={() => goToChapter(3)}
-                    className="px-4 py-3 text-sm font-semibold rounded-xl border border-[#FFD1A6]/40 bg-[#321B13]/90 text-[#FFF8F2] hover:bg-[#45261B] transition-colors"
+                    data-testid="toggle-martian-wind-btn"
+                    onClick={toggleMartianWindAudio}
+                    className={`px-4 py-3 rounded-xl text-xs sm:text-sm font-bold border transition-colors ${
+                      isWindPlaying
+                        ? 'bg-[#64DFDF] text-[#101C26] border-[#64DFDF]'
+                        : 'bg-[#2C1710] text-[#FFD1A6] border-[#F4A261]/45 hover:bg-[#3E2117]'
+                    }`}
                   >
-                    {lang === 'en' ? 'Inspect 3D InSight Lander' : 'Xem Mô hình 3D InSight'}
+                    {isWindPlaying
+                      ? lang === 'en'
+                        ? '🔊 Martian Wind Playing (Click to Mute)'
+                        : '🔊 Đang Phát Tiếng Gió Sao Hỏa (Tắt)'
+                      : lang === 'en'
+                        ? '🔈 Listen to Ambient Martian Wind'
+                        : '🔈 Lắng Nghe Tiếng Gió Sao Hỏa'}
                   </button>
+                </div>
+
+                {/* Pedagogical Storytelling Footnote */}
+                <div className="p-3 rounded-xl bg-[#1A0D09]/90 border border-[#F4A261]/25 text-xs text-[#FFD1A6]/90 leading-relaxed">
+                  <strong className="text-[#64DFDF]">
+                    {lang === 'en' ? 'Storytelling Note: ' : 'Chú thích Kể chuyện Khoa học: '}
+                  </strong>
+                  {lang === 'en'
+                    ? 'The first-person voice ("I am InSight") is a creative educational storytelling device for ages 10–15. All coordinates, dates, instruments, and seismic discoveries are 100% verified NASA/JPL facts (NSSDCA ID: 2018-042A).'
+                    : 'Giọng kể ngôi thứ nhất ("Tôi là InSight") là phương pháp kể chuyện giáo dục dành cho lứa tuổi 10–15. Mọi tọa độ, ngày tháng, thiết bị và khám phá địa chấn đều là dữ kiện khoa học xác thực 100% từ NASA/JPL (NSSDCA ID: 2018-042A).'}
                 </div>
               </div>
 
-              {/* Right 5 cols: Real NASA Photography of InSight on Mars + Interactive Dust Overlay */}
-              <div className="lg:col-span-5 flex flex-col rounded-2xl border border-[#F4A261]/35 bg-[#23140F] overflow-hidden shadow-2xl">
-                <div
-                  className="relative flex-1 min-h-[320px] bg-[#1A0E0A] overflow-hidden"
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    cursorRef.current = {
-                      x: (e.clientX - rect.left) / rect.width,
-                      y: (e.clientY - rect.top) / rect.height,
-                    };
+              {/* Right 5 Cols: 4K InSight Cutaway & Interactive Dust Canvas */}
+              <div
+                onPointerMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  cursorRef.current = {
+                    x: (e.clientX - rect.left) / rect.width,
+                    y: (e.clientY - rect.top) / rect.height,
+                  };
+                }}
+                className="lg:col-span-5 relative rounded-2xl overflow-hidden border border-[#F4A261]/40 bg-[#160B07] shadow-2xl h-[350px] sm:h-[430px]"
+              >
+                <img
+                  src={INSIGHT_MEDIA_ASSETS.PIA22227_LOCAL}
+                  onError={(e) => {
+                    e.currentTarget.src = INSIGHT_MEDIA_ASSETS.PIA19664_NASA;
                   }}
-                >
-                  {/* Real High-Resolution NASA Photograph of InSight on Mars */}
-                  <img
-                    src={heroPhotoUrl}
-                    alt={
-                      lang === 'en'
-                        ? 'NASA InSight Lander on Elysium Planitia, Mars (PIA22876)'
-                        : 'Trạm đổ bộ InSight trên đồng bằng Elysium Planitia, Sao Hỏa (PIA22876)'
-                    }
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                    onError={() => {
-                      if (heroPhotoUrl !== DIRECT_NASA_PHOTO_URLS.PIA23201) {
-                        setHeroPhotoUrl(DIRECT_NASA_PHOTO_URLS.PIA23201);
-                      }
-                    }}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-
-                  {/* Subtle Warm Gradient Vignette */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1D100B]/90 via-transparent to-[#1D100B]/45" />
-
-                  {/* Interactive Cursor-Driven Martian Dust & Sunlight Canvas Overlay */}
-                  <canvas
-                    ref={heroCanvasRef}
-                    width={560}
-                    height={340}
-                    data-testid="martian-horizon-canvas"
-                    className="relative z-10 w-full h-full block"
-                  />
-
-                  <div className="absolute top-3 left-3 z-20 bg-[#23140F]/85 border border-[#F4A261]/40 px-3 py-1 rounded-full text-xs font-semibold text-[#FFD1A6]">
-                    {lang === 'en'
-                      ? 'Real NASA Photo (PIA22876) · Move Cursor to Drift Dust'
-                      : 'Ảnh Thật NASA (PIA22876) · Di Chuột Tương Tác Hạt Bụi'}
-                  </div>
-
-                  <div className="absolute bottom-3 left-3 right-3 z-20 bg-[#23140F]/90 border border-[#F4A261]/30 px-3.5 py-2 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-[#FFF8F2]">
-                    <span>4.502°N, 135.623°E</span>
-                    <span className="text-[#FFD1A6]">-2,655 m MOLA</span>
-                    <span className="text-[#64DFDF]">1,319 Marsquakes</span>
-                  </div>
+                  alt="NASA PIA22227 InSight Lander on Elysium Planitia"
+                  className="w-full h-full object-cover"
+                />
+                <canvas
+                  ref={heroCanvasRef}
+                  width={520}
+                  height={430}
+                  className="pointer-events-none absolute inset-0 w-full h-full"
+                />
+                <div className="absolute top-3 left-3 px-3 py-1 rounded-lg bg-[#1A0D09]/90 border border-[#F4A261]/35 text-[11px] font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'NASA 4K Visual (PIA22227) · Move Cursor to Drift Dust'
+                    : 'Ảnh NASA 4K (PIA22227) · Di Chuột Để Tương Tác Bụi Đỏ'}
+                </div>
+                <div className="absolute bottom-3 left-3 right-3 px-3.5 py-2 rounded-xl bg-[#1A0D09]/92 border border-[#F4A261]/35 flex flex-wrap items-center justify-between gap-2 text-xs font-bold">
+                  <span className="text-[#FFF8F2]">NSSDCA: {telemetry.nssdcaId}</span>
+                  <span className="text-[#FFD1A6]">4.502°N, 135.623°E</span>
+                  <span className="text-[#64DFDF]">1,319 Marsquakes</span>
                 </div>
               </div>
             </div>
+          </ChapterBackdropWrapper>
+        )}
 
-            {/* Live Mission Elapsed Telemetry Strip */}
-            <div className="rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/90 p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <span className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider">
+        {/* ===================================================================
+            PAGE 02: MEET INSIGHT (Làm quen với InSight)
+           =================================================================== */}
+        {isPageVisible(1) && (
+          <ChapterBackdropWrapper chapterIndex={1} lang={lang}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Verified NASA/NSSDCA Mission Clocks · Benchmark: 14 Nov 2026'
-                    : 'Đồng Hồ Sứ Mệnh NASA/NSSDCA Đã Xác Minh · Mốc: 14/11/2026'}
+                    ? 'PAGE 02 OF 10 · MEET INSIGHT: WHY I HAD NO WHEELS'
+                    : 'TRANG 02 / 10 · LÀM QUEN VỚI INSIGHT: VÌ SAO TÔI KHÔNG CÓ BÁNH XE'}
                 </span>
                 <a
-                  href="https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A"
+                  href="https://science.nasa.gov/photojournal/the-insight-lander/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 rounded-full bg-[#341D15] border border-[#F4A261]/30 text-xs font-semibold text-[#FFD1A6] hover:text-white"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
                 >
-                  {lang === 'en' ? 'Source: NASA NSSDCA ↗' : 'Nguồn: NASA NSSDCA ↗'}
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
                 </a>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Card 1: Apollo 11 LRRR */}
-                <div className="p-4 rounded-xl border border-[#64DFDF]/25 bg-[#2C1812]/90">
-                  <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                    <span className="text-[#64DFDF]">NSSDCA: {missionClocks.apollo11.nssdcaId}</span>
-                    <span className="text-[#64DFDF]">
-                      {lang === 'en' ? '● Still Active' : '● Đang Hoạt Động'}
-                    </span>
-                  </div>
-                  <div className="text-base font-bold text-[#FFF8F2] mb-1">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mobile-single-col-lock">
+                <div className="lg:col-span-6 space-y-4">
+                  <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
                     {lang === 'en'
-                      ? 'Apollo 11 Lunar Laser Retroreflector'
-                      : 'Gương Phản Xạ Laser Apollo 11'}
-                  </div>
-                  <div className="text-3xl font-bold text-[#FFF8F2] tabular-nums">
-                    {missionClocks.apollo11.yearsOnSurface}
-                    <span className="text-xs font-medium text-[#FFD1A6] ml-1.5">
-                      {lang === 'en'
-                        ? `Years (${missionClocks.apollo11.daysOnSurface.toLocaleString()} Days)`
-                        : `Năm (${missionClocks.apollo11.daysOnSurface.toLocaleString()} Ngày)`}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#F3E5D8]/80 mt-1.5">
+                      ? 'Who Am I, and Why Did Engineers Give Me Three Legs Instead of Wheels?'
+                      : 'Tôi Là Ai, Và Vì Sao Các Kỹ Sư Trao Cho Tôi Ba Chân Đáp Thay Vì Bánh Xe?'}
+                  </h2>
+
+                  <p className="text-sm sm:text-base text-[#F3E5D8]/90 leading-relaxed">
                     {lang === 'en'
-                      ? 'Mare Tranquillitatis (0.674°N, 23.473°E) · 0 Watts required.'
-                      : 'Biển Tĩnh Lặng (0,674°B, 23,473°Đ) · Tiêu thụ 0 Watt điện.'}
+                      ? 'My full name is Interior Exploration using Seismic Investigations, Geodesy and Heat Transport. Built on the proven heritage of NASA’s 2008 Phoenix Mars lander, I was designed not to roll across craters like Curiosity or Perseverance, but to stand completely still in one quiet spot.'
+                      : 'Tên đầy đủ của tôi là Interior Exploration using Seismic Investigations, Geodesy and Heat Transport (Khảo sát Nội tâm Sao Hỏa bằng Địa chấn, Trắc địa và Truyền nhiệt). Kế thừa thiết kế từ tàu đổ bộ Phoenix năm 2008, tôi không lăn bánh qua các miệng núi lửa như Curiosity hay Perseverance, mà đứng yên tuyệt đối tại một vị trí tĩnh lặng.'}
                   </p>
-                </div>
 
-                {/* Card 2: Opportunity Rover */}
-                <div className="p-4 rounded-xl border border-[#F4A261]/25 bg-[#2C1812]/90">
-                  <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                    <span className="text-[#F4A261]">
-                      NSSDCA: {missionClocks.opportunity.nssdcaId}
-                    </span>
-                    <span className="text-[#FFD1A6]">
-                      {lang === 'en' ? '▲ Silent Monument' : '▲ Đài Tưởng Niệm'}
-                    </span>
-                  </div>
-                  <div className="text-base font-bold text-[#FFF8F2] mb-1">
-                    {lang === 'en' ? 'Opportunity Rover (MER-B)' : 'Xe Tự Hành Opportunity (MER-B)'}
-                  </div>
-                  <div className="text-3xl font-bold text-[#FFF8F2] tabular-nums">
-                    {missionClocks.opportunity.yearsOnSurface}
-                    <span className="text-xs font-medium text-[#FFD1A6] ml-1.5">
-                      {lang === 'en' ? 'Years Active · 45.16 km' : 'Năm Hoạt Động · 45,16 km'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#F3E5D8]/80 mt-1.5">
+                  <p className="text-sm sm:text-base text-[#F3E5D8]/90 leading-relaxed">
                     {lang === 'en'
-                      ? 'Operated 5,111 sols (planned for 90) until the June 2018 global storm.'
-                      : 'Hoạt động 5.111 sol (thiết kế 90 sol) tới cơn bão bụi tháng 6/2018.'}
+                      ? 'Just as a doctor cannot listen to your heartbeat while you are sprinting, a planetary seismologist cannot detect ground vibrations smaller than a hydrogen atom if wheel motors and suspension joints are creaking.'
+                      : 'Cũng giống như bác sĩ không thể dùng ống nghe khám nhịp tim khi bạn đang chạy nước rút, một trạm địa chấn hành tinh không thể bắt được những rung động nhỏ hơn nguyên tử Hydro nếu động cơ và khớp bánh xe liên tục phát ra tiếng động.'}
                   </p>
-                </div>
 
-                {/* Card 3: InSight Lander */}
-                <div className="p-4 rounded-xl border border-[#F4A261]/25 bg-[#2C1812]/90">
-                  <div className="flex items-center justify-between text-xs font-semibold mb-1">
-                    <span className="text-[#F4A261]">NSSDCA: {missionClocks.insight.nssdcaId}</span>
-                    <span className="text-[#FFD1A6]">
-                      {lang === 'en' ? '▲ Active Seismic Archive' : '▲ Kho Địa Chấn Sống'}
-                    </span>
-                  </div>
-                  <div className="text-base font-bold text-[#FFF8F2] mb-1">
-                    {lang === 'en'
-                      ? 'InSight Mars Geophysical Lander'
-                      : 'Trạm Đổ Bộ Địa Vật Lý InSight'}
-                  </div>
-                  <div className="text-3xl font-bold text-[#FFF8F2] tabular-nums">
-                    {missionClocks.insight.daysOnSurface.toLocaleString()}
-                    <span className="text-xs font-medium text-[#FFD1A6] ml-1.5">
-                      {lang === 'en'
-                        ? `Days on Mars (${missionClocks.insight.daysSinceLastSignal?.toLocaleString()} Silent)`
-                        : `Ngày Trên Sao Hỏa (${missionClocks.insight.daysSinceLastSignal?.toLocaleString()} Tĩnh Lặng)`}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#F3E5D8]/80 mt-1.5">
-                    {lang === 'en'
-                      ? 'Landed 26 Nov 2018 · Recorded 1,319 marsquakes that mapped Mars’ core.'
-                      : 'Hạ cánh 26/11/2018 · Ghi nhận 1.319 trận động đất Sao Hỏa.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 02: PLANETARY GIS OBSERVATORY
-           ================================================================ */}
-        {isChapterVisible(1) && (
-          <ChapterBackdropWrapper
-            chapterIdx={1}
-            lang={lang}
-            id="chapter-section-1"
-            ariaLabelledBy="ch02-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#64DFDF] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 02 of 10 · Off-World Artifact Coordinate Registry'
-                  : 'Chương 02 / 10 · Hệ Thống Tọa Độ Địa Lý (GIS) Các Di Sản Không Gian'}
-              </div>
-              <h2
-                id="ch02-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'Planetary GIS Observatory: Where Do Our Explorers Rest?'
-                  : 'Đài Quan Sát GIS Hành Tinh: Những Nhà Thám Hiểm Yên Nghỉ Ở Đâu?'}
-              </h2>
-              <p className="text-base text-[#F3E5D8] leading-relaxed">
-                {lang === 'en'
-                  ? 'Bringing a spacecraft back from Mars or the Moon would require ten times its weight in return rocket fuel. Instead, NASA engineers build missions to work on-site for life and beam their discoveries home across deep space.'
-                  : 'Mang một trạm thăm dò từ Sao Hỏa hay Mặt Trăng quay về đòi hỏi lượng nhiên liệu nặng gấp chục lần chính nó. Vì vậy, NASA thiết kế các sứ mệnh làm việc trọn đời tại chỗ và truyền tri thức về Trái Đất qua sóng vô tuyến.'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-7">
-                <PlanetaryGisGlobe3D
-                  lang={lang}
-                  selectedId={selectedLandmarkId}
-                  onSelectLandmark={setSelectedLandmarkId}
-                  activeBody={gisBody}
-                  onChangeBody={setGisBody}
-                />
-              </div>
-
-              {/* Selected Landmark Telemetry Dossier with Real NASA Hardware Photo */}
-              <div className="lg:col-span-5 rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 space-y-4 shadow-2xl">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#F4A261]/20 pb-3">
-                  <span className="text-xs font-bold text-[#F4A261]">
-                    NSSDCA ID: {selectedLandmark.nssdcaId}
-                  </span>
-                  <span
-                    className={`text-xs font-bold ${
-                      selectedLandmark.statusTone === 'emerald'
-                        ? 'text-[#64DFDF]'
-                        : 'text-[#FFD1A6]'
-                    }`}
-                  >
-                    ● {selectedLandmark.statusBadge[lang]}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="font-serif-editorial text-2xl font-bold text-[#FFF8F2]">
-                    {selectedLandmark.name[lang]}
-                  </h3>
-                  <div className="text-xs font-semibold text-[#FFD1A6] mt-1">
-                    {selectedLandmark.siteName[lang]} · {selectedLandmark.coordsLabel} ·{' '}
-                    {selectedLandmark.elevationLabel}
-                  </div>
-                </div>
-
-                <NasaPhotoViewer photoId={selectedLandmark.nasaPhotoId} lang={lang} compact />
-
-                <div className="space-y-2 text-sm text-[#F3E5D8] leading-relaxed">
-                  <p>{selectedLandmark.summary[lang]}</p>
-                  <p className="text-xs text-[#F3E5D8]/80">
-                    <strong className="text-[#FFD1A6]">
-                      {lang === 'en' ? 'Site Geology: ' : 'Địa chất khu vực: '}
-                    </strong>
-                    {selectedLandmark.geology[lang]}
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-[#1A0E0A] border border-[#F4A261]/25 flex items-center justify-between text-xs font-semibold">
-                  <span className="text-[#FFD1A6]">{selectedLandmark.keyMetric[lang]}</span>
-                  <a
-                    href={selectedLandmark.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#64DFDF] hover:underline shrink-0 ml-2"
-                  >
-                    {lang === 'en' ? 'NSSDCA Record ↗' : 'Hồ sơ NSSDCA ↗'}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 03: TOUCHDOWN AT ELYSIUM PLANITIA
-           ================================================================ */}
-        {isChapterVisible(2) && (
-          <ChapterBackdropWrapper
-            chapterIdx={2}
-            lang={lang}
-            id="chapter-section-2"
-            ariaLabelledBy="ch03-heading"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-6 space-y-5">
-                <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider">
-                  {lang === 'en'
-                    ? 'Chapter 03 of 10 · 485 Million km Cruise to Elysium Planitia'
-                    : 'Chương 03 / 10 · Hành Trình 485 Triệu km Tới Elysium Planitia'}
-                </div>
-                <h2
-                  id="ch03-heading"
-                  className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2]"
-                >
-                  {lang === 'en'
-                    ? 'Touchdown at Elysium Planitia: Why the Flattest Plain on Mars?'
-                    : 'Chạm Xuống Elysium Planitia: Vì Sao Chọn Đồng Bằng Phẳng Nhất Sao Hỏa?'}
-                </h2>
-                <p className="text-base text-[#F3E5D8] leading-relaxed">
-                  {lang === 'en'
-                    ? 'After cruising 485 million kilometers from Earth, InSight touched down on November 26, 2018. While rovers seek rugged canyons, InSight needed a quiet, level equatorial plain where its solar wings could soak up sunlight and its robotic arm could set a seismometer on flat soil.'
-                    : 'Sau hành trình 485 triệu km từ Trái Đất, InSight hạ cánh ngày 26/11/2018. Trong khi các xe tự hành tìm đến hẻm núi hiểm trở, InSight cần một đồng bằng xích đạo phẳng lặng để đón nắng và đặt ống nghe địa chấn lên nền đất bằng phẳng.'}
-                </p>
-
-                {/* Interactive "Lander vs. Rover" Engineering Comparison Card */}
-                <div className="rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 shadow-xl">
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-xs font-bold text-[#F4A261] uppercase tracking-wider">
-                      {lang === 'en'
-                        ? 'Engineering Architecture Comparison'
-                        : 'So Sánh Kiến Trúc Kỹ Thuật'}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    <button
-                      type="button"
-                      onClick={() => setArchitectureTab('lander')}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-colors ${
-                        architectureTab === 'lander'
-                          ? 'bg-[#F4A261] text-[#1F110C] border-[#F4A261]'
-                          : 'bg-[#2C1812] text-[#F3E5D8] border-[#F4A261]/20'
-                      }`}
-                    >
-                      {lang === 'en' ? 'Stationary Lander (InSight)' : 'Trạm Cố Định (InSight)'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setArchitectureTab('rover')}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-colors ${
-                        architectureTab === 'rover'
-                          ? 'bg-[#64DFDF] text-[#111C28] border-[#64DFDF]'
-                          : 'bg-[#2C1812] text-[#F3E5D8] border-[#F4A261]/20'
-                      }`}
-                    >
-                      {lang === 'en' ? 'Mobile Rover (Opportunity)' : 'Xe Tự Hành (Opportunity)'}
-                    </button>
-                  </div>
-
-                  {architectureTab === 'lander' ? (
-                    <div className="space-y-1.5 text-sm text-[#F3E5D8]">
-                      <div className="font-bold text-[#FFD1A6]">
-                        {lang === 'en'
-                          ? 'Why InSight Has Zero Wheels:'
-                          : 'Vì sao InSight không có bánh xe:'}
+                  {/* 4 Key Mission Counters */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className="p-3.5 rounded-xl bg-[#1A0D09] border border-[#F4A261]/35">
+                      <div className="text-xl sm:text-2xl font-extrabold text-[#FFD1A6]">
+                        4 Yrs, 25 Days
                       </div>
-                      <p className="text-xs text-[#F3E5D8]/90 leading-relaxed">
+                      <div className="text-xs text-[#F3E5D8]/85 mt-0.5">
                         {lang === 'en'
-                          ? 'A doctor cannot listen to a heartbeat while the patient is sprinting. Detecting ground motion smaller than a hydrogen atom (10⁻¹⁰ m/s²) required a motionless three-legged anchor in direct contact with the regolith.'
-                          : 'Bác sĩ không thể nghe nhịp tim khi bệnh nhân đang chạy. Để đo rung động nhỏ hơn nguyên tử hydro (10⁻¹⁰ m/s²), trạm cần đứng yên tuyệt đối trên ba chân trụ vững chắc.'}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5 text-sm text-[#F3E5D8]">
-                      <div className="font-bold text-[#64DFDF]">
-                        {lang === 'en'
-                          ? 'Why Opportunity Needed 6 Wheels:'
-                          : 'Vì sao Opportunity cần 6 bánh xe:'}
+                          ? 'Active Operations on Mars (1,440 Sols)'
+                          : 'Thời gian hoạt động (1.440 ngày Sao Hỏa)'}
                       </div>
-                      <p className="text-xs text-[#F3E5D8]/90 leading-relaxed">
-                        {lang === 'en'
-                          ? 'Field geologists walk from crater to outcrop. Opportunity drove 45.16 km over 5,111 sols, discovering spherical hematite "blueberries" that proved ancient liquid water once soaked Mars.'
-                          : 'Nhà địa chất phải đi qua từng vỉa đá. Opportunity đã lăn bánh 45,16 km suốt 5.111 sol, phát hiện các viên hematit chứng minh nước lỏng từng chảy trên Sao Hỏa.'}
-                      </p>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* Right 6 cols: Live NASA Photo Viewers for PIA22876 and PIA22948 */}
-              <div className="lg:col-span-6 space-y-5">
-                <NasaPhotoViewer photoId="PIA22876" lang={lang} compact />
-                <NasaPhotoViewer photoId="PIA22948" lang={lang} compact />
-              </div>
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 04: MEET INSIGHT & THE PLANET'S STETHOSCOPE
-           ================================================================ */}
-        {isChapterVisible(3) && (
-          <ChapterBackdropWrapper
-            chapterIdx={3}
-            lang={lang}
-            id="chapter-section-3"
-            ariaLabelledBy="ch04-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 04 of 10 · 3D Hardware Anatomy & NASA Eyes Live Telemetry'
-                  : 'Chương 04 / 10 · Giải Phẫu Phần Cứng 3D & NASA Eyes Trực Tiếp'}
-              </div>
-              <h2
-                id="ch04-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'Meet InSight & The Planet’s Stethoscope (SEIS)'
-                  : 'Giải Phẫu 3D InSight & Chiếc Ống Nghe Hành Tinh (SEIS)'}
-              </h2>
-              <p className="text-base text-[#F3E5D8] leading-relaxed">
-                {lang === 'en'
-                  ? 'On December 19, 2018 (Sol 22), InSight’s 1.8-meter robotic arm placed the copper-clad SEIS seismometer directly onto Martian soil—the first seismometer ever set on another planet’s ground. Click any glowing hotspot dot or subsystem button to inspect its single callout line.'
-                  : 'Ngày 19/12/2018 (Sol 22), cánh tay robot dài 1,8 mét đã đặt máy đo địa chấn SEIS bọc đồng trực tiếp xuống đất Sao Hỏa. Hãy nhấn vào điểm sáng trên mô hình 3D hoặc nút bộ phận bên phải để xem đường dẫn giải thích.'}
-              </p>
-            </div>
-
-            <InSightLander3D
-              lang={lang}
-              selectedHotspotId={selectedHotspotId}
-              onSelectHotspot={setSelectedHotspotId}
-              dustFactor={dustPercent / 100}
-            />
-
-            {/* Quick Discovery Challenge Card */}
-            <div className="rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 shadow-xl">
-              <div className="text-xs font-bold text-[#F4A261] uppercase tracking-wider mb-1">
-                {lang === 'en'
-                  ? 'Quick Discovery Challenge'
-                  : 'Thử Thách Khám Phá Nhanh'}
-              </div>
-              <h3 className="text-lg font-bold text-[#FFF8F2] mb-3">
-                {lang === 'en'
-                  ? 'Which instrument on InSight detects ground motion smaller than a hydrogen atom?'
-                  : 'Thiết bị nào của InSight phát hiện được rung động mặt đất nhỏ hơn cả nguyên tử hydro?'}
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCh4Choice('seis');
-                    setSelectedHotspotId('seis');
-                  }}
-                  className={`p-3.5 rounded-xl border text-left transition-colors ${
-                    ch4Choice === 'seis'
-                      ? 'bg-[#2C2018] border-[#64DFDF] text-[#FFF8F2]'
-                      : 'bg-[#2C1812] border-[#F4A261]/20 text-[#F3E5D8] hover:border-[#F4A261]/50'
-                  }`}
-                >
-                  <strong className="block text-sm font-bold text-[#64DFDF]">
-                    A. SEIS Seismometer
-                  </strong>
-                  <span className="text-xs text-[#F3E5D8]/80">
-                    {lang === 'en'
-                      ? 'Vacuum-sealed pendulum sensors on Martian soil'
-                      : 'Cảm biến con lắc chân không đặt trên mặt đất'}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCh4Choice('panel');
-                    setSelectedHotspotId('arrays');
-                  }}
-                  className={`p-3.5 rounded-xl border text-left transition-colors ${
-                    ch4Choice === 'panel'
-                      ? 'bg-[#3B2117] border-[#F4A261] text-[#FFF8F2]'
-                      : 'bg-[#2C1812] border-[#F4A261]/20 text-[#F3E5D8] hover:border-[#F4A261]/50'
-                  }`}
-                >
-                  <strong className="block text-sm font-bold text-[#F4A261]">
-                    B. Twin Decagonal Solar Arrays
-                  </strong>
-                  <span className="text-xs text-[#F3E5D8]/80">
-                    {lang === 'en'
-                      ? 'Converts sunlight into electrical Watt-hours'
-                      : 'Chuyển đổi ánh nắng thành điện năng'}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCh4Choice('camera');
-                    setSelectedHotspotId('arm');
-                  }}
-                  className={`p-3.5 rounded-xl border text-left transition-colors ${
-                    ch4Choice === 'camera'
-                      ? 'bg-[#3B2117] border-[#F4A261] text-[#FFF8F2]'
-                      : 'bg-[#2C1812] border-[#F4A261]/20 text-[#F3E5D8] hover:border-[#F4A261]/50'
-                  }`}
-                >
-                  <strong className="block text-sm font-bold text-[#F4A261]">
-                    C. IDC Elbow Camera
-                  </strong>
-                  <span className="text-xs text-[#F3E5D8]/80">
-                    {lang === 'en'
-                      ? 'Captures panoramic workspace photographs'
-                      : 'Chụp ảnh toàn cảnh khu vực làm việc'}
-                  </span>
-                </button>
-              </div>
-
-              {ch4Choice && (
-                <div
-                  className={`p-3.5 rounded-xl border text-xs font-medium leading-relaxed ${
-                    ch4Choice === 'seis'
-                      ? 'bg-[#122628] border-[#64DFDF] text-[#64DFDF]'
-                      : 'bg-[#2E1812] border-[#F4A261] text-[#FFD1A6]'
-                  }`}
-                >
-                  {ch4Choice === 'seis'
-                    ? lang === 'en'
-                      ? '● Correct: SEIS uses three pendulum sensors inside a titanium vacuum sphere to resolve ground displacements smaller than 0.05 nanometers.'
-                      : '● Chính xác: SEIS sử dụng 3 con lắc trong quả cầu chân không titan, phát hiện độ dịch chuyển nhỏ hơn 0,05 nanômét.'
-                    : lang === 'en'
-                      ? '▲ Not quite: Solar arrays generate electricity and the IDC camera photographs the deck. Select A (SEIS Seismometer).'
-                      : '▲ Chưa chính xác: Hãy chọn đáp án A (Máy đo địa chấn SEIS).'}
-                </div>
-              )}
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 05: 1,319 HEARTBEATS OF MARS
-           ================================================================ */}
-        {isChapterVisible(4) && (
-          <ChapterBackdropWrapper
-            chapterIdx={4}
-            lang={lang}
-            id="chapter-section-4"
-            ariaLabelledBy="ch05-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 05 of 10 · Sol 128 First Marsquake to 1,319 Cataloged Events'
-                  : 'Chương 05 / 10 · Từ Trận Động Đất Sol 128 Đến 1.319 Sự Kiện Địa Chấn'}
-              </div>
-              <h2
-                id="ch05-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? '1,319 Heartbeats of Mars: Listening to a Living World'
-                  : '1.319 Nhịp Tim Của Sao Hỏa: Lắng Nghe Một Hành Tinh Đang Sống'}
-              </h2>
-              <p className="text-base text-[#F3E5D8] leading-relaxed">
-                {lang === 'en'
-                  ? 'On April 6, 2019 (Sol 128), as the evening wind died down, SEIS recorded a faint subterranean rumble—humanity’s first confirmed marsquake. By mission’s end, InSight had cataloged 1,319 marsquakes and meteorite strikes.'
-                  : 'Chiều ngày 06/04/2019 (Sol 128), khi gió lặng dần, SEIS đã bắt được tiếng rền trầm đục từ lòng đất—trận động đất Sao Hỏa đầu tiên được xác nhận. Tổng cộng InSight đã ghi nhận 1.319 trận động đất và va chạm thiên thạch.'}
-              </p>
-            </div>
-
-            <SeismicSonificationLab lang={lang} />
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 06: DEEP INSIDE THE RED PLANET & THE HP3 LESSON
-           ================================================================ */}
-        {isChapterVisible(5) && (
-          <ChapterBackdropWrapper
-            chapterIdx={5}
-            lang={lang}
-            id="chapter-section-5"
-            ariaLabelledBy="ch06-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 06 of 10 · Planetary Tomography & The HP³ Mole Lesson'
-                  : 'Chương 06 / 10 · Cắt Lớp Địa Chấn Học & Bài Học Từ Mũi Khoan HP³'}
-              </div>
-              <h2
-                id="ch06-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'Deep Inside the Red Planet & When Engineering Hits a Wall'
-                  : 'Nhìn Xuyên Lòng Đất Đỏ & Bài Học Kỹ Thuật Từ Mũi Khoan HP³'}
-              </h2>
-              <p className="text-base text-[#F3E5D8] leading-relaxed">
-                {lang === 'en'
-                  ? 'Primary (P) and shear (S) waves bend and reflect at boundaries between rock and liquid metal, revealing Mars’ crust, mantle, and 1,830-km molten core—while the HP³ heat probe taught engineers a lasting lesson about Martian soil.'
-                  : 'Sóng dọc P và sóng ngang S khúc xạ và phản xạ tại ranh giới giữa đá rắn và kim loại lỏng, hé lộ lớp vỏ, manti và lõi lỏng 1.830 km—trong khi mũi khoan HP³ để lại bài học quý giá về cơ học đất Sao Hỏa.'}
-              </p>
-            </div>
-
-            <MartianInteriorCutaway lang={lang} />
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 07: WHEN THE RED DUST FALLS (INSIGHT & OPPORTUNITY)
-           ================================================================ */}
-        {isChapterVisible(6) && (
-          <ChapterBackdropWrapper
-            chapterIdx={6}
-            lang={lang}
-            id="chapter-section-6"
-            ariaLabelledBy="ch07-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 07 of 10 · Solar Power Decline (5,000 Wh → 500 Wh) & Resource Lab'
-                  : 'Chương 07 / 10 · Suy Giảm Điện Mặt Trời (5.000 Wh → 500 Wh) & Phân Bổ Nguồn Lực'}
-              </div>
-              <h2
-                id="ch07-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'When the Red Dust Falls: InSight & Opportunity’s Shared Fate'
-                  : 'Khi Bụi Đỏ Che Khuất Mặt Trời: Số Phận Chung Của InSight & Opportunity'}
-              </h2>
-              <p className="text-base text-[#F3E5D8] leading-relaxed">
-                {lang === 'en'
-                  ? 'Drag the scrubber below from 2018 (0% dust) to 2022 (90% dust) to see how iron-oxide grains coated the solar wings and forced engineers to ration every final watt-hour.'
-                  : 'Kéo thanh trượt bên dưới từ năm 2018 (0% bụi) đến năm 2022 (90% bụi) để quan sát lớp bụi đỏ phủ dần lên cánh pin và đặt mình vào bài toán chia sẻ từng Watt-giờ điện cuối cùng.'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-7 rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 space-y-5 shadow-2xl">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-[#F4A261]">
-                    {lang === 'en'
-                      ? 'Verified Solar Array Telemetry (2018–2022)'
-                      : 'Dữ Liệu Điện Mặt Trời Đã Xác Minh (2018–2022)'}
-                  </span>
-                  <span className="text-xs font-semibold text-[#FFD1A6]">
-                    {lang === 'en' ? solarMetrics.dateLabelEn : solarMetrics.dateLabelVi}
-                  </span>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="dust-scrubber-input"
-                    className="flex items-center justify-between text-sm font-bold text-[#FFF8F2] mb-2"
-                  >
-                    <span>
-                      {lang === 'en'
-                        ? `Solar Array Dust Coating: ${solarMetrics.dustClamped}%`
-                        : `Độ che phủ bụi trên cánh pin: ${solarMetrics.dustClamped}%`}
-                    </span>
-                    <span className="text-[#FFD1A6] tabular-nums">
-                      {solarMetrics.wattHoursPerSol.toLocaleString()} Wh / sol (
-                      {solarMetrics.percentOfInitial}%)
-                    </span>
-                  </label>
-                  <input
-                    id="dust-scrubber-input"
-                    type="range"
-                    min={0}
-                    max={90}
-                    step={5}
-                    value={dustPercent}
-                    onChange={(e) => setDustPercent(Number(e.target.value))}
-                    className="w-full accent-[#F4A261] cursor-pointer h-2 bg-[#3A2016] rounded-lg"
-                  />
-                  <div className="flex justify-between text-xs text-[#F3E5D8]/80 mt-1.5">
-                    <span>0% · Nov 2018 (~5,000 Wh)</span>
-                    <span>45% · 2020 (~2,750 Wh)</span>
-                    <span>90% · 2022 (~500 Wh)</span>
-                  </div>
-                </div>
-
-                <NasaPhotoViewer
-                  photoId={dustPercent >= 65 ? 'PIA25287' : 'PIA22876'}
-                  lang={lang}
-                  dustOverlayOpacity={dustPercent < 65 ? dustPercent / 90 : 0}
-                  compact
-                />
-              </div>
-
-              {/* Right 5 cols: Classroom Power Allocation Lab */}
-              <div className="lg:col-span-5 rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 space-y-4 shadow-2xl">
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-[#64DFDF]">
-                    {lang === 'en' ? 'Interactive Power Budget Lab' : 'Phòng Lab Phân Bổ Điện Năng'}
-                  </span>
-                  <a
-                    href="https://science.nasa.gov/resource/insights-power-generation-after-landing-and-spring-2022/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#FFD1A6] hover:underline"
-                  >
-                    {lang === 'en' ? 'Source: NASA ↗' : 'Nguồn: NASA ↗'}
-                  </a>
-                </div>
-
-                <h3 className="text-lg font-bold text-[#FFF8F2]">
-                  {lang === 'en'
-                    ? 'Mission Planner Power Simulator'
-                    : 'Mô Phỏng Ngân Sách Điện Năng'}
-                </h3>
-                <p className="text-xs text-[#F3E5D8] leading-relaxed">
-                  {lang === 'en'
-                    ? `Available energy: ${solarMetrics.wattHoursPerSol} Wh/sol. Balance heaters, SEIS, and radio within budget.`
-                    : `Điện khả dụng: ${solarMetrics.wattHoursPerSol} Wh/sol. Hãy cân đối bộ sưởi, SEIS và bộ phát sóng.`}
-                </p>
-
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label
-                      htmlFor="alloc-heaters"
-                      className="flex justify-between font-semibold text-[#FFF8F2] mb-1"
-                    >
-                      <span>
-                        {lang === 'en'
-                          ? '1. Survival Deck Heaters (-80°C night)'
-                          : '1. Bộ sưởi ấm mạch điện (-80°C ban đêm)'}
-                      </span>
-                      <span className="text-[#FFD1A6] tabular-nums">
-                        {powerAlloc.survivalHeatersWh} Wh
-                      </span>
-                    </label>
-                    <input
-                      id="alloc-heaters"
-                      type="range"
-                      min={0}
-                      max={400}
-                      step={20}
-                      value={powerAlloc.survivalHeatersWh}
-                      onChange={(e) =>
-                        setPowerAlloc((p) => ({
-                          ...p,
-                          survivalHeatersWh: Number(e.target.value),
-                        }))
-                      }
-                      className="w-full accent-[#F4A261]"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="alloc-seis"
-                      className="flex justify-between font-semibold text-[#FFF8F2] mb-1"
-                    >
-                      <span>
-                        {lang === 'en'
-                          ? '2. SEIS Seismometer (Core Science)'
-                          : '2. Máy đo địa chấn SEIS (Khoa học chính)'}
-                      </span>
-                      <span className="text-[#64DFDF] tabular-nums">
-                        {powerAlloc.seisSeismometerWh} Wh
-                      </span>
-                    </label>
-                    <input
-                      id="alloc-seis"
-                      type="range"
-                      min={0}
-                      max={400}
-                      step={20}
-                      value={powerAlloc.seisSeismometerWh}
-                      onChange={(e) =>
-                        setPowerAlloc((p) => ({
-                          ...p,
-                          seisSeismometerWh: Number(e.target.value),
-                        }))
-                      }
-                      className="w-full accent-[#64DFDF]"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="alloc-uhf"
-                      className="flex justify-between font-semibold text-[#FFF8F2] mb-1"
-                    >
-                      <span>
-                        {lang === 'en'
-                          ? '3. UHF Orbiter Telemetry Radio'
-                          : '3. Bộ phát sóng tiếp vận UHF'}
-                      </span>
-                      <span className="text-[#FFD1A6] tabular-nums">
-                        {powerAlloc.uhfTelemetryWh} Wh
-                      </span>
-                    </label>
-                    <input
-                      id="alloc-uhf"
-                      type="range"
-                      min={0}
-                      max={300}
-                      step={10}
-                      value={powerAlloc.uhfTelemetryWh}
-                      onChange={(e) =>
-                        setPowerAlloc((p) => ({
-                          ...p,
-                          uhfTelemetryWh: Number(e.target.value),
-                        }))
-                      }
-                      className="w-full accent-[#F4A261]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDustPercent(90);
-                    setPowerAlloc({
-                      survivalHeatersWh: 180,
-                      seisSeismometerWh: 200,
-                      uhfTelemetryWh: 100,
-                      hp3MoleWh: 0,
-                    });
-                  }}
-                  className="w-full py-2 px-3 text-xs font-bold rounded-xl border border-[#F4A261]/35 bg-[#2C1812] text-[#FFD1A6] hover:bg-[#3B2117]"
-                >
-                  {lang === 'en'
-                    ? 'Load Spring 2022 Critical 500 Wh/sol Preset'
-                    : 'Nạp kịch bản Mùa xuân 2022 (Chỉ còn 500 Wh/sol)'}
-                </button>
-
-                <div className="p-3.5 rounded-xl border border-[#F4A261]/25 bg-[#1B0E0A] text-xs space-y-1.5">
-                  <div className="flex justify-between">
-                    <span className="text-[#F3E5D8]/80">
-                      {lang === 'en' ? 'Allocated / Available:' : 'Đã phân bổ / Khả dụng:'}
-                    </span>
-                    <span className="text-[#FFF8F2] font-bold tabular-nums">
-                      {powerEvaluation.allocatedWh} / {powerEvaluation.availableWh} Wh
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#F3E5D8]/80">
-                      {lang === 'en' ? 'System Outcome:' : 'Trạng thái hệ thống:'}
-                    </span>
-                    <span
-                      className={
-                        powerEvaluation.status === 'OPTIMAL_SCIENCE'
-                          ? 'text-[#64DFDF] font-bold'
-                          : 'text-[#F4A261] font-bold'
-                      }
-                    >
-                      {powerEvaluation.status === 'OPTIMAL_SCIENCE'
-                        ? '● Optimal Science & Survival'
-                        : powerEvaluation.status === 'OVER_BUDGET'
-                          ? '✖ Battery Depletion (Over Budget)'
-                          : powerEvaluation.status === 'FREEZE_FAILURE'
-                            ? '▲ Thermal Freeze Risk (<150 Wh)'
-                            : '▲ Survival Only (Low Science)'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-xl border border-[#F4A261]/20 bg-[#2C1812] text-xs space-y-1">
-                  <div className="text-[#FFD1A6] font-bold">
-                    {lang === 'en'
-                      ? 'Parallel Fate · Opportunity Rover (2003-032A)'
-                      : 'Số Phận Song Hành · Opportunity (2003-032A)'}
-                  </div>
-                  <p className="text-[#F3E5D8] leading-relaxed">
-                    {lang === 'en'
-                      ? 'Wind gusts at Meridiani Planum periodically swept Opportunity’s panels clean across 5,111 sols—until the June 2018 global dust storm darkened the entire planet.'
-                      : 'Gió lốc tại Meridiani Planum đã nhiều lần thổi sạch bụi trên mặt pin giúp Opportunity sống tới 5.111 sol—cho tới cơn bão bụi toàn cầu tháng 6/2018.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 08: THE MIRROR THAT NEVER SLEEPS (APOLLO 11 LRRR)
-           ================================================================ */}
-        {isChapterVisible(7) && (
-          <ChapterBackdropWrapper
-            chapterIdx={7}
-            lang={lang}
-            id="chapter-section-7"
-            ariaLabelledBy="ch08-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#64DFDF] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 08 of 10 · Apollo 11 Lunar Laser Ranging Retroreflector (1969-059C)'
-                  : 'Chương 08 / 10 · Gương Phản Xạ Laser Mặt Trăng Apollo 11 (1969-059C)'}
-              </div>
-              <h2
-                id="ch08-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'The Mirror That Never Sleeps: Why 1969 Lunar Hardware Still Works Tonight'
-                  : 'Tấm Gương Không Bao Giờ Ngủ: Vì Sao Thiết Bị Năm 1969 Vẫn Hoạt Động Đêm Nay?'}
-              </h2>
-              <p className="text-base text-slate-200 leading-relaxed">
-                {lang === 'en'
-                  ? 'InSight fell silent when dust starved its solar panels. Yet at Mare Tranquillitatis (0.674°N, 23.473°E), the passive tray of 100 fused-silica prisms left by Apollo 11 in July 1969 needs zero electricity—and still reflects Earth laser pulses 57+ years later.'
-                  : 'InSight lặng tiếng khi bụi che khuất tấm pin mặt trời. Nhưng tại Biển Tĩnh Lặng (0,674°B, 23,473°Đ), khay 100 lăng kính thạch anh thụ động do Apollo 11 đặt năm 1969 không cần một giọt điện nào—và vẫn phản xạ tia laser từ Trái Đất suốt hơn 57 năm qua.'}
-              </p>
-            </div>
-
-            <LunarLaserRangingLab lang={lang} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              <NasaPhotoViewer photoId="AS11-40-5952" lang={lang} compact />
-              <NasaPhotoViewer photoId="PIA23177" lang={lang} compact />
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 09: WHY STORYTELLING MATTERS — BASELINE & IMPACT
-           ================================================================ */}
-        {isChapterVisible(8) && (
-          <ChapterBackdropWrapper
-            chapterIdx={8}
-            lang={lang}
-            id="chapter-section-8"
-            ariaLabelledBy="ch09-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#64DFDF] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 09 of 10 · Baseline Comparison & Vietnamese STEM Roadmap'
-                  : 'Chương 09 / 10 · Đối Chiếu Cơ Sở & Lộ Trình Giáo Dục STEM Việt Nam'}
-              </div>
-              <h2
-                id="ch09-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'Why Storytelling Matters: Turning Archival Tables into Living Inquiry'
-                  : 'Vì Sao Kể Chuyện Khoa Học Quan Trọng: Từ Bảng Dữ Liệu Thô Đến Trải Nghiệm Sống'}
-              </h2>
-              <p className="text-base text-slate-200 leading-relaxed">
-                {lang === 'en'
-                  ? 'Raw archival tables preserve vital numbers, but spatial storytelling lets middle-school students see, hear, and test the physics behind every mission.'
-                  : 'Các bảng lưu trữ giữ trọn con số kỹ thuật, nhưng nghệ thuật kể chuyện không gian giúp học sinh trực tiếp nhìn thấy, lắng nghe và thực hành vật lý đằng sau mỗi sứ mệnh.'}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setBaselineView('comparison')}
-                className={`px-4 py-2 text-xs font-bold rounded-xl border transition-colors ${
-                  baselineView === 'comparison'
-                    ? 'bg-[#F4A261] text-[#1F110C] border-[#F4A261]'
-                    : 'bg-[#1E2B3E] text-slate-200 border-white/15'
-                }`}
-              >
-                {lang === 'en' ? 'Side-by-Side Comparison' : 'Đối chiếu Song song'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setBaselineView('raw')}
-                className={`px-4 py-2 text-xs font-bold rounded-xl border transition-colors ${
-                  baselineView === 'raw'
-                    ? 'bg-[#F4A261] text-[#1F110C] border-[#F4A261]'
-                    : 'bg-[#1E2B3E] text-slate-200 border-white/15'
-                }`}
-              >
-                {lang === 'en' ? 'Conventional Catalog Baseline' : 'Bảng Lưu Trữ Truyền Thống'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setBaselineView('solution')}
-                className={`px-4 py-2 text-xs font-bold rounded-xl border transition-colors ${
-                  baselineView === 'solution'
-                    ? 'bg-[#64DFDF] text-[#111C28] border-[#64DFDF]'
-                    : 'bg-[#1E2B3E] text-slate-200 border-white/15'
-                }`}
-              >
-                {lang === 'en' ? 'Silent Monuments Interactive Lab' : 'Giải Pháp Tương Tác Của Đội'}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {(baselineView === 'comparison' || baselineView === 'raw') && (
-                <div className="rounded-2xl border border-white/15 bg-[#1B2638]/95 p-5 space-y-3">
-                  <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider">
-                    {lang === 'en'
-                      ? 'Conventional Baseline · Static Archival Table'
-                      : 'Cơ Sở Truyền Thống · Bảng Tra Cứu Tĩnh'}
-                  </div>
-                  <h3 className="text-lg font-bold text-white">
-                    {lang === 'en'
-                      ? 'What a Student Normally Sees: Uncontextualized Entries'
-                      : 'Những Gì Học Sinh Thường Gặp: Dữ Liệu Rời Rạc'}
-                  </h3>
-                  <div className="p-4 rounded-xl bg-[#111926] border border-white/10 text-xs text-slate-300 space-y-1.5 leading-relaxed">
-                    <div>
-                      <strong className="text-white">Object ID:</strong> 2018-042A (InSight) · Mars (4.502°N, 135.623°E, -2,655 m MOLA)
-                    </div>
-                    <div>
-                      <strong className="text-white">Timeline:</strong> Launch 5 May 2018 · Landed 26 Nov 2018 · Last Signal 15 Dec 2022
-                    </div>
-                    <div>
-                      <strong className="text-white">Payloads:</strong> SEIS (VBB/SP), HP³ (DLR), RISE (X-Band), TWINS
-                    </div>
-                    <div>
-                      <strong className="text-white">Power Delta:</strong> ~5,000 Wh/sol (Sol 10) → ~500 Wh/sol (Sol 1211)
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-300">
-                    {lang === 'en'
-                      ? 'Accurate for specialists, but offers no spatial 3D intuition, acoustic feedback, or hands-on experimentation.'
-                      : 'Chính xác với chuyên gia nhưng thiếu trực quan không gian 3D, âm thanh địa chấn và trải nghiệm thực hành.'}
-                  </p>
-                </div>
-              )}
-
-              {(baselineView === 'comparison' || baselineView === 'solution') && (
-                <div className="rounded-2xl border border-[#64DFDF]/40 bg-[#1B2638]/95 p-5 space-y-3">
-                  <div className="text-xs font-bold text-[#64DFDF] uppercase tracking-wider">
-                    {lang === 'en'
-                      ? 'Our Solution · Interactive 3D & GIS Scrollytelling'
-                      : 'Giải Pháp Của Đội · Kể Chuyện Tương Tác 3D & GIS'}
-                  </div>
-                  <h3 className="text-lg font-bold text-white">
-                    {lang === 'en'
-                      ? 'Spatial GIS + Physics Simulations + Bilingual Equity'
-                      : 'Bản Đồ GIS 3D + Mô Phỏng Vật Lý + Song Ngữ Anh–Việt'}
-                  </h3>
-                  <ul className="space-y-2.5 text-xs text-slate-200 leading-relaxed">
-                    <li>
-                      <strong className="text-[#FFD1A6]">1. Real NASA Photography & 3D GIS:</strong>{' '}
-                      {lang === 'en'
-                        ? 'Maps 2018-042A, 2003-032A, and 1969-059C onto photographic Mars & Moon globes and an articulated 3D InSight lander.'
-                        : 'Đặt trực tiếp các sứ mệnh lên quả cầu ảnh chụp thật của NASA và mô hình 3D InSight.'}
-                    </li>
-                    <li>
-                      <strong className="text-[#64DFDF]">2. Hands-On Physics Labs:</strong>{' '}
-                      {lang === 'en'
-                        ? 'Students hear 60× marsquake sonifications, scrub 2018–2022 solar dust, and time a 2.56-second lunar laser pulse.'
-                        : 'Học sinh nghe âm thanh địa chấn 60×, kéo thanh trượt bụi phủ 2018–2022 và bấm giờ tia laser 2,56 giây.'}
-                    </li>
-                    <li>
-                      <strong className="text-[#F4A261]">3. Classroom-Ready Bilingual Access:</strong>{' '}
-                      {lang === 'en'
-                        ? 'Instant 100% English / 100% Vietnamese switching tailored for middle-school STEM classrooms.'
-                        : 'Chuyển đổi tức thì 100% Tiếng Anh / 100% Tiếng Việt phục vụ học sinh và giáo viên STEM.'}
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Scalable Roadmap */}
-            <div className="rounded-2xl border border-white/15 bg-[#1B2638]/95 p-5">
-              <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider mb-3">
-                {lang === 'en'
-                  ? 'Modular Expansion Roadmap · Next Off-World Monuments'
-                  : 'Lộ Trình Mở Rộng Mô-Đun · Các Di Sản Không Gian Tiếp Theo'}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div className="p-4 rounded-xl bg-[#223046] border border-white/10">
-                  <strong className="text-white block text-sm mb-1">
-                    {lang === 'en'
-                      ? 'Phase 1 · Ingenuity Helicopter (2020-052B)'
-                      : 'Giai đoạn 1 · Trực thăng Ingenuity (2020-052B)'}
-                  </strong>
-                  <p className="text-slate-200 leading-relaxed">
-                    {lang === 'en'
-                      ? 'After 72 flights at Jezero Crater, Ingenuity now serves as a stationary weather and avionics testbed in Valinor Hills.'
-                      : 'Sau 72 chuyến bay tại miệng hố Jezero, Ingenuity hiện trở thành trạm thời tiết cố định tại đồi Valinor.'}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#223046] border border-white/10">
-                  <strong className="text-white block text-sm mb-1">
-                    {lang === 'en'
-                      ? 'Phase 2 · Voyager Golden Records (1977-084A)'
-                      : 'Giai đoạn 2 · Đĩa Vàng Voyager (1977-084A)'}
-                  </strong>
-                  <p className="text-slate-200 leading-relaxed">
-                    {lang === 'en'
-                      ? 'Extending our power-budget simulator to RTG decay in interstellar space beyond the heliopause.'
-                      : 'Mở rộng mô phỏng quản lý nguồn điện sang nguồn đồng vị phóng xạ ở không gian liên sao.'}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#223046] border border-white/10">
-                  <strong className="text-white block text-sm mb-1">
-                    {lang === 'en'
-                      ? 'Phase 3 · Vietnamese STEM Classroom Kit'
-                      : 'Giai đoạn 3 · Học liệu STEM Trường học Việt Nam'}
-                  </strong>
-                  <p className="text-slate-200 leading-relaxed">
-                    {lang === 'en'
-                      ? '45-minute bilingual physics lesson modules for middle-school educators covering seismic waves, solar power, and optics.'
-                      : 'Bộ bài giảng thực hành 45 phút song ngữ dành cho giáo viên Khoa học tự nhiên THCS.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </ChapterBackdropWrapper>
-        )}
-
-        {/* ================================================================
-            CHAPTER 10: EXPLORER CHALLENGE & 8K MISSION EMBLEM
-           ================================================================ */}
-        {isChapterVisible(9) && (
-          <ChapterBackdropWrapper
-            chapterIdx={9}
-            lang={lang}
-            id="chapter-section-9"
-            ariaLabelledBy="ch10-heading"
-          >
-            <div className="max-w-3xl">
-              <div className="text-xs font-bold text-[#FFD1A6] uppercase tracking-wider mb-2">
-                {lang === 'en'
-                  ? 'Chapter 10 of 10 · 4-Question Mission Review & 8K Aerospace Emblem'
-                  : 'Chương 10 / 10 · 4 Câu Hỏi Ôn Tập & Huy Hiệu Sứ Mệnh 8K'}
-              </div>
-              <h2
-                id="ch10-heading"
-                className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#FFF8F2] mb-3"
-              >
-                {lang === 'en'
-                  ? 'Explorer Challenge & Custom 8K Mission Emblem'
-                  : 'Thử Thách Nhà Thám Hiểm & Huy Hiệu Sứ Mệnh 8K'}
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Left 7 cols: 4-Question Interactive Mission Review */}
-              <div className="lg:col-span-7 space-y-4">
-                {QUIZ_QUESTIONS.map((q, qIdx) => {
-                  const selected = quizAnswers[qIdx];
-                  const isCorrect = selected === q.correctIndex;
-                  return (
-                    <div
-                      key={q.id}
-                      className="rounded-2xl border border-[#F4A261]/25 bg-[#23140F]/95 p-5 space-y-3 shadow-xl"
-                    >
-                      <h3 className="text-base font-bold text-[#FFF8F2]">{q.question[lang]}</h3>
-                      <div className="space-y-2">
-                        {q.options[lang].map((optText, oIdx) => {
-                          const chosen = selected === oIdx;
-                          return (
-                            <button
-                              key={oIdx}
-                              type="button"
-                              onClick={() => {
-                                const next = [...quizAnswers];
-                                next[qIdx] = oIdx;
-                                setQuizAnswers(next);
-                              }}
-                              className={`w-full p-3.5 rounded-xl border text-left text-xs leading-relaxed transition-colors ${
-                                chosen
-                                  ? 'bg-[#3B2117] border-[#F4A261] text-[#FFF8F2] font-semibold'
-                                  : 'bg-[#2C1812] border-[#F4A261]/20 text-[#F3E5D8] hover:border-[#F4A261]/50'
-                              }`}
-                            >
-                              {optText}
-                            </button>
-                          );
-                        })}
+                    <div className="p-3.5 rounded-xl bg-[#1A0D09] border border-[#64DFDF]/35">
+                      <div className="text-xl sm:text-2xl font-extrabold text-[#64DFDF]">
+                        1,319
                       </div>
+                      <div className="text-xs text-[#F3E5D8]/85 mt-0.5">
+                        {lang === 'en'
+                          ? 'Confirmed Marsquakes Recorded'
+                          : 'Trận động đất Sao Hỏa được ghi nhận'}
+                      </div>
+                    </div>
 
-                      {quizSubmitted && selected !== null && (
-                        <div
-                          className={`p-3 rounded-xl border text-xs font-medium leading-relaxed ${
-                            isCorrect
-                              ? 'bg-[#122628] border-[#64DFDF] text-[#64DFDF]'
-                              : 'bg-[#2E1812] border-[#F4A261] text-[#FFD1A6]'
-                          }`}
-                        >
-                          {q.explanation[lang]}
+                    <div className="p-3.5 rounded-xl bg-[#1A0D09] border border-[#F4A261]/35">
+                      <div className="text-xl sm:text-2xl font-extrabold text-[#FFD1A6]">
+                        1.8 Meters
+                      </div>
+                      <div className="text-xs text-[#F3E5D8]/85 mt-0.5">
+                        {lang === 'en'
+                          ? 'Robotic Arm (IDA) Reach on Soil'
+                          : 'Tầm với cánh tay robot hạ đặt thiết bị'}
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-[#1A0D09] border border-[#64DFDF]/35">
+                      <div className="text-xl sm:text-2xl font-extrabold text-[#64DFDF]">
+                        0 Wheels
+                      </div>
+                      <div className="text-xs text-[#F3E5D8]/85 mt-0.5">
+                        {lang === 'en'
+                          ? '3 Rigid Titanium Legs for Acoustic Silence'
+                          : '3 Chân đáp titan cố định chống rung nhiễu'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right 6 Cols: Interactive Stationary Lander vs Rolling Rover Comparison + PIA19664 */}
+                <div className="lg:col-span-6 space-y-4">
+                  <div className="rounded-2xl border border-[#F4A261]/35 bg-[#1B0E0A] p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#64DFDF]">
+                        {lang === 'en'
+                          ? 'Interactive Spacecraft Architecture Comparison'
+                          : 'So Sánh Thiết Kế Trạm Cố Định & Xe Tự Hành'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setLanderCompareTab('insight')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-colors ${
+                          landerCompareTab === 'insight'
+                            ? 'bg-[#F4A261] text-[#1D0F0A]'
+                            : 'bg-[#2C1710] text-[#F3E5D8] hover:text-white'
+                        }`}
+                      >
+                        {lang === 'en'
+                          ? 'InSight Stationary Lander'
+                          : 'Trạm Cố Định InSight (3 Chân)'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLanderCompareTab('rover')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-colors ${
+                          landerCompareTab === 'rover'
+                            ? 'bg-[#64DFDF] text-[#101C26]'
+                            : 'bg-[#2C1710] text-[#F3E5D8] hover:text-white'
+                        }`}
+                      >
+                        {lang === 'en'
+                          ? 'Rolling Mars Rover (6 Wheels)'
+                          : 'Xe Tự Hành Sao Hỏa (6 Bánh Xe)'}
+                      </button>
+                    </div>
+
+                    {landerCompareTab === 'insight' ? (
+                      <div className="p-3.5 rounded-xl bg-[#26140E] border border-[#F4A261]/30 space-y-1.5 text-xs">
+                        <div className="font-bold text-[#FFD1A6] text-sm">
+                          {lang === 'en'
+                            ? 'Stationary Geophysical Observatory (NSSDCA: 2018-042A)'
+                            : 'Đài Quan Sắc Địa Vật Lý Cố Định (NSSDCA: 2018-042A)'}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setQuizSubmitted(true)}
-                    className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#F4A261] text-[#1F110C] hover:bg-[#FFD1A6]"
-                  >
-                    {lang === 'en' ? 'Verify Mission Answers' : 'Kiểm Tra Đáp Án'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuizAnswers([null, null, null, null]);
-                      setQuizSubmitted(false);
-                    }}
-                    className="px-4 py-2.5 text-xs font-semibold rounded-xl border border-[#F4A261]/35 bg-[#2C1812] text-[#F3E5D8] hover:border-[#FFD1A6]"
-                  >
-                    {lang === 'en' ? 'Reset Quiz' : 'Làm Lại'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsRefModalOpen(true)}
-                    className="px-4 py-2.5 text-xs font-semibold rounded-xl border border-[#64DFDF]/40 bg-[#1B2638] text-[#64DFDF] hover:bg-[#24334C]"
-                  >
-                    {lang === 'en'
-                      ? 'Open Full 12-Source Reference Desk ↗'
-                      : 'Mở Bàn Tra Cứu 12 Nguồn Tư Liệu NASA ↗'}
-                  </button>
-                </div>
-
-                {quizSubmitted && (
-                  <div
-                    role="status"
-                    aria-live="polite"
-                    className="p-4 rounded-2xl border border-[#64DFDF]/50 bg-[#1B2638] text-sm"
-                  >
-                    {!quizEvaluation.complete ? (
-                      <span className="text-[#FFD1A6] font-semibold">
-                        {lang === 'en'
-                          ? '▲ Please select an answer for all 4 questions before verifying.'
-                          : '▲ Vui lòng chọn đáp án cho cả 4 câu hỏi trước khi kiểm tra.'}
-                      </span>
+                        <p className="text-[#F3E5D8]/90 leading-relaxed">
+                          {lang === 'en'
+                            ? '• Mission Goal: Look 1,830 km deep into the crust, mantle, and core from a flat, safe plain (Elysium Planitia).'
+                            : '• Mục tiêu: Nhìn xuyên sâu 1.830 km vào lớp vỏ, lớp phủ và lõi hành tinh từ đồng bằng phẳng Elysium Planitia.'}
+                        </p>
+                        <p className="text-[#F3E5D8]/90 leading-relaxed">
+                          {lang === 'en'
+                            ? '• Key Advantage: Placing SEIS directly on the ground away from the lander deck allowed detection of atomic-scale seismic waves.'
+                            : '• Ưu thế: Đặt máy SEIS trực tiếp xuống đất giúp phát hiện sóng địa chấn có biên độ nhỏ cỡ nguyên tử.'}
+                        </p>
+                      </div>
                     ) : (
-                      <div className="space-y-1">
-                        <strong className="text-[#64DFDF] block text-base font-bold">
+                      <div className="p-3.5 rounded-xl bg-[#26140E] border border-[#64DFDF]/30 space-y-1.5 text-xs">
+                        <div className="font-bold text-[#64DFDF] text-sm">
                           {lang === 'en'
-                            ? `Mission Review Score: ${quizEvaluation.score} / ${quizEvaluation.total}`
-                            : `Điểm Ôn Tập Sứ Mệnh: ${quizEvaluation.score} / ${quizEvaluation.total}`}
-                        </strong>
-                        <p className="text-xs text-slate-200">
+                            ? 'Mobile Surface Geologist (e.g., Curiosity & Perseverance)'
+                            : 'Nhà Địa Chất Bề Mặt Di Động (VD: Curiosity & Perseverance)'}
+                        </div>
+                        <p className="text-[#F3E5D8]/90 leading-relaxed">
                           {lang === 'en'
-                            ? 'The spacecraft fell silent, but their discoveries—and your curiosity—continue.'
-                            : 'Những cỗ máy đã im lặng, nhưng khám phá của chúng—và sự tò mò khoa học của bạn—vẫn tiếp tục.'}
+                            ? '• Mission Goal: Drive across ancient river deltas and craters to drill surface rock samples and search for biosignatures.'
+                            : '• Mục tiêu: Di chuyển qua các miệng hố và châu thổ sông cổ đại để khoan mẫu đá bề mặt.'}
+                        </p>
+                        <p className="text-[#F3E5D8]/90 leading-relaxed">
+                          {lang === 'en'
+                            ? '• Why Rovers Can’t Do InSight’s Job: Six wheels, suspension bogies, and RTG generators vibrate too much to record ultra-faint deep mantle quakes.'
+                            : '• Khác biệt: Hệ thống 6 bánh xe và khung gầm tạo nhiều rung động cơ học nên không thể thay thế ống nghe địa chấn siêu nhạy của InSight.'}
                         </p>
                       </div>
                     )}
+
+                    <div className="relative rounded-xl overflow-hidden border border-[#F4A261]/30 h-[210px] bg-[#120906]">
+                      <img
+                        src={INSIGHT_MEDIA_ASSETS.PIA19664_NASA}
+                        onError={(e) => {
+                          e.currentTarget.src = INSIGHT_MEDIA_ASSETS.PIA22227_LOCAL;
+                        }}
+                        alt="NASA PIA19664 InSight Solar Panels Open in Cleanroom"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-2 left-2 right-2 px-3 py-1.5 rounded-lg bg-[#1A0D09]/90 text-[11px] text-[#FFD1A6] flex items-center justify-between">
+                        <span>
+                          {lang === 'en'
+                            ? 'InSight’s twin decagonal solar panels open (PIA19664)'
+                            : 'Hai cánh pin mặt trời hình thập giác của InSight (PIA19664)'}
+                        </span>
+                        <span className="text-[#64DFDF] font-bold">Span: 6.0m</span>
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
+              </div>
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 03: THE JOURNEY TO MARS (Hành trình 485 triệu km tới Hành tinh Đỏ)
+           =================================================================== */}
+        {isPageVisible(2) && (
+          <ChapterBackdropWrapper chapterIndex={2} lang={lang}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 03 OF 10 · 485 MILLION KM JOURNEY & MISSION TIMELINE'
+                    : 'TRANG 03 / 10 · HÀNH TRÌNH 485 TRIỆU KM & DÒNG THỜI GIAN SỨ MỆNH'}
+                </span>
+                <a
+                  href="https://www.nasa.gov/news-release/nasa-insight-lander-arrives-on-martian-surface-to-learn-what-lies-beneath/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
               </div>
 
-              {/* Right 5 cols: 8K Photorealistic Aerospace Mission Emblem Generator */}
-              <div className="lg:col-span-5">
-                <MissionEmblemGenerator
-                  lang={lang}
-                  explorerName={explorerName}
-                  onChangeExplorerName={setExplorerName}
-                  generatedCallsign={generatedCallsign}
-                  onMintCallsign={setGeneratedCallsign}
-                />
+              <div className="space-y-2">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'From California Fog to Martian Fire: My 6 Key Mission Milestones'
+                    : 'Từ Sương Mù California Tới Bầu Trời Lửa Sao Hỏa: 6 Cột Mốc Lịch Sử'}
+                </h2>
+                <p className="text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'Click each milestone below to trace my 485-million-km flight (accompanied by the twin MarCO CubeSats), my 19,800 km/h atmospheric entry, and my 1,440 sols on Mars.'
+                    : 'Nhấn vào từng cột mốc bên dưới để theo dõi chặng bay 485 triệu km (cùng cặp vệ tinh MarCO), màn lao vào khí quyển ở tốc độ 19.800 km/h và 1.440 ngày hoạt động trên Sao Hỏa.'}
+                </p>
+              </div>
+
+              {/* 6 Interactive Milestone Selector Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                {JOURNEY_MILESTONES.map((ms, idx) => {
+                  const active = idx === selectedMilestoneIdx;
+                  return (
+                    <button
+                      key={ms.id}
+                      type="button"
+                      data-testid={`journey-milestone-btn-${idx}`}
+                      onClick={() => setSelectedMilestoneIdx(idx)}
+                      className={`p-3 rounded-xl text-left transition-all border ${
+                        active
+                          ? 'bg-[#F4A261] text-[#1D0F0A] border-[#FFD1A6] shadow-lg font-bold'
+                          : 'bg-[#1C0F0B] text-[#F3E5D8] border-[#F4A261]/30 hover:bg-[#2E1912]'
+                      }`}
+                    >
+                      <div className="text-[11px] opacity-85">0{idx + 1}</div>
+                      <div className="text-xs font-bold mt-0.5 leading-snug">
+                        {ms.dateLabel[lang]}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Active Milestone Detail & Real NASA Photograph */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center rounded-2xl border border-[#F4A261]/35 bg-[#1B0E0A] p-4 sm:p-6 mobile-single-col-lock">
+                <div className="lg:col-span-6 space-y-3">
+                  <span className="inline-block px-3 py-1 rounded-lg bg-[#2E1811] text-xs font-bold text-[#64DFDF]">
+                    {activeMilestone.telemetryBadge[lang]}
+                  </span>
+                  <h3 className="font-serif-editorial text-xl sm:text-2xl font-bold text-[#FFF8F2]">
+                    {activeMilestone.title[lang]}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#F3E5D8]/90 leading-relaxed">
+                    {activeMilestone.story[lang]}
+                  </p>
+                  <div className="pt-2 flex items-center justify-between text-xs">
+                    <span className="text-[#FFD1A6] font-semibold">
+                      {activeMilestone.imageCredit}
+                    </span>
+                    <a
+                      href={activeMilestone.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#64DFDF] font-bold hover:underline"
+                    >
+                      {lang === 'en' ? 'Official NASA Log ↗' : 'Hồ sơ NASA ↗'}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-6">
+                  <div className="relative rounded-xl overflow-hidden border border-[#F4A261]/35 h-[260px] sm:h-[310px] bg-[#120906]">
+                    <img
+                      src={activeMilestone.imageUrl}
+                      onError={(e) => {
+                        e.currentTarget.src = activeMilestone.fallbackUrl;
+                      }}
+                      alt={activeMilestone.title[lang]}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 04: THE MISSION (Ba sứ mệnh khám phá lòng đất đỏ)
+           =================================================================== */}
+        {isPageVisible(3) && (
+          <ChapterBackdropWrapper chapterIndex={3} lang={lang}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 04 OF 10 · THE MISSION: THREE PILLARS OF PLANETARY SCIENCE'
+                    : 'TRANG 04 / 10 · BA SỨ MỆNH KHÁM PHÁ LÒNG ĐẤT ĐỎ'}
+                </span>
+                <a
+                  href="https://science.nasa.gov/mission/insight/science/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mobile-single-col-lock">
+                {/* Left 7 Cols: Why Mars is a 4.5-Billion-Year Time Capsule + 3 Pillars */}
+                <div className="lg:col-span-7 space-y-4">
+                  <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                    {lang === 'en'
+                      ? 'Why Go to Mars Just to Look Underground?'
+                      : 'Vì Sao Bay Tới Sao Hỏa Chỉ Để Nhìn Xuống Lòng Đất?'}
+                  </h2>
+
+                  <p className="text-sm text-[#F3E5D8]/90 leading-relaxed">
+                    {lang === 'en'
+                      ? 'On Earth, moving tectonic plates constantly melt and recycle the crust, erasing the geological fingerprint of how rocky planets formed 4.5 billion years ago. Mars is smaller and froze its tectonic lid early—preserving a pristine time capsule of the young Solar System.'
+                      : 'Trên Trái Đất, các mảng kiến tạo liên tục trượt và nấu chảy lớp vỏ, xóa sạch dấu vết thuở sơ khai cách đây 4,5 tỷ năm. Sao Hỏa nhỏ hơn và sớm đóng băng lớp vỏ ngoài—trở thành một "hộp thời gian" nguyên vẹn giúp giải mã sự hình thành của các hành tinh đất đá.'}
+                  </p>
+
+                  {/* 3 Interactive Investigation Pillars */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      {
+                        id: 'seis' as const,
+                        label: '1. SEIS (Seismology)',
+                        viLabel: '1. SEIS (Địa chấn)',
+                      },
+                      {
+                        id: 'hp3' as const,
+                        label: '2. HP³ (Heat Flow)',
+                        viLabel: '2. HP³ (Dòng nhiệt)',
+                      },
+                      {
+                        id: 'rise' as const,
+                        label: '3. RISE (Radio Geodesy)',
+                        viLabel: '3. RISE (Trắc địa vô tuyến)',
+                      },
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setSelectedPillar(p.id)}
+                        className={`p-3 rounded-xl text-xs font-bold transition-all ${
+                          selectedPillar === p.id
+                            ? 'bg-[#F4A261] text-[#1D0F0A] shadow-lg'
+                            : 'bg-[#1C0F0B] text-[#F3E5D8] border border-[#F4A261]/30 hover:bg-[#2E1912]'
+                        }`}
+                      >
+                        {lang === 'en' ? p.label : p.viLabel}
+                      </button>
+                    ))}
+                  </div>
+
+                  {selectedPillar === 'seis' && (
+                    <div className="p-4 rounded-2xl bg-[#1A0D09] border border-[#F4A261]/35 space-y-2">
+                      <div className="text-xs font-bold text-[#64DFDF] uppercase">
+                        {lang === 'en'
+                          ? 'Investigation 01 · Seismic Experiment for Interior Structure'
+                          : 'Trụ cột 01 · Thí nghiệm Địa chấn Khảo sát Cấu trúc Nội tâm'}
+                      </div>
+                      <h3 className="text-lg font-bold text-[#FFF8F2]">
+                        {lang === 'en'
+                          ? 'Taking Mars’ Pulse Across 1,319 Marsquakes'
+                          : 'Bắt Mạch Sao Hỏa Qua 1.319 Trận Động Đất'}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#F3E5D8]/90 leading-relaxed">
+                        {lang === 'en'
+                          ? 'Just like an ultrasound uses sound waves to image inside a human body, SEIS listened to marsquakes and meteorite impacts echoing through the planet to measure the thickness of the crust (24–72 km), mantle (1,550 km), and core (1,830 km).'
+                          : 'Giống như máy siêu âm dùng sóng âm để nhìn vào cơ thể người, SEIS lắng nghe sóng địa chấn từ động đất và va chạm thiên thạch dội qua lòng hành tinh để đo độ dày lớp vỏ (24–72 km), lớp phủ (1.550 km) và lõi (1.830 km).'}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedPillar === 'hp3' && (
+                    <div className="p-4 rounded-2xl bg-[#1A0D09] border border-[#F4A261]/35 space-y-2">
+                      <div className="text-xs font-bold text-[#FFD1A6] uppercase">
+                        {lang === 'en'
+                          ? 'Investigation 02 · Heat Flow and Physical Properties Package'
+                          : 'Trụ cột 02 · Đo Dòng Nhiệt & Đặc tính Vật lý Đất (HP³)'}
+                      </div>
+                      <h3 className="text-lg font-bold text-[#FFF8F2]">
+                        {lang === 'en'
+                          ? 'Measuring Planetary Temperature & Soil Mechanics (~40 cm Depth)'
+                          : 'Đo Nhiệt Độ Lòng Đất & Bài Học Cơ Học Đất (~40 cm)'}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#F3E5D8]/90 leading-relaxed">
+                        {lang === 'en'
+                          ? 'HP³ ("The Mole") was designed to hammer 5 meters deep to measure heat escaping from Mars’ interior. When cemented duricrust soil halted it at ~40 cm, engineers used the robotic arm scoop to bury the probe and measured the thermal conductivity of Martian regolith.'
+                          : 'Mũi khoan HP³ ("Chuột chũi") được thiết kế để đóng sâu 5 mét đo dòng nhiệt thoát ra từ tâm Sao Hỏa. Khi lớp đất cứng duricrust chặn mũi khoan ở độ sâu ~40 cm, các kỹ sư đã dùng cánh tay robot hỗ trợ chôn toàn bộ thân mũi khoan để đo độ dẫn nhiệt của đất.'}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedPillar === 'rise' && (
+                    <div className="p-4 rounded-2xl bg-[#1A0D09] border border-[#F4A261]/35 space-y-2">
+                      <div className="text-xs font-bold text-[#64DFDF] uppercase">
+                        {lang === 'en'
+                          ? 'Investigation 03 · Rotation and Interior Structure Experiment'
+                          : 'Trụ cột 03 · Thí nghiệm Tốc độ Quay & Cấu trúc Nội tâm (RISE)'}
+                      </div>
+                      <h3 className="text-lg font-bold text-[#FFF8F2]">
+                        {lang === 'en'
+                          ? 'Tracking Mars’ Wobble to Prove the Core is Liquid'
+                          : 'Đo Độ Chao Đảo Của Trục Quay Để Chứng Minh Lõi Lỏng'}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#F3E5D8]/90 leading-relaxed">
+                        {lang === 'en'
+                          ? 'Just as a raw egg spins differently from a hard-boiled egg, a planet with a liquid core wobbles slightly more as it rotates. Using X-band radio Doppler shifts accurate to 2 centimeters, RISE proved Mars’ core is molten liquid!'
+                          : 'Giống như một quả trứng sống quay khác với quả trứng luộc chín, hành tinh có lõi lỏng sẽ chao đảo nhẹ khi tự quay. Bằng sóng vô tuyến băng tần X chính xác tới 2 cm, RISE đã chứng minh lõi Sao Hỏa hoàn toàn nóng chảy!'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Quick Student Discovery Check */}
+                  <div className="p-3.5 rounded-xl bg-[#27140E] border border-[#64DFDF]/35 space-y-2">
+                    <div className="text-xs font-bold text-[#64DFDF]">
+                      {lang === 'en'
+                        ? 'Quick Discovery Check: Why does Mars preserve 4.5-billion-year-old rocks better than Earth?'
+                        : 'Câu hỏi khám phá nhanh: Vì sao Sao Hỏa bảo tồn đá 4,5 tỷ năm tuổi tốt hơn Trái Đất?'}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPage4CheckAnswer('mars')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                          page4CheckAnswer === 'mars'
+                            ? 'bg-[#64DFDF] text-[#101C26] border-[#64DFDF]'
+                            : 'bg-[#1A0D09] text-[#F3E5D8] border-[#F4A261]/30'
+                        }`}
+                      >
+                        {lang === 'en'
+                          ? '✓ Mars lacks active plate tectonics that recycle its crust'
+                          : '✓ Sao Hỏa không có các mảng kiến tạo nấu chảy lại lớp vỏ'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPage4CheckAnswer('earth')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                          page4CheckAnswer === 'earth'
+                            ? 'bg-[#E76F51] text-white border-[#E76F51]'
+                            : 'bg-[#1A0D09] text-[#F3E5D8] border-[#F4A261]/30'
+                        }`}
+                      >
+                        {lang === 'en'
+                          ? 'Mars is covered in thick glaciers everywhere'
+                          : 'Sao Hỏa được bao phủ bởi băng hà dày ở mọi nơi'}
+                      </button>
+                    </div>
+                    {page4CheckAnswer === 'mars' && (
+                      <p className="text-xs text-[#64DFDF] font-semibold">
+                        {lang === 'en'
+                          ? 'Exactly! Without plate subduction, Mars’ crust and mantle act as a frozen geological time capsule.'
+                          : 'Chính xác! Không có sự hút chìm mảng kiến tạo, lớp vỏ và lớp phủ Sao Hỏa giữ nguyên vẹn dấu vết từ thuở sơ khai.'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right 5 Cols: Official NASA PIA19811 Subsurface Cross-Section */}
+                <div className="lg:col-span-5">
+                  <div className="rounded-2xl overflow-hidden border border-[#F4A261]/40 bg-[#140A07] p-3 space-y-2 shadow-2xl">
+                    <img
+                      src={INSIGHT_MEDIA_ASSETS.PIA19811_LOCAL}
+                      onError={(e) => {
+                        e.currentTarget.src = INSIGHT_MEDIA_ASSETS.PIA19811_NASA;
+                      }}
+                      alt="NASA PIA19811 InSight Subsurface Cross-Section"
+                      className="w-full max-h-[390px] object-contain rounded-xl mx-auto"
+                    />
+                    <div className="p-2.5 rounded-xl bg-[#1D0F0A] text-xs text-[#FFD1A6] flex items-center justify-between">
+                      <span>
+                        {lang === 'en'
+                          ? 'Official NASA Subsurface Cutaway (PIA19811)'
+                          : 'Mặt cắt lòng đất chính thức của NASA (PIA19811)'}
+                      </span>
+                      <span className="text-[#64DFDF] font-bold">SEIS · HP³ · RISE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 05: INSIDE MY BODY (Giải phẫu cơ thể tôi — 3D & Sơ đồ PIA17358)
+           =================================================================== */}
+        {isPageVisible(4) && (
+          <ChapterBackdropWrapper chapterIndex={4} lang={lang}>
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 05 OF 10 · INSIDE MY BODY: 9 SUBSYSTEMS (3D RIG, PIA17358 & NASA EYES)'
+                    : 'TRANG 05 / 10 · GIẢI PHẪU CƠ THỂ TÔI: 9 THIẾT BỊ (3D, SƠ ĐỒ PIA17358 & NASA EYES)'}
+                </span>
+                <a
+                  href="https://science.nasa.gov/mission/insight/science-instruments/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="space-y-1.5">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'Explore My 9 Scientific Subsystems in 3D & Official PIA17358 Blueprint'
+                    : 'Khám Phá 9 Hệ Thống Thiết Bị Trên Cơ Thể Tôi Qua Mô Hình 3D & Sơ Đồ PIA17358'}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'Select any of the 9 subsystems on the right or tap a glowing orb to inspect its single callout line, switch to the official NASA PIA17358 diagram, or launch the pre-warmed NASA Eyes 3D live embed.'
+                    : 'Chọn bất kỳ thiết bị nào trong 9 hệ thống bên phải hoặc chạm vào điểm sáng để xem đường chỉ dẫn riêng biệt, chuyển sang sơ đồ gốc PIA17358 của NASA, hoặc mở trực tiếp NASA Eyes 3D.'}
+                </p>
+              </div>
+
+              <InSightLander3D
+                lang={lang}
+                selectedSubsystemId={selectedSubsystemId}
+                onSelectSubsystem={setSelectedSubsystemId}
+              />
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 06: THE HEART OF MARS (Trái tim Sao Hỏa: Vỏ – Lớp phủ – Lõi)
+           =================================================================== */}
+        {isPageVisible(5) && (
+          <ChapterBackdropWrapper chapterIndex={5} lang={lang}>
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 06 OF 10 · THE HEART OF MARS: CRUST, LUMPY MANTLE & LIQUID CORE'
+                    : 'TRANG 06 / 10 · TRÁI TIM SAO HỎA: LỚP VỎ – LỚP PHỦ – LÕI NÓNG CHẢY'}
+                </span>
+                <a
+                  href="https://science.nasa.gov/mission/insight/science-highlights/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="space-y-1.5">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'Seeing 1,830 Kilometers Deep Without Drilling a Single Deep Hole'
+                    : 'Nhìn Xuyên Sâu 1.830 Km Xuống Tâm Sao Hỏa Mà Không Cần Đào Giếng Sâu'}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'Tap each layer in the cutaway below to inspect how SEIS and RISE mapped Mars’ 3-layer volcanic crust (24–72 km), lumpy silicate mantle (1,550 km), and molten iron-alloy core (1,830 km radius).'
+                    : 'Chạm vào từng lớp cấu trúc bên dưới để xem SEIS và RISE đã lập bản đồ lớp vỏ 3 tầng (24–72 km), lớp phủ silicat lổn nhổn (1.550 km) và lõi sắt lỏng (bán kính 1.830 km) như thế nào.'}
+                </p>
+              </div>
+
+              <MartianInteriorCutaway lang={lang} />
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 07: LISTENING TO THE PLANET (Lắng nghe nhịp đập của một hành tinh)
+           =================================================================== */}
+        {isPageVisible(6) && (
+          <ChapterBackdropWrapper chapterIndex={6} lang={lang}>
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 07 OF 10 · LISTENING TO THE PLANET: P/S WAVES & MARTIAN WIND'
+                    : 'TRANG 07 / 10 · LẮNG NGHE HÀNH TINH: SÓNG P/S & ÂM THANH GIÓ SAO HỎA'}
+                </span>
+                <a
+                  href="https://science.nasa.gov/resource/listen-to-nasas-insight-at-work-on-mars/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="space-y-1.5">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'How Do You Hear a Planet? From Sol 4 Wind Rumblings to Sol 128 Marsquakes'
+                    : 'Làm Sao Để "Nghe" Được Một Hành Tinh? Từ Tiếng Gió Sol 4 Tới Động Đất Sol 128'}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'On December 1, 2018, my sensors captured the low rumble of Martian wind blowing across my solar wings. On April 6, 2019 (Sol 128), I recorded the first marsquake. Simulate P-wave and S-wave shadow zones or listen to the official NASA JPL recordings below.'
+                    : 'Ngày 01/12/2018, cảm biến của tôi thu được tiếng gió trầm đục thổi qua hai cánh pin. Đến ngày 06/04/2019 (Sol 128), tôi ghi nhận trận động đất Sao Hỏa đầu tiên. Hãy chạy thử mô phỏng sóng P/S và nghe bản thu chính thức của NASA JPL bên dưới.'}
+                </p>
+              </div>
+
+              <SeismicSonificationLab lang={lang} />
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 08: THE SECRETS I LEFT BEHIND (Những bí mật chấn động tôi để lại)
+           =================================================================== */}
+        {isPageVisible(7) && (
+          <ChapterBackdropWrapper chapterIndex={7} lang={lang}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 08 OF 10 · THE SECRETS I LEFT BEHIND (INCLUDING AUG 2025 BREAKTHROUGH)'
+                    : 'TRANG 08 / 10 · NHỮNG BÍ MẬT TÔI ĐỂ LẠI (GỒM ĐỘT PHÁ THÁNG 8/2025)'}
+                </span>
+                <a
+                  href="https://www.nasa.gov/missions/insight/nasa-marsquake-data-reveals-lumpy-nature-of-red-planets-interior/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="space-y-1.5">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'Four Breakthrough Discoveries From My Open Seismic Archive'
+                    : 'Bốn Khám Phá Chấn Động Từ Kho Dữ Liệu Địa Chấn Mở Của Tôi'}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'Even years after my radio went silent in 2022, planetary scientists continue to make headline discoveries in my data—including the August 2025 Science study revealing giant 4.5-billion-year-old impact fragments in Mars’ mantle.'
+                    : 'Ngay cả khi đài phát của tôi đã ngừng hoạt động từ năm 2022, các nhà khoa học vẫn liên tục tìm ra những phát hiện mới từ kho dữ liệu của tôi—tiêu biểu là công bố tháng 8/2025 trên tạp chí Science về các mảnh vỡ 4,5 tỷ năm tuổi trong lớp phủ.'}
+                </p>
+              </div>
+
+              {/* 4-Discovery Bento Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mobile-single-col-lock">
+                {INSIGHT_DISCOVERIES_4.map((disc, idx) => {
+                  const isSelected = idx === selectedDiscoveryIdx;
+                  return (
+                    <div
+                      key={disc.id}
+                      onClick={() => setSelectedDiscoveryIdx(idx)}
+                      className={`rounded-2xl border p-4 sm:p-5 flex flex-col justify-between space-y-3.5 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-[#26130D] border-[#64DFDF] shadow-2xl'
+                          : 'bg-[#1A0D09]/90 border-[#F4A261]/30 hover:border-[#F4A261]/60'
+                      }`}
+                    >
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="px-2.5 py-1 rounded-lg bg-[#341C14] text-[11px] font-bold text-[#FFD1A6]">
+                            {disc.badge[lang]}
+                          </span>
+                          <span className="text-xs font-extrabold text-[#64DFDF]">
+                            {disc.metric}
+                          </span>
+                        </div>
+
+                        <div className="relative rounded-xl overflow-hidden border border-[#F4A261]/25 h-44 bg-[#110806]">
+                          <img
+                            src={disc.imageUrl}
+                            alt={disc.title[lang]}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-1.5 right-2 px-2 py-0.5 rounded bg-black/75 text-[10px] text-[#FFD1A6]">
+                            {disc.imageCredit}
+                          </div>
+                        </div>
+
+                        <h3 className="text-base sm:text-lg font-bold text-[#FFF8F2]">
+                          {disc.title[lang]}
+                        </h3>
+                        <p className="text-xs text-[#F3E5D8]/90 leading-relaxed">
+                          {disc.summary[lang]}
+                        </p>
+                        <p className="text-xs text-[#FFD1A6]/85 leading-relaxed">
+                          {disc.detail[lang]}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-[#F4A261]/20 flex items-center justify-between text-xs">
+                        <span className="text-[#64DFDF] font-semibold">
+                          {lang === 'en' ? 'Primary NASA Archive' : 'Hồ sơ gốc NASA'}
+                        </span>
+                        <a
+                          href={disc.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-bold text-[#FFD1A6] hover:underline"
+                        >
+                          {lang === 'en' ? 'Read NASA Study ↗' : 'Xem Công Bố NASA ↗'}
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 09: WHEN THE LIGHTS WENT OUT (Khi ánh sáng tắt dần dưới lớp bụi đỏ)
+           =================================================================== */}
+        {isPageVisible(8) && (
+          <ChapterBackdropWrapper chapterIndex={8} lang={lang}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 09 OF 10 · WHEN THE LIGHTS WENT OUT: 5,000 Wh → 500 Wh'
+                    : 'TRANG 09 / 10 · KHI ÁNH SÁNG TẮT DẦN: TỪ 5.000 Wh XUỐNG 500 Wh'}
+                </span>
+                <a
+                  href="https://science.nasa.gov/resource/insights-power-generation-after-landing-and-spring-2022/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="space-y-1.5">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'Red Dust on My Wings & My Final Signal on December 15, 2022'
+                    : 'Bụi Đỏ Trên Đôi Cánh Pin & Tín Hiệu Cuối Cùng Ngày 15/12/2022'}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'From generating ~5,000 Wh per Martian day (sol) after landing in 2018, airborne iron-oxide dust reduced my solar power to just ~500 Wh/sol by 2022. Drag the selfie scrubber below to compare my clean 2018 arrays (PIA22876) with my final 2022 dust-blanketed selfie (PIA25287).'
+                    : 'Từ mức ~5.000 Wh điện mỗi ngày Sao Hỏa (sol) khi mới hạ cánh năm 2018, bụi oxit sắt trong khí quyển đã làm công suất giảm xuống chỉ còn ~500 Wh/sol vào năm 2022. Hãy kéo thanh trượt bên dưới để so sánh bức ảnh selfie năm 2018 (PIA22876) và năm 2022 (PIA25287).'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mobile-single-col-lock">
+                {/* Left 6 Cols: Before/After Dust Selfie Scrubber (PIA22876 vs PIA25287) + Power Bar */}
+                <div className="lg:col-span-6 rounded-2xl border border-[#F4A261]/35 bg-[#1A0D09] p-4 sm:p-5 space-y-4">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-[#64DFDF]">
+                      {lang === 'en'
+                        ? 'Dec 2018 Clean Selfie (PIA22876)'
+                        : 'Tháng 12/2018 Sạch Bụi (PIA22876)'}
+                    </span>
+                    <span className="text-[#F4A261]">
+                      {lang === 'en'
+                        ? 'Apr 2022 Final Selfie (PIA25287)'
+                        : 'Tháng 4/2022 Phủ Đầy Bụi (PIA25287)'}
+                    </span>
+                  </div>
+
+                  {/* Overlaid Before/After Image Comparison Viewport */}
+                  <div className="relative w-full h-[270px] sm:h-[310px] rounded-xl overflow-hidden border border-[#F4A261]/35 bg-[#110806]">
+                    {/* Base Image: Clean 2018 Selfie (PIA22876) */}
+                    <img
+                      src={INSIGHT_MEDIA_ASSETS.PIA22876_MED}
+                      alt="InSight Clean Solar Panels Selfie Dec 2018 PIA22876"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    {/* Foreground Image: Dusty 2022 Selfie (PIA25287) with opacity/clip synced to dustPercent */}
+                    <img
+                      src={INSIGHT_MEDIA_ASSETS.PIA25287_MED}
+                      alt="InSight Dust-Covered Solar Panels Selfie April 2022 PIA25287"
+                      style={{ opacity: dustPercent / 90 }}
+                      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-150"
+                    />
+                    <div className="absolute bottom-2 left-2 right-2 px-3 py-1.5 rounded-lg bg-[#1A0D09]/92 border border-[#F4A261]/35 flex items-center justify-between text-xs font-bold">
+                      <span className="text-[#FFD1A6]">
+                        {lang === 'en' ? solarMetrics.dateLabelEn : solarMetrics.dateLabelVi}
+                      </span>
+                      <span className="text-[#64DFDF]">
+                        {solarMetrics.wattHoursPerSol.toLocaleString()} Wh/sol
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Dust Cover Scrubber Slider */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <label htmlFor="dust-scrubber-slider" className="text-[#FFD1A6]">
+                        {lang === 'en'
+                          ? `Martian Dust Accumulation: ${solarMetrics.dustClamped}%`
+                          : `Độ Che Phủ Bụi Sao Hỏa: ${solarMetrics.dustClamped}%`}
+                      </label>
+                      <span className="text-[#64DFDF]">
+                        {solarMetrics.percentOfInitial}% {lang === 'en' ? 'Power Remaining' : 'Điện năng còn lại'}
+                      </span>
+                    </div>
+                    <input
+                      id="dust-scrubber-slider"
+                      data-testid="dust-scrubber-slider"
+                      type="range"
+                      min={0}
+                      max={90}
+                      step={5}
+                      value={dustPercent}
+                      onChange={(e) => setDustPercent(Number(e.target.value))}
+                      className="w-full accent-[#F4A261]"
+                    />
+                  </div>
+
+                  {/* Visual 5,000 Wh -> 500 Wh Energy Comparison Bar */}
+                  <div className="p-3 rounded-xl bg-[#25130D] border border-[#F4A261]/25 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#F3E5D8]/85">
+                        {lang === 'en' ? '2018 Landing Baseline:' : 'Khi mới hạ cánh (2018):'}
+                      </span>
+                      <span className="font-bold text-[#64DFDF]">5,000 Wh / sol (100%)</span>
+                    </div>
+                    <div className="w-full h-2.5 rounded-full bg-[#140A07] overflow-hidden">
+                      <div
+                        style={{ width: `${solarMetrics.percentOfInitial}%` }}
+                        className="h-full bg-gradient-to-r from-[#E76F51] via-[#F4A261] to-[#64DFDF] transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#F3E5D8]/85">
+                        {lang === 'en' ? 'Selected Sol Energy:' : 'Năng lượng tại thời điểm chọn:'}
+                      </span>
+                      <span className="font-bold text-[#FFD1A6]">
+                        {solarMetrics.wattHoursPerSol.toLocaleString()} Wh / sol
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right 6 Cols: Classroom Energy Trade-Off Activity */}
+                <div className="lg:col-span-6 rounded-2xl border border-[#F4A261]/35 bg-[#1A0D09] p-4 sm:p-5 space-y-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-1 rounded-lg bg-[#341C14] text-[11px] font-bold text-[#64DFDF]">
+                      {lang === 'en'
+                        ? 'Simplified Educational Classroom Scenario'
+                        : 'Mô Phỏng Giáo Dục Dành Cho Lớp Học'}
+                    </span>
+                    <span className="text-xs font-bold text-[#FFD1A6]">
+                      {lang === 'en' ? 'Available:' : 'Quỹ điện:'}{' '}
+                      {solarMetrics.wattHoursPerSol} Wh
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#FFF8F2]">
+                    {lang === 'en'
+                      ? 'Mission Planner Lab: How Would You Spend InSight’s Remaining Electricity?'
+                      : 'Thử Thách Kỹ Sư: Bạn Sẽ Phân Bổ Nguồn Điện Ít Ỏi Còn Lại Như Thế Nào?'}
+                  </h3>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <div className="flex justify-between font-semibold mb-1">
+                        <span>
+                          {lang === 'en'
+                            ? '1. Survival Electronics Heaters (Min 150 Wh to avoid freezing)'
+                            : '1. Bộ Sưởi Bảo Vệ Mạch Điện (Tối thiểu 150 Wh để không đóng băng)'}
+                        </span>
+                        <span className="text-[#FFD1A6]">{powerInputs.survivalHeatersWh} Wh</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={400}
+                        step={20}
+                        value={powerInputs.survivalHeatersWh}
+                        onChange={(e) =>
+                          setPowerInputs((p) => ({
+                            ...p,
+                            survivalHeatersWh: Number(e.target.value),
+                          }))
+                        }
+                        className="w-full accent-[#F4A261]"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between font-semibold mb-1">
+                        <span>
+                          {lang === 'en'
+                            ? '2. SEIS Seismometer Marsquake Listening (Min 120 Wh)'
+                            : '2. Máy Đo Địa Chấn SEIS Lắng Nghe Động Đất (Tối thiểu 120 Wh)'}
+                        </span>
+                        <span className="text-[#64DFDF]">{powerInputs.seisSeismometerWh} Wh</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={400}
+                        step={20}
+                        value={powerInputs.seisSeismometerWh}
+                        onChange={(e) =>
+                          setPowerInputs((p) => ({
+                            ...p,
+                            seisSeismometerWh: Number(e.target.value),
+                          }))
+                        }
+                        className="w-full accent-[#64DFDF]"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between font-semibold mb-1">
+                        <span>
+                          {lang === 'en'
+                            ? '3. UHF Orbiter Relay Antenna (Min 80 Wh to send data home)'
+                            : '3. Ăng-ten UHF Truyền Dữ Liệu Về Trái Đất (Tối thiểu 80 Wh)'}
+                        </span>
+                        <span className="text-[#FFD1A6]">{powerInputs.uhfTelemetryWh} Wh</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={300}
+                        step={20}
+                        value={powerInputs.uhfTelemetryWh}
+                        onChange={(e) =>
+                          setPowerInputs((p) => ({
+                            ...p,
+                            uhfTelemetryWh: Number(e.target.value),
+                          }))
+                        }
+                        className="w-full accent-[#F4A261]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Live Evaluation Readout */}
+                  <div className="p-3.5 rounded-xl bg-[#26140E] border border-[#F4A261]/35 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between font-bold">
+                      <span>
+                        {lang === 'en' ? 'Allocated:' : 'Đã dùng:'} {powerEval.allocatedWh} /{' '}
+                        {powerEval.availableWh} Wh
+                      </span>
+                      <span
+                        className={
+                          powerEval.status === 'OPTIMAL_SCIENCE'
+                            ? 'text-[#64DFDF]'
+                            : 'text-[#F4A261]'
+                        }
+                      >
+                        {powerEval.status === 'OPTIMAL_SCIENCE'
+                          ? lang === 'en'
+                            ? '✓ Optimal Science Mode'
+                            : '✓ Tối Ưu Thu Thập Địa Chấn'
+                          : powerEval.status === 'OVER_BUDGET'
+                            ? lang === 'en'
+                              ? '⚠ Over Energy Budget (Battery Drain!)'
+                              : '⚠ Vượt Quá Quỹ Điện (Sập Nguồn!)'
+                            : powerEval.status === 'FREEZE_FAILURE'
+                              ? lang === 'en'
+                                ? '❄ Cold Electronics Risk (<150 Wh Heaters)'
+                                : '❄ Nguy Cơ Đóng Băng Mạch (<150 Wh Sưởi)'
+                              : lang === 'en'
+                                ? 'Survival Standby Mode'
+                                : 'Chế Độ Ngủ Đông Duy Trì'}
+                      </span>
+                    </div>
+                    <p className="text-[#F3E5D8]/85 leading-relaxed">
+                      {lang === 'en'
+                        ? 'Real JPL Decision in 2022: Engineers disabled fault-protection heaters in InSight’s final months so SEIS could keep recording marsquakes until December 15, 2022!'
+                        : 'Quyết định thực tế của JPL năm 2022: Các kỹ sư đã tắt bộ sưởi bảo vệ lỗi trong những tháng cuối để SEIS tiếp tục ghi nhận động đất cho đến ngày 15/12/2022!'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ChapterBackdropWrapper>
+        )}
+
+        {/* ===================================================================
+            PAGE 10: ABANDONED, BUT NOT FORGOTTEN (Quiz, Huy hiệu 4D & Hồ sơ Giám khảo)
+           =================================================================== */}
+        {isPageVisible(9) && (
+          <ChapterBackdropWrapper chapterIndex={9} lang={lang}>
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
+                  {lang === 'en'
+                    ? 'PAGE 10 OF 10 · ABANDONED, BUT NOT FORGOTTEN (QUIZ, 4D BADGE & JUDGE LEDGER)'
+                    : 'TRANG 10 / 10 · BỊ BỎ LẠI NHƯNG KHÔNG BỊ LÃNG QUÊN (QUIZ, HUY HIỆU 4D & HỒ SƠ)'}
+                </span>
+                <a
+                  href="https://www.jpl.nasa.gov/news/nasa-retires-insight-mars-lander-mission-after-years-of-science/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-full bg-[#1C0E0A] border border-[#64DFDF]/45 text-xs font-bold text-[#64DFDF] hover:bg-[#2B1610]"
+                >
+                  {lang === 'en' ? 'Verify at NASA/JPL ↗' : 'Kiểm chứng tại NASA/JPL ↗'}
+                </a>
+              </div>
+
+              <div className="space-y-1.5">
+                <h2 className="font-serif-editorial text-2xl sm:text-4xl font-bold text-[#FFF8F2]">
+                  {lang === 'en'
+                    ? 'My Radio Is Silent, Yet Every Student Who Explores My Data Keeps Me Alive'
+                    : 'Đài Phát Của Tôi Đã Tắt, Nhưng Mỗi Học Sinh Mở Kho Dữ Liệu Đều Giữ Tôi Sống Mãi'}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#F3E5D8]/90 max-w-3xl">
+                  {lang === 'en'
+                    ? 'Complete the 3-question InSight Knowledge Check and mint your personalized 4D Holographic Mission Badge to conclude my diary.'
+                    : 'Hoàn thành 3 câu hỏi ôn tập kiến thức về InSight và khắc tên lên tấm Huy hiệu Sứ mệnh Hologram 4D của riêng bạn.'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mobile-single-col-lock">
+                {/* Left 7 Cols: 3-Question Knowledge Check */}
+                <div className="lg:col-span-7 space-y-4">
+                  {INSIGHT_QUIZ_QUESTIONS_3.map((q, qIdx) => {
+                    const selected = quizAnswers[qIdx];
+                    const isAnswered = selected !== null && selected !== undefined;
+                    const isCorrect = selected === q.correctIndex;
+
+                    return (
+                      <div
+                        key={q.id}
+                        className="p-4 sm:p-5 rounded-2xl border border-[#F4A261]/30 bg-[#1B0E0A] space-y-3"
+                      >
+                        <div className="text-sm sm:text-base font-bold text-[#FFF8F2]">
+                          {q.question[lang]}
+                        </div>
+
+                        <div className="space-y-2">
+                          {q.options.map((opt, oIdx) => {
+                            const chosen = selected === oIdx;
+                            let btnStyle =
+                              'bg-[#26140E] text-[#F3E5D8] border-[#F4A261]/25 hover:border-[#F4A261]/60';
+                            if (isAnswered) {
+                              if (oIdx === q.correctIndex) {
+                                btnStyle =
+                                  'bg-[#13322B] text-[#64DFDF] border-[#64DFDF] font-bold';
+                              } else if (chosen) {
+                                btnStyle = 'bg-[#3B1812] text-[#FFD1A6] border-[#E76F51]';
+                              }
+                            }
+                            return (
+                              <button
+                                key={oIdx}
+                                type="button"
+                                data-testid={`quiz-q${qIdx}-opt${oIdx}`}
+                                onClick={() => {
+                                  const next = [...quizAnswers];
+                                  next[qIdx] = oIdx;
+                                  setQuizAnswers(next);
+                                }}
+                                className={`w-full p-3 rounded-xl border text-left text-xs sm:text-sm transition-all ${btnStyle}`}
+                              >
+                                {opt[lang]}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {isAnswered && (
+                          <div className="p-3 rounded-xl bg-[#140A07] border border-[#64DFDF]/35 text-xs space-y-1">
+                            <div
+                              className={`font-bold ${
+                                isCorrect ? 'text-[#64DFDF]' : 'text-[#F4A261]'
+                              }`}
+                            >
+                              {isCorrect
+                                ? lang === 'en'
+                                  ? '✓ Verified NASA Answer!'
+                                  : '✓ Câu trả lời chính xác!'
+                                : lang === 'en'
+                                  ? '→ Scientific Explanation:'
+                                  : '→ Giải thích khoa học:'}
+                            </div>
+                            <p className="text-[#F3E5D8]/90">{q.explanation[lang]}</p>
+                            <a
+                              href={q.sourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-block text-[#FFD1A6] font-semibold hover:underline"
+                            >
+                              Source: {q.sourceLabel} ↗
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {quizResult.complete && (
+                    <div className="p-4 rounded-2xl bg-[#13322B] border border-[#64DFDF] flex items-center justify-between">
+                      <div className="text-xs sm:text-sm font-bold text-[#FFF8F2]">
+                        {lang === 'en'
+                          ? `Mission Review Complete: ${quizResult.score} / ${quizResult.total} Verified!`
+                          : `Hoàn thành Ôn tập Sứ mệnh: Đạt ${quizResult.score} / ${quizResult.total} câu!`}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setQuizAnswers([null, null, null])}
+                        className="px-3 py-1 rounded-lg bg-[#101C26] text-[#64DFDF] text-xs font-bold"
+                      >
+                        {lang === 'en' ? 'Reset Quiz' : 'Làm lại'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right 5 Cols: Upgraded 4D Interactive Holographic Mission Badge Generator */}
+                <div className="lg:col-span-5">
+                  <MissionEmblemGenerator
+                    lang={lang}
+                    explorerName={explorerName}
+                    onChangeExplorerName={setExplorerName}
+                    generatedCallsign={generatedCallsign}
+                    onMintCallsign={setGeneratedCallsign}
+                  />
+                </div>
+              </div>
+
+              {/* 3. Collapsible "Project Overview, Judge Q&A & Scientific Sources" Drawer */}
+              <div className="rounded-2xl border border-[#F4A261]/35 bg-[#190D09] overflow-hidden">
+                <button
+                  type="button"
+                  data-testid="toggle-judge-drawer-btn"
+                  aria-expanded={isJudgeDrawerOpen}
+                  onClick={() => setIsJudgeDrawerOpen((v) => !v)}
+                  className="w-full px-5 py-4 flex items-center justify-between gap-3 bg-[#26140E] hover:bg-[#321B13] transition-colors text-left"
+                >
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-[#64DFDF]">
+                      {TEAM_METADATA.umbrellaProjectTitle}
+                    </div>
+                    <div className="text-sm sm:text-base font-bold text-[#FFF8F2]">
+                      {lang === 'en'
+                        ? 'Project Overview, NASA Space Apps Judge Q&A & 12 Primary Sources'
+                        : 'Tổng Quan Dự Án, Hồ Sơ Giám Khảo NASA Space Apps & 12 Nguồn Tư Liệu Gốc'}
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 rounded-xl bg-[#F4A261] text-[#1D0F0A] text-xs font-bold shrink-0">
+                    {isJudgeDrawerOpen
+                      ? lang === 'en'
+                        ? '▲ Hide Drawer'
+                        : '▲ Thu Gọn'
+                      : lang === 'en'
+                        ? '▼ Expand Judge Q&A & Sources'
+                        : '▼ Mở Hồ Sơ & Nguồn NASA'}
+                  </span>
+                </button>
+
+                {isJudgeDrawerOpen && (
+                  <div className="p-5 space-y-6 border-t border-[#F4A261]/25">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {JUDGE_QA_ITEMS.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-4 rounded-xl bg-[#130906] border border-[#F4A261]/25 space-y-1.5"
+                        >
+                          <div className="text-xs font-bold text-[#FFD1A6]">
+                            {item.question[lang]}
+                          </div>
+                          <p className="text-xs text-[#F3E5D8]/85 leading-relaxed">
+                            {item.answer[lang]}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {SCIENTIFIC_SOURCES.map((src) => (
+                        <a
+                          key={src.id}
+                          href={src.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-xl bg-[#130906] border border-[#F4A261]/20 hover:border-[#64DFDF] transition-colors flex flex-col justify-between space-y-1.5"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between text-[10px] font-bold">
+                              <span className="text-[#F4A261]">{src.category}</span>
+                              <span className="text-[#64DFDF]">{src.identifier}</span>
+                            </div>
+                            <div className="text-xs font-bold text-[#FFF8F2] mt-0.5">
+                              {src.title}
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-bold text-[#FFD1A6]">
+                            Verify at NASA/JPL ↗
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </ChapterBackdropWrapper>
         )}
       </main>
 
-      {/* Single Deduplicated Official Team Metadata & Representational Integrity Footer */}
-      <footer className="border-t border-[#F4A261]/25 bg-[#1B0F0B] py-8 px-4 sm:px-8 text-xs text-[#F3E5D8]/85">
-        <div className="max-w-[1360px] mx-auto space-y-4">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-1.5">
-              <div className="font-serif-editorial text-base text-[#FFF8F2] font-bold">
-                {TEAM_METADATA.projectTitle}
+      {/* SINGLE DEDUPLICATED BOTTOM FOOTER (Umbrella Project & Team NAU EXPLORERS NS01048) */}
+      <footer className="border-t border-[#F4A261]/25 bg-[#180C08] pb-24 pt-6 px-4 sm:px-8 text-xs text-[#F3E5D8]/80">
+        <div className="max-w-[1320px] mx-auto space-y-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="font-bold text-[#FFD1A6] text-sm">
+                {TEAM_METADATA.projectTitle} — Subsystem of "{TEAM_METADATA.umbrellaProjectTitle}"
               </div>
               <div>
-                <strong className="text-[#F4A261] font-bold">
-                  Team {TEAM_METADATA.teamName} (Official ID: {TEAM_METADATA.teamId})
+                <strong className="text-[#FFF8F2]">
+                  Team {TEAM_METADATA.teamName} (Official ID: {TEAM_METADATA.officialTeamId})
                 </strong>{' '}
-                · {TEAM_METADATA.institution[lang]} · {TEAM_METADATA.localEvent[lang]}
+                · {TEAM_METADATA.institution} · {TEAM_METADATA.localEvent}
               </div>
-              <div>
+              <div className="text-[#FFD1A6]/90">
                 {lang === 'en' ? 'Official Team Members (5): ' : 'Thành viên chính thức (5): '}
-                <span className="text-[#FFF8F2] font-semibold">
-                  {TEAM_METADATA.members.join(' · ')}
-                </span>
+                {TEAM_METADATA.members.join(' · ')}
               </div>
             </div>
 
-            <div className="text-left md:text-right space-y-1.5 shrink-0">
-              <div className="text-[#64DFDF] font-semibold">{TEAM_METADATA.license}</div>
-              <div>
-                {lang === 'en'
-                  ? 'Target Audience: Ages 10–15 & STEM Educators'
-                  : 'Đối tượng: Học sinh 10–15 tuổi & Giáo viên STEM'}
-              </div>
+            <div className="flex flex-col md:items-end gap-1 shrink-0">
+              <span className="text-[#64DFDF] font-bold">
+                NSSDCA ID: {TEAM_METADATA.nssdcaId} · {TEAM_METADATA.license}
+              </span>
+              <span>{TEAM_METADATA.targetAudience[lang]}</span>
               <button
                 type="button"
                 onClick={() => setIsRefModalOpen(true)}
-                className="text-[#FFD1A6] hover:underline font-semibold"
+                className="text-[#FFD1A6] font-bold hover:underline text-left md:text-right"
               >
                 {lang === 'en'
-                  ? 'Inspect Full NASA/NSSDCA Reference Desk (${OFFICIAL_REFERENCES.length} Sources) ↗'.replace(
-                      '${OFFICIAL_REFERENCES.length}',
-                      String(OFFICIAL_REFERENCES.length)
-                    )
-                  : `Xem Sổ cái ${OFFICIAL_REFERENCES.length} Nguồn Tư liệu NASA/NSSDCA ↗`}
+                  ? 'Open Full InSight Reference Desk (12 Sources) ↗'
+                  : 'Mở Hồ Sơ Tư Liệu Khoa Học InSight (12 Nguồn) ↗'}
               </button>
             </div>
-          </div>
-
-          {/* Clean Footer Representational Integrity Note (Moved from Top of Chapter 01) */}
-          <div className="pt-3 border-t border-[#F4A261]/15 text-[11px] text-[#F3E5D8]/70 flex flex-wrap items-center justify-between gap-2">
-            <span>
-              {lang === 'en'
-                ? 'Representational Integrity Note: First-person narration is a pedagogical storytelling device for learners aged 10–15; all mission dates, coordinates, and NSSDCA identifiers (2018-042A, 2003-032A, 1969-059C) are verified against primary NASA/JPL archives.'
-                : 'Ghi chú minh bạch khoa học: Lời kể ngôi thứ nhất là phương pháp sư phạm dành cho học sinh 10–15 tuổi; mọi ngày tháng, tọa độ và mã NSSDCA (2018-042A, 2003-032A, 1969-059C) đều được xác minh từ hồ sơ gốc của NASA/JPL.'}
-            </span>
           </div>
         </div>
       </footer>
 
-      {/* Sticky Bottom Chapter Pager HUD */}
-      <div className="sticky bottom-0 z-40 border-t border-[#F4A261]/25 bg-[#22130E]/95">
-        <div className="max-w-[1360px] mx-auto px-3 sm:px-8 h-14 flex items-center justify-between gap-2 sm:gap-3">
+      {/* COMPACT MOBILE-SAFE BOTTOM 10-PAGE PROGRESS BAR (01 / 10 to 10 / 10) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#1B0D09]/95 backdrop-blur-md border-t border-[#F4A261]/30 px-2.5 sm:px-6 h-14 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          data-testid="prev-page-btn"
+          disabled={currentPage === 0}
+          onClick={() => goToPage(currentPage - 1)}
+          className="px-3 py-1.5 rounded-xl bg-[#2E1811] text-[#FFD1A6] border border-[#F4A261]/35 text-xs font-bold disabled:opacity-40 hover:bg-[#422319] transition-colors shrink-0"
+        >
+          {lang === 'en' ? '← Prev' : '← Trước'}
+        </button>
+
+        {/* 10 Progress Dots */}
+        <nav
+          aria-label="10-page progress dots"
+          className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-1"
+        >
+          {CHAPTER_TITLES.map((ch, idx) => {
+            const active = currentPage === idx;
+            return (
+              <button
+                key={ch.num}
+                type="button"
+                aria-label={`Go to page ${ch.num}: ${ch.title[lang]}`}
+                onClick={() => goToPage(idx)}
+                className={`h-2.5 rounded-full transition-all shrink-0 ${
+                  active
+                    ? 'w-6 sm:w-8 bg-[#F4A261]'
+                    : 'w-2.5 bg-[#F4A261]/35 hover:bg-[#F4A261]/70'
+                }`}
+              />
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span
+            data-testid="page-counter-label"
+            className="text-xs font-extrabold text-[#FFD1A6] whitespace-nowrap"
+          >
+            {String(currentPage + 1).padStart(2, '0')} / 10
+          </span>
           <button
             type="button"
-            onClick={() => goToChapter(currentChapter - 1)}
-            disabled={currentChapter === 0}
-            aria-label="Previous chapter"
-            className="px-3.5 py-1.5 text-xs font-bold rounded-xl border border-[#F4A261]/35 bg-[#341D15] text-[#FFF8F2] disabled:opacity-35 hover:border-[#FFD1A6] transition-colors whitespace-nowrap shrink-0"
+            data-testid="next-page-btn"
+            disabled={currentPage === 9}
+            onClick={() => goToPage(currentPage + 1)}
+            className="px-3 py-1.5 rounded-xl bg-[#F4A261] text-[#1D0F0A] text-xs font-bold disabled:opacity-40 hover:bg-[#FFD1A6] transition-colors shrink-0"
           >
-            {lang === 'en' ? '← Prev' : '← Trước'}
+            {lang === 'en' ? 'Next →' : 'Tiếp →'}
           </button>
-
-          {/* 10 Chapter Quick Dots */}
-          <div
-            role="navigation"
-            aria-label="Chapter progress dots"
-            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1"
-          >
-            {CHAPTER_TITLES.map((ch, idx) => {
-              const active = idx === currentChapter;
-              return (
-                <button
-                  key={ch.num}
-                  type="button"
-                  onClick={() => goToChapter(idx)}
-                  title={`${ch.num}. ${ch.title[lang]}`}
-                  aria-label={`Go to chapter ${ch.num}: ${ch.title[lang]}`}
-                  aria-current={active ? 'step' : undefined}
-                  className={`h-2.5 rounded-full transition-all ${
-                    active
-                      ? 'w-7 bg-[#F4A261]'
-                      : 'w-2.5 bg-[#5C3426] hover:bg-[#8C523C]'
-                  }`}
-                />
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            <span
-              data-testid="chapter-counter"
-              className="text-xs font-bold text-[#FFD1A6] tabular-nums"
-            >
-              {String(currentChapter + 1).padStart(2, '0')} / 10
-            </span>
-            <button
-              type="button"
-              onClick={() => goToChapter(currentChapter + 1)}
-              disabled={currentChapter === 9}
-              aria-label="Next chapter"
-              className="px-3.5 py-1.5 text-xs font-bold rounded-xl border border-[#F4A261]/35 bg-[#341D15] text-[#FFF8F2] disabled:opacity-35 hover:border-[#FFD1A6] transition-colors whitespace-nowrap shrink-0"
-            >
-              {lang === 'en' ? 'Next →' : 'Tiếp →'}
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* Reference Desk & Transparency Ledger Modal */}
+      {/* Reference Desk & Judge Ledger Modal */}
       <ReferenceDeskModal
-        lang={lang}
         isOpen={isRefModalOpen}
         onClose={() => setIsRefModalOpen(false)}
+        lang={lang}
       />
     </div>
   );
 }
+
+export default App;

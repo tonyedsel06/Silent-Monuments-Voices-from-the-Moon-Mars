@@ -1,12 +1,23 @@
-export interface MissionClockTelemetry {
-  id: string;
-  nssdcaId: string;
-  daysOnSurface: number;
-  yearsOnSurface: string;
-  daysSinceLastSignal: number | null;
-  activeSols?: number;
-  distanceDrivenKm?: number;
-  statusCode: 'ACTIVE_OPTICAL' | 'SILENT_MONUMENT_ARCHIVE' | 'SILENT_MONUMENT';
+export interface InSightMissionTelemetry {
+  nssdcaId: '2018-042A';
+  launchDateIso: string;
+  landingDateIso: string;
+  finalContactDateIso: string;
+  missionConcludedDateIso: string;
+  cruiseDistanceKm: number;
+  entrySpeedKmh: number;
+  activeSols: number;
+  activeEarthYears: number;
+  activeEarthDaysRemainder: number;
+  totalMarsquakesDetected: number;
+  daysOnMarsTotal: number;
+  daysSilentSinceFinalContact: number;
+  coordinates: {
+    lat: string;
+    lon: string;
+    elevationMola: string;
+    region: string;
+  };
 }
 
 export interface PowerAllocationInput {
@@ -24,78 +35,61 @@ export interface PowerAllocationEvaluation {
   scienceEfficiencyScore: number;
 }
 
-export interface LaserPulseState {
+export interface SeismicWaveSimulationState {
   progress: number; // 0 to 1
-  elapsedSeconds: number;
-  distanceTraveledKm: number;
-  oneWayDistanceKm: number;
-  roundTripSeconds: number;
-  phase: 'IDLE' | 'OUTBOUND' | 'PRISM_REFLECTION' | 'INBOUND' | 'COMPLETE';
-  annualRecessionCm: number;
+  pWaveRadiusKm: number;
+  sWaveRadiusKm: number;
+  pWaveVelocityKms: number;
+  sWaveVelocityKms: number;
+  sWaveBlockedByLiquidCore: boolean;
+  coreRadiusKm: number;
+  phaseLabelEn: string;
+  phaseLabelVi: string;
 }
 
 /**
- * Calculates mission elapsed time metrics anchored to NASASpaceApps Hanoi 2026
- * reference epoch (14 November 2026) or a provided reference date.
+ * Computes verified NASA/NSSDCA InSight (2018-042A) mission metrics anchored to
+ * the reference epoch (default 14 November 2026).
  */
-export function calculateMissionClocks(
+export function calculateInSightTelemetry(
   referenceDateIso: string = '2026-11-14T00:00:00Z'
-): Record<'apollo11' | 'opportunity' | 'insight', MissionClockTelemetry> {
+): InSightMissionTelemetry {
   const refMs = new Date(referenceDateIso).getTime();
   const msPerDay = 86_400_000;
 
-  // Apollo 11 LRRR deployed 20 July 1969
-  const apolloLandMs = new Date('1969-07-20T20:17:40Z').getTime();
-  const apolloDays = Math.max(20936, Math.round((refMs - apolloLandMs) / msPerDay));
-  const apolloYears = (apolloDays / 365.25).toFixed(1);
+  const landingMs = new Date('2018-11-26T19:52:59Z').getTime();
+  const finalContactMs = new Date('2022-12-15T00:00:00Z').getTime();
 
-  // Opportunity Rover landed 25 Jan 2004, last contact 10 June 2018
-  const oppLastContactMs = new Date('2018-06-10T00:00:00Z').getTime();
-  const oppLandMs = new Date('2004-01-25T05:05:00Z').getTime();
-  const oppDaysSurface = Math.round((refMs - oppLandMs) / msPerDay);
-  const oppDaysSilent = Math.round((refMs - oppLastContactMs) / msPerDay);
-
-  // InSight Lander landed 26 Nov 2018, last contact 15 Dec 2022
-  const insightLandMs = new Date('2018-11-26T19:52:59Z').getTime();
-  const insightLastContactMs = new Date('2022-12-15T00:00:00Z').getTime();
-  const insightDaysSurface = Math.max(2910, Math.round((refMs - insightLandMs) / msPerDay));
-  const insightDaysSilent = Math.max(1430, Math.round((refMs - insightLastContactMs) / msPerDay));
+  const daysOnMarsTotal = Math.max(2910, Math.round((refMs - landingMs) / msPerDay));
+  const daysSilentSinceFinalContact = Math.max(1430, Math.round((refMs - finalContactMs) / msPerDay));
 
   return {
-    apollo11: {
-      id: 'apollo11',
-      nssdcaId: '1969-059C',
-      daysOnSurface: apolloDays,
-      yearsOnSurface: apolloYears,
-      daysSinceLastSignal: null,
-      statusCode: 'ACTIVE_OPTICAL',
-    },
-    opportunity: {
-      id: 'opportunity',
-      nssdcaId: '2003-032A',
-      daysOnSurface: oppDaysSurface,
-      yearsOnSurface: '14.4',
-      daysSinceLastSignal: oppDaysSilent,
-      activeSols: 5111,
-      distanceDrivenKm: 45.16,
-      statusCode: 'SILENT_MONUMENT',
-    },
-    insight: {
-      id: 'insight',
-      nssdcaId: '2018-042A',
-      daysOnSurface: insightDaysSurface,
-      yearsOnSurface: (insightDaysSurface / 365.25).toFixed(1),
-      daysSinceLastSignal: insightDaysSilent,
-      activeSols: 1440,
-      statusCode: 'SILENT_MONUMENT_ARCHIVE',
+    nssdcaId: '2018-042A',
+    launchDateIso: '2018-05-05',
+    landingDateIso: '2018-11-26',
+    finalContactDateIso: '2022-12-15',
+    missionConcludedDateIso: '2022-12-21',
+    cruiseDistanceKm: 485_000_000,
+    entrySpeedKmh: 19_800,
+    activeSols: 1440,
+    activeEarthYears: 4,
+    activeEarthDaysRemainder: 25,
+    totalMarsquakesDetected: 1319,
+    daysOnMarsTotal,
+    daysSilentSinceFinalContact,
+    coordinates: {
+      lat: '4.502°N',
+      lon: '135.623°E',
+      elevationMola: '-2,655 m',
+      region: 'Elysium Planitia',
     },
   };
 }
 
 /**
  * Computes available daily energy in Watt-hours per Martian sol based on dust cover percentage (0 to 90%).
- * Clean panels (0% dust, Nov 2018) = 5,000 Wh/sol.
- * Heavy dust (90% dust, Spring/Late 2022) = 500 Wh/sol.
+ * Clean panels (0% dust, Dec 2018) = 5,000 Wh/sol.
+ * Heavy dust (90% dust, Spring–Dec 2022) = 500 Wh/sol.
  */
 export function calculateSolarPowerFromDust(dustPercent: number): {
   dustClamped: number;
@@ -106,23 +100,22 @@ export function calculateSolarPowerFromDust(dustPercent: number): {
   dateLabelVi: string;
 } {
   const dustClamped = Math.min(90, Math.max(0, Math.round(dustPercent)));
-  // Linear mapping from 0% -> 5000 Wh to 90% -> 500 Wh (each 1% dust drops 50 Wh)
   const wattHoursPerSol = Math.round(5000 - dustClamped * 50);
   const percentOfInitial = Math.round((wattHoursPerSol / 5000) * 100);
-  const solEstimate = Math.round(1 + (dustClamped / 90) * 1439);
+  const solEstimate = Math.round(10 + (dustClamped / 90) * 1430);
 
-  let dateLabelEn = 'Dec 2018 · Sol 10 (Clean Arrays)';
-  let dateLabelVi = 'Tháng 12/2018 · Sol 10 (Pin sạch bụi)';
+  let dateLabelEn = 'Dec 2018 · Sol 10 (Clean Arrays · ~5,000 Wh/sol)';
+  let dateLabelVi = 'Tháng 12/2018 · Sol 10 (Pin sạch bụi · ~5.000 Wh/sol)';
 
   if (dustClamped >= 80) {
-    dateLabelEn = 'Apr–Dec 2022 · Sol 1200–1440 (Final Months)';
-    dateLabelVi = 'Tháng 4–12/2022 · Sol 1200–1440 (Những tháng cuối)';
+    dateLabelEn = 'Apr–Dec 2022 · Sol 1211–1440 (Final Months · ~500 Wh/sol)';
+    dateLabelVi = 'Tháng 4–12/2022 · Sol 1211–1440 (Những tháng cuối · ~500 Wh/sol)';
   } else if (dustClamped >= 50) {
-    dateLabelEn = 'Mid 2021 · Sol 900 (Thickening Coating)';
-    dateLabelVi = 'Giữa 2021 · Sol 900 (Lớp bụi dày dần)';
+    dateLabelEn = 'Mid 2021 · Sol 900 (Thickening Dust Coating)';
+    dateLabelVi = 'Giữa 2021 · Sol 900 (Lớp bụi sắt dày dần)';
   } else if (dustClamped >= 20) {
-    dateLabelEn = 'Late 2019 · Sol 380 (Regional Dust Haze)';
-    dateLabelVi = 'Cuối 2019 · Sol 380 (Bụi mịn khu vực)';
+    dateLabelEn = 'Late 2019 · Sol 380 (Regional Dust Settling)';
+    dateLabelVi = 'Cuối 2019 · Sol 380 (Bụi mịn lắng đọng)';
   }
 
   return {
@@ -136,7 +129,7 @@ export function calculateSolarPowerFromDust(dustPercent: number): {
 }
 
 /**
- * Evaluates classroom energy allocation trade-off for InSight's power budget.
+ * Evaluates classroom energy allocation trade-off for InSight's scarce power budget.
  */
 export function evaluatePowerAllocation(
   availableWh: number,
@@ -160,7 +153,6 @@ export function evaluatePowerAllocation(
     };
   }
 
-  // Electronics freeze below 150 Wh heater allocation unless in final ditch mode with SEIS running
   if (input.survivalHeatersWh < 150) {
     return {
       availableWh,
@@ -199,45 +191,60 @@ export function evaluatePowerAllocation(
 }
 
 /**
- * Computes Apollo 11 Lunar Laser Ranging photon telemetry for a given progress (0..1).
+ * Simulates Primary (P) compressional waves vs Secondary (S) shear waves
+ * traveling through Mars' crust, lumpy mantle, and molten liquid iron-alloy core (radius 1,830 km).
  */
-export function calculateLaserRangingTelemetry(progress: number): LaserPulseState {
+export function simulateSeismicWaves(progress: number): SeismicWaveSimulationState {
   const clamped = Math.min(1, Math.max(0, progress));
-  const oneWayDistanceKm = 384_400;
-  const roundTripSeconds = 2.56;
-  const elapsedSeconds = Number((clamped * roundTripSeconds).toFixed(2));
-  const distanceTraveledKm = Math.round(clamped * oneWayDistanceKm * 2);
+  const marsDiameterKm = 6779;
+  const coreRadiusKm = 1830;
+  const pWaveVelocityKms = 7.8; // Primary compressional wave (~7.8 km/s in mantle)
+  const sWaveVelocityKms = 4.4; // Secondary shear wave (~4.4 km/s in mantle, 0 in liquid core)
 
-  let phase: LaserPulseState['phase'] = 'IDLE';
-  if (clamped === 0) {
-    phase = 'IDLE';
-  } else if (clamped < 0.48) {
-    phase = 'OUTBOUND';
-  } else if (clamped <= 0.54) {
-    phase = 'PRISM_REFLECTION';
-  } else if (clamped < 1) {
-    phase = 'INBOUND';
-  } else {
-    phase = 'COMPLETE';
+  const pWaveRadiusKm = Math.round(clamped * marsDiameterKm);
+  const sWaveRawRadius = Math.round(clamped * marsDiameterKm * (sWaveVelocityKms / pWaveVelocityKms));
+  // S-waves are blocked upon reaching the liquid core boundary (~1,560 km depth)
+  const coreBoundaryDepthKm = 1560;
+  const sWaveBlockedByLiquidCore = sWaveRawRadius >= coreBoundaryDepthKm;
+  const sWaveRadiusKm = sWaveRadiusKmClamped(sWaveRawRadius);
+
+  let phaseLabelEn = 'Ready to trigger marsquake wavefronts';
+  let phaseLabelVi = 'Sẵn sàng kích hoạt sóng địa chấn Sao Hỏa';
+
+  if (clamped > 0 && clamped < 0.38) {
+    phaseLabelEn = 'P & S waves racing through Crust (24–72 km) and Upper Mantle';
+    phaseLabelVi = 'Sóng P và sóng S truyền qua Lớp Vỏ (24–72 km) và Lớp Phủ trên';
+  } else if (clamped >= 0.38 && clamped < 0.85) {
+    phaseLabelEn = 'P-waves refract through Liquid Core (1,830 km); S-waves blocked (Shadow Zone!)';
+    phaseLabelVi = 'Sóng P khúc xạ qua Lõi Lỏng (1.830 km); Sóng S bị chặn lại (Vùng tối địa chấn!)';
+  } else if (clamped >= 0.85) {
+    phaseLabelEn = 'SEIS records P-wave & S-wave arrival gap on Elysium Planitia';
+    phaseLabelVi = 'SEIS ghi nhận độ trễ giữa sóng P và sóng S tại Elysium Planitia';
   }
 
   return {
     progress: clamped,
-    elapsedSeconds,
-    distanceTraveledKm,
-    oneWayDistanceKm,
-    roundTripSeconds,
-    phase,
-    annualRecessionCm: 3.8,
+    pWaveRadiusKm,
+    sWaveRadiusKm,
+    pWaveVelocityKms,
+    sWaveVelocityKms,
+    sWaveBlockedByLiquidCore,
+    coreRadiusKm,
+    phaseLabelEn,
+    phaseLabelVi,
   };
 }
 
+function sWaveRadiusKmClamped(raw: number): number {
+  return Math.min(3800, raw);
+}
+
 /**
- * Grades the 4-question interactive Explorer Challenge.
+ * Grades the 3-question InSight Knowledge Check on Page 10.
  */
-export function gradeExplorerQuiz(
+export function gradeInSightQuiz(
   selectedAnswers: (number | null)[],
-  correctAnswers: number[] = [1, 2, 0, 1]
+  correctAnswers: number[] = [1, 2, 0]
 ): {
   complete: boolean;
   score: number;
@@ -246,7 +253,8 @@ export function gradeExplorerQuiz(
 } {
   const total = correctAnswers.length;
   const complete =
-    selectedAnswers.length === total && selectedAnswers.every((ans) => ans !== null && ans !== undefined);
+    selectedAnswers.length === total &&
+    selectedAnswers.every((ans) => ans !== null && ans !== undefined);
 
   const resultsPerQuestion = correctAnswers.map((correct, idx) => selectedAnswers[idx] === correct);
   const score = resultsPerQuestion.filter(Boolean).length;

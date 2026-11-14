@@ -1,27 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  calculateMissionClocks,
+  calculateInSightTelemetry,
   calculateSolarPowerFromDust,
   evaluatePowerAllocation,
-  calculateLaserRangingTelemetry,
-  gradeExplorerQuiz,
+  simulateSeismicWaves,
+  gradeInSightQuiz,
 } from './missionMath';
 
-test('calculateMissionClocks computes verified NSSDCA durations for Nov 14, 2026', () => {
-  const clocks = calculateMissionClocks('2026-11-14T00:00:00Z');
-  assert.equal(clocks.apollo11.nssdcaId, '1969-059C');
-  assert.equal(clocks.apollo11.daysOnSurface, 20936);
-  assert.equal(clocks.apollo11.yearsOnSurface, '57.3');
-  assert.equal(clocks.apollo11.statusCode, 'ACTIVE_OPTICAL');
-
-  assert.equal(clocks.opportunity.nssdcaId, '2003-032A');
-  assert.equal(clocks.opportunity.activeSols, 5111);
-  assert.equal(clocks.opportunity.distanceDrivenKm, 45.16);
-
-  assert.equal(clocks.insight.nssdcaId, '2018-042A');
-  assert.equal(clocks.insight.daysOnSurface, 2910);
-  assert.equal(clocks.insight.daysSinceLastSignal, 1430);
+test('calculateInSightTelemetry computes verified NSSDCA 2018-042A metrics', () => {
+  const telemetry = calculateInSightTelemetry('2026-11-14T00:00:00Z');
+  assert.equal(telemetry.nssdcaId, '2018-042A');
+  assert.equal(telemetry.cruiseDistanceKm, 485_000_000);
+  assert.equal(telemetry.entrySpeedKmh, 19_800);
+  assert.equal(telemetry.activeEarthYears, 4);
+  assert.equal(telemetry.activeEarthDaysRemainder, 25);
+  assert.equal(telemetry.totalMarsquakesDetected, 1319);
+  assert.equal(telemetry.daysOnMarsTotal, 2910);
+  assert.equal(telemetry.daysSilentSinceFinalContact, 1430);
 });
 
 test('calculateSolarPowerFromDust scales linearly from 5,000 Wh (0%) to 500 Wh (90%)', () => {
@@ -64,32 +60,27 @@ test('evaluatePowerAllocation detects over-budget, freeze failure, and optimal s
   assert.ok(optimal.scienceEfficiencyScore >= 80);
 });
 
-test('calculateLaserRangingTelemetry tracks 2.56s round trip and 384,400 km distance', () => {
-  const start = calculateLaserRangingTelemetry(0);
-  assert.equal(start.phase, 'IDLE');
-  assert.equal(start.elapsedSeconds, 0);
+test('simulateSeismicWaves models P-wave refraction and S-wave shadow zone at liquid core', () => {
+  const start = simulateSeismicWaves(0);
+  assert.equal(start.pWaveRadiusKm, 0);
+  assert.equal(start.sWaveBlockedByLiquidCore, false);
 
-  const mid = calculateLaserRangingTelemetry(0.5);
-  assert.equal(mid.phase, 'PRISM_REFLECTION');
-  assert.equal(mid.elapsedSeconds, 1.28);
-  assert.equal(mid.distanceTraveledKm, 384400);
-
-  const end = calculateLaserRangingTelemetry(1);
-  assert.equal(end.phase, 'COMPLETE');
-  assert.equal(end.elapsedSeconds, 2.56);
-  assert.equal(end.distanceTraveledKm, 768800);
-  assert.equal(end.annualRecessionCm, 3.8);
+  const coreHit = simulateSeismicWaves(0.55);
+  assert.ok(coreHit.pWaveRadiusKm > 3000);
+  assert.equal(coreHit.sWaveBlockedByLiquidCore, true);
+  assert.equal(coreHit.coreRadiusKm, 1830);
 });
 
-test('gradeExplorerQuiz validates completeness and scores 4-question review accurately', () => {
-  const incomplete = gradeExplorerQuiz([1, null, 0, 1]);
+test('gradeInSightQuiz validates completeness and scores 3-question review accurately', () => {
+  const incomplete = gradeInSightQuiz([1, null, 0]);
   assert.equal(incomplete.complete, false);
 
-  const perfect = gradeExplorerQuiz([1, 2, 0, 1]);
+  const perfect = gradeInSightQuiz([1, 2, 0]);
   assert.equal(perfect.complete, true);
-  assert.equal(perfect.score, 4);
+  assert.equal(perfect.score, 3);
+  assert.equal(perfect.total, 3);
 
-  const partial = gradeExplorerQuiz([1, 0, 0, 2]);
+  const partial = gradeInSightQuiz([1, 0, 0]);
   assert.equal(partial.complete, true);
   assert.equal(partial.score, 2);
 });
