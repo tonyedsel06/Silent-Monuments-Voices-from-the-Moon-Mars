@@ -6,6 +6,7 @@ import {
   evaluatePowerAllocation,
   simulateSeismicWaves,
   gradeInSightQuiz,
+  computeIglooIntroChoreography,
 } from './missionMath';
 
 test('calculateInSightTelemetry computes verified NSSDCA 2018-042A metrics', () => {
@@ -84,3 +85,34 @@ test('gradeInSightQuiz validates completeness and scores 3-question review accur
   assert.equal(partial.complete, true);
   assert.equal(partial.score, 2);
 });
+
+test('computeIglooIntroChoreography transitions cleanly across 4 stages (0.0s to 3.4s)', () => {
+  const s0 = computeIglooIntroChoreography(0);
+  assert.equal(s0.stage, 1);
+  assert.equal(s0.telemetryFormatted, '00.0%');
+  assert.equal(s0.completed, false);
+
+  const s1End = computeIglooIntroChoreography(1.1);
+  assert.equal(s1End.stage, 2);
+  assert.equal(s1End.uStage1, 1);
+  assert.equal(s1End.uStage2, 0);
+
+  const s2Mid = computeIglooIntroChoreography(1.65);
+  assert.equal(s2Mid.stage, 2);
+  assert.ok(s2Mid.shockwaveProgress > 0.5);
+  assert.ok(s2Mid.uStage2 > 0.4 && s2Mid.uStage2 < 0.6);
+
+  const s3Mid = computeIglooIntroChoreography(2.7);
+  assert.equal(s3Mid.stage, 3);
+  assert.ok(s3Mid.uStage3 > 0.3);
+  assert.ok(s3Mid.uiRevealProgress > 0.5);
+  assert.equal(s3Mid.overlayOpacity, 1);
+
+  const s4Done = computeIglooIntroChoreography(3.4);
+  assert.equal(s4Done.stage, 4);
+  assert.equal(s4Done.uStage3, 1);
+  assert.equal(s4Done.overlayOpacity, 0);
+  assert.equal(s4Done.telemetryFormatted, '100.0%');
+  assert.equal(s4Done.completed, true);
+});
+

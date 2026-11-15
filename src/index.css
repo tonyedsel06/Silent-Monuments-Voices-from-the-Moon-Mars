@@ -4,6 +4,8 @@
   :root {
     --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --igloo-reveal-y: 0px;
+    --igloo-reveal-opacity: 1;
   }
 
   *,
@@ -203,3 +205,16 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #F4A261;
 }
+
+.igloo-spatial-reveal {
+  transform: translate3d(0, var(--igloo-reveal-y, 0px), 0);
+  opacity: var(--igloo-reveal-opacity, 1);
+  will-change: transform, opacity;
+}
+
+.igloo-spatial-reveal-delayed {
+  transform: translate3d(0, calc(var(--igloo-reveal-y, 0px) * 1.25), 0);
+  opacity: var(--igloo-reveal-opacity, 1);
+  will-change: transform, opacity;
+}
+

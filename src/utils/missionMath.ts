@@ -266,3 +266,74 @@ export function gradeInSightQuiz(
     resultsPerQuestion,
   };
 }
+
+export interface IglooIntroChoreographyState {
+  elapsedSec: number;
+  stage: 1 | 2 | 3 | 4;
+  uStage1: number; // 0.0s -> 1.1s (quarticOut)
+  uStage2: number; // 1.1s -> 2.2s (cubicInOut)
+  uStage3: number; // 2.2s -> 3.1s (cubicInOut)
+  shockwaveProgress: number; // 1.1s -> 2.1s
+  uiRevealProgress: number; // 2.4s -> 3.2s
+  overlayOpacity: number; // 3.1s -> 3.4s (1 -> 0)
+  telemetryPercent: number; // 0.0 -> 100.0
+  telemetryFormatted: string; // "00.0%" -> "100.0%"
+  completed: boolean;
+}
+
+export function quarticOut(t: number): number {
+  const clamped = Math.min(1, Math.max(0, t));
+  const inv = 1 - clamped;
+  return 1 - inv * inv * inv * inv;
+}
+
+export function cubicInOut(t: number): number {
+  const clamped = Math.min(1, Math.max(0, t));
+  return clamped < 0.5
+    ? 4 * clamped * clamped * clamped
+    : 1 - Math.pow(-2 * clamped + 2, 3) / 2;
+}
+
+/**
+ * Computes the 4-stage spatial choreography state (0.0s to 3.4s) for the
+ * "Igloo Inc." 3D GLSL particle intro sequence.
+ */
+export function computeIglooIntroChoreography(elapsedSec: number): IglooIntroChoreographyState {
+  const TOTAL_DURATION = 3.4;
+  const t = Math.max(0, Math.min(TOTAL_DURATION, elapsedSec));
+
+  const stage: 1 | 2 | 3 | 4 =
+    t < 1.1 ? 1 : t < 2.2 ? 2 : t < 3.1 ? 3 : 4;
+
+  const uStage1 = quarticOut(t / 1.1);
+  const uStage2 = t <= 1.1 ? 0 : cubicInOut((t - 1.1) / 1.1);
+  const uStage3 = t <= 2.2 ? 0 : cubicInOut((t - 2.2) / 0.9);
+
+  const shockwaveProgress =
+    t >= 1.1 && t <= 2.15 ? quarticOut((t - 1.1) / 1.05) : 0;
+
+  const uiRevealProgress =
+    t <= 2.4 ? 0 : quarticOut((t - 2.4) / 0.8);
+
+  const rawOpacity =
+    t <= 3.1 ? 1 : t >= TOTAL_DURATION ? 0 : Math.max(0, 1 - (t - 3.1) / 0.3);
+  const overlayOpacity = rawOpacity < 1e-5 ? 0 : Number(rawOpacity.toFixed(4));
+
+  const telemetryPercent = Math.min(100, Number(((t / TOTAL_DURATION) * 100).toFixed(1)));
+  const telemetryFormatted = `${telemetryPercent.toFixed(1).padStart(4, '0')}%`;
+
+  return {
+    elapsedSec: t,
+    stage,
+    uStage1,
+    uStage2,
+    uStage3,
+    shockwaveProgress,
+    uiRevealProgress,
+    overlayOpacity,
+    telemetryPercent,
+    telemetryFormatted,
+    completed: elapsedSec >= TOTAL_DURATION,
+  };
+}
+

@@ -518,7 +518,7 @@ export function App() {
       )}
 
       {/* STICKY TOP NAVIGATION BAR (Responsive 2-Row Mobile-Safe Layout + Continuous Light Loop + Rolling Mars 01–10 Track) */}
-      <header className="sticky top-0 z-40 w-full box-border bg-[#12090D]/92 backdrop-blur-md border-b border-[#F4A261]/30 shadow-xl">
+      <header className="sticky top-0 z-40 w-full box-border bg-[#12090D]/92 backdrop-blur-md border-b border-[#F4A261]/30 shadow-xl igloo-spatial-reveal">
         <div className="max-w-[1360px] mx-auto px-2.5 sm:px-6 py-2 space-y-1.5">
           {/* Top Row: Title + Compact Controls (100% Visible on Mobile Portrait & Desktop) */}
           <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-3 w-full">
@@ -674,7 +674,7 @@ export function App() {
            =================================================================== */}
         {isPageVisible(0) && (
           <ChapterBackdropWrapper chapterIndex={0} lang={lang}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center mobile-single-col-lock">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center mobile-single-col-lock igloo-spatial-reveal-delayed">
               {/* Left 7 Cols: First-Person Diary Opening */}
               <div className="lg:col-span-7 space-y-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">

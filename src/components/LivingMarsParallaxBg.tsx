@@ -67,9 +67,22 @@ export const LivingMarsParallaxBg: React.FC<LivingMarsParallaxBgProps> = ({ curr
     });
 
     let tick = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    let smoothPointerX = 0;
+    let smoothPointerY = 0;
+
+    const onPointerMove = (e: MouseEvent) => {
+      pointerX = (e.clientX / Math.max(1, vw) - 0.5) * 2;
+      pointerY = (e.clientY / Math.max(1, vh) - 0.5) * 2;
+    };
+    window.addEventListener('mousemove', onPointerMove, { passive: true });
 
     const renderStars = () => {
       tick += 1;
+      smoothPointerX += (pointerX - smoothPointerX) * 0.06;
+      smoothPointerY += (pointerY - smoothPointerY) * 0.06;
+
       const w = vw;
       const h = vh;
       ctx.clearRect(0, 0, w, h);
@@ -85,7 +98,10 @@ export const LivingMarsParallaxBg: React.FC<LivingMarsParallaxBgProps> = ({ curr
 
       // Diagonal Milky Way Galactic Core & Warm Nebula Clouds
       ctx.save();
-      ctx.translate(w * 0.52, h * 0.42);
+      ctx.translate(
+        w * 0.52 + smoothPointerX * 14,
+        h * 0.42 + smoothPointerY * 10
+      );
       ctx.rotate(-0.54);
 
       const mwOuter = ctx.createLinearGradient(0, -h * 0.36, 0, h * 0.36);
@@ -106,39 +122,44 @@ export const LivingMarsParallaxBg: React.FC<LivingMarsParallaxBgProps> = ({ curr
       ctx.fillRect(-w * 0.95, -h * 0.08, w * 1.9, h * 0.16);
       ctx.restore();
 
-      // Warm Atmospheric Limb Glow on the Martian Horizon
+      // Interactive Martian Horizon Shimmer & Atmospheric Limb Glow
+      const shimmerPulse = 0.26 + Math.sin(tick * 0.04) * 0.05;
       const limbGrad = ctx.createRadialGradient(
-        w * 0.5,
+        w * (0.5 + smoothPointerX * 0.04),
         h * 0.94,
         20,
         w * 0.5,
         h * 0.94,
-        w * 0.74
+        w * 0.76
       );
-      limbGrad.addColorStop(0, 'rgba(244, 162, 97, 0.28)');
-      limbGrad.addColorStop(0.5, 'rgba(231, 111, 81, 0.12)');
+      limbGrad.addColorStop(0, `rgba(244, 162, 97, ${shimmerPulse.toFixed(3)})`);
+      limbGrad.addColorStop(0.45, 'rgba(231, 111, 81, 0.14)');
+      limbGrad.addColorStop(0.75, 'rgba(100, 223, 223, 0.05)');
       limbGrad.addColorStop(1, 'rgba(12, 7, 10, 0)');
       ctx.fillStyle = limbGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // Multi-magnitude twinkling stars
+      // Multi-magnitude twinkling stars with subtle cursor parallax
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
         const twinkle = Math.sin(tick * s.speed + s.phase) * 0.28;
         const alpha = Math.max(0.14, Math.min(1, s.baseAlpha + twinkle));
+        const px = s.x * w + smoothPointerX * (s.r * 9);
+        const py = s.y * h * 0.92 + smoothPointerY * (s.r * 6);
         ctx.fillStyle = `rgba(${s.tint}, ${alpha.toFixed(2)})`;
         ctx.beginPath();
-        ctx.arc(s.x * w, s.y * h * 0.92, s.r, 0, Math.PI * 2);
+        ctx.arc(px, py, s.r, 0, Math.PI * 2);
         ctx.fill();
       }
     };
 
     renderStars();
     const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver === true;
-    const intervalId = isAutomated ? 0 : window.setInterval(renderStars, 95);
+    const intervalId = isAutomated ? 0 : window.setInterval(renderStars, 65);
 
     return () => {
       if (intervalId) window.clearInterval(intervalId);
+      window.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('resize', resizeCanvas);
     };
   }, []);
