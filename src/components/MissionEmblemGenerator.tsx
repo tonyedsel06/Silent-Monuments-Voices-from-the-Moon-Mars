@@ -18,18 +18,18 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
   onMintCallsign,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [marsCutawayImg, setMarsCutawayImg] = useState<HTMLImageElement | null>(null);
+  const [dioramaImg, setDioramaImg] = useState<HTMLImageElement | null>(null);
   const [downloadedNotice, setDownloadedNotice] = useState(false);
 
-  // 4D Interactive CSS Perspective Tilt State
+  // Interactive CSS Perspective Tilt State
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50 });
 
-  // Load local CORS-clean 4K NASA Mars Cutaway image (PIA26636 / PIA22227) for the 4D Emblem
+  // Load local CORS-clean Photorealistic Mars + InSight Diorama image (/assets/aistudio/image_89fb51ee.png)
   useEffect(() => {
     const img = new Image();
     img.decoding = 'async';
-    img.onload = () => setMarsCutawayImg(img);
-    img.src = INSIGHT_MEDIA_ASSETS.PIA26636_LOCAL;
+    img.onload = () => setDioramaImg(img);
+    img.src = INSIGHT_MEDIA_ASSETS.MARS_INSIGHT_DIORAMA_LOCAL;
   }, []);
 
   useEffect(() => {
@@ -38,7 +38,9 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const size = 1200; // 4K-Grade High-DPI Aerospace Mission Badge Canvas
+    const dpr = canvas.width / 1200;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const size = 1200; // Logical 1200x1200 coordinate space
     const cx = size / 2;
     const cy = size / 2;
 
@@ -56,272 +58,204 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
       ctx.closePath();
     };
 
-    // 1. Outer Metallic Gold-and-Copper Hexagonal Bevel Frame
+    // 1. Outer Polished Metallic Copper-and-Gold Hexagonal Aerospace Frame
     const outerMetallic = ctx.createLinearGradient(80, 60, 1120, 1140);
-    outerMetallic.addColorStop(0, '#FFF1D0');
-    outerMetallic.addColorStop(0.22, '#E07A3C');
-    outerMetallic.addColorStop(0.48, '#FFE5B4');
+    outerMetallic.addColorStop(0, '#FFF4D6');
+    outerMetallic.addColorStop(0.2, '#E07A3C');
+    outerMetallic.addColorStop(0.48, '#FFE8B8');
     outerMetallic.addColorStop(0.75, '#B84A18');
     outerMetallic.addColorStop(1, '#F4A261');
 
     ctx.save();
-    ctx.shadowColor = 'rgba(244, 162, 97, 0.55)';
-    ctx.shadowBlur = 42;
-    traceHexagon(552);
+    ctx.shadowColor = 'rgba(244, 162, 97, 0.58)';
+    ctx.shadowBlur = 44;
+    traceHexagon(562);
     ctx.fillStyle = outerMetallic;
     ctx.fill();
     ctx.restore();
 
-    // Deep basalt inner bevel trench
-    traceHexagon(518);
-    ctx.fillStyle = '#1E0E09';
+    // Deep obsidian inner bevel trench
+    traceHexagon(528);
+    ctx.fillStyle = '#0B0810';
     ctx.fill();
 
-    // Holographic cyan-gold inner rim
+    // Precision gold-cyan inner rim
     const innerRimGrad = ctx.createLinearGradient(140, 140, 1060, 1060);
     innerRimGrad.addColorStop(0, '#FFD1A6');
-    innerRimGrad.addColorStop(0.5, '#64DFDF');
+    innerRimGrad.addColorStop(0.5, '#00F5D4');
     innerRimGrad.addColorStop(1, '#F4A261');
-    traceHexagon(500);
+    traceHexagon(512);
     ctx.strokeStyle = innerRimGrad;
-    ctx.lineWidth = 7;
+    ctx.lineWidth = 6.5;
     ctx.stroke();
 
-    // 2. Clipped Interior Scene
+    // 2. Clipped Interior Scene: Milky Way Galaxy & Twinkling Star Cluster
     ctx.save();
-    traceHexagon(490);
+    traceHexagon(504);
     ctx.clip();
 
-    const spaceGrad = ctx.createRadialGradient(cx, cy - 60, 30, cx, cy, 520);
-    spaceGrad.addColorStop(0, '#3D1E14');
-    spaceGrad.addColorStop(0.55, '#1D0F0B');
-    spaceGrad.addColorStop(1, '#0D0706');
+    const spaceGrad = ctx.createRadialGradient(cx, cy - 40, 30, cx, cy, 540);
+    spaceGrad.addColorStop(0, '#1C1118');
+    spaceGrad.addColorStop(0.52, '#0B0912');
+    spaceGrad.addColorStop(1, '#040408');
     ctx.fillStyle = spaceGrad;
     ctx.fillRect(0, 0, size, size);
 
-    // Subtle Martian Starfield & Dust Motes
-    for (let i = 0; i < 80; i++) {
-      const sx = ((i * 193) % 920) + 140;
-      const sy = ((i * 137) % 860) + 160;
-      const sr = (i % 3) + 1.1;
-      ctx.fillStyle = i % 3 === 0 ? '#FFD1A6' : 'rgba(255, 248, 242, 0.6)';
+    // Diagonal Milky Way Galactic Core & Nebula Dust Lane inside Hexagon
+    ctx.save();
+    ctx.translate(cx, cy - 40);
+    ctx.rotate(-0.48);
+    const mwGrad = ctx.createLinearGradient(0, -240, 0, 240);
+    mwGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    mwGrad.addColorStop(0.32, 'rgba(180, 96, 58, 0.20)');
+    mwGrad.addColorStop(0.5, 'rgba(255, 218, 178, 0.32)');
+    mwGrad.addColorStop(0.68, 'rgba(92, 130, 196, 0.18)');
+    mwGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = mwGrad;
+    ctx.fillRect(-620, -240, 1240, 480);
+    ctx.restore();
+
+    // Multi-Magnitude Star Cluster
+    for (let i = 0; i < 160; i++) {
+      const sx = ((i * 193 + 47) % 940) + 130;
+      const sy = ((i * 137 + 29) % 900) + 140;
+      const sr = (i % 3) * 0.75 + 0.9;
+      ctx.fillStyle =
+        i % 5 === 0
+          ? '#FFD1A6'
+          : i % 7 === 0
+            ? '#00F5D4'
+            : 'rgba(255, 248, 242, 0.75)';
       ctx.beginPath();
       ctx.arc(sx, sy, sr, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // 3. Central 4K Mars Core & Seismic Wave Sphere (100% Dedicated to InSight 2018-042A)
-    const sphereX = cx;
-    const sphereY = cy - 45;
-    const sphereR = 175;
+    // 3. Centerpiece Logo: Photorealistic Mars + Deployed InSight Diorama Cluster (y: 310..695)
+    const boxW = 680;
+    const boxH = 382;
+    const boxX = cx - boxW / 2;
+    const boxY = 308;
 
-    // Glowing Concentric Seismic Wave Rings Radiating from Mars' Core
-    [235, 208, 186].forEach((ringR, idx) => {
-      ctx.strokeStyle =
-        idx === 0
-          ? 'rgba(100, 223, 223, 0.28)'
-          : idx === 1
-            ? 'rgba(244, 162, 97, 0.42)'
-            : 'rgba(255, 209, 166, 0.65)';
-      ctx.lineWidth = idx === 2 ? 3.5 : 2;
-      ctx.setLineDash(idx === 1 ? [10, 6] : []);
+    if (dioramaImg) {
+      ctx.save();
       ctx.beginPath();
-      ctx.arc(sphereX, sphereY, ringR, 0, Math.PI * 2);
+      ctx.roundRect(boxX, boxY, boxW, boxH, 28);
+      ctx.clip();
+
+      // Draw the photorealistic Mars + InSight Diorama (image_89fb51ee.png)
+      ctx.drawImage(dioramaImg, boxX, boxY, boxW, boxH);
+
+      // Subtle vignette feathering around the diorama rectangle so it blends naturally into the badge
+      const edgeGrad = ctx.createRadialGradient(
+        cx,
+        boxY + boxH * 0.5,
+        boxH * 0.34,
+        cx,
+        boxY + boxH * 0.5,
+        boxW * 0.54
+      );
+      edgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      edgeGrad.addColorStop(0.82, 'rgba(7, 6, 12, 0.18)');
+      edgeGrad.addColorStop(1, 'rgba(7, 6, 12, 0.85)');
+      ctx.fillStyle = edgeGrad;
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+      ctx.restore();
+
+      // Delicate copper-gold border around the diorama stage
+      ctx.strokeStyle = 'rgba(244, 162, 97, 0.38)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, 28);
       ctx.stroke();
-    });
-    ctx.setLineDash([]);
-
-    // Clipped Mars Globe with Real NASA PIA26636 Cutaway Texture + Glowing Molten Core
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(sphereX, sphereY, sphereR, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-
-    const marsGrad = ctx.createRadialGradient(
-      sphereX - 40,
-      sphereY - 40,
-      20,
-      sphereX,
-      sphereY,
-      sphereR
-    );
-    marsGrad.addColorStop(0, '#F7B27A');
-    marsGrad.addColorStop(0.5, '#C85224');
-    marsGrad.addColorStop(0.88, '#7A2510');
-    marsGrad.addColorStop(1, '#3A1107');
-    ctx.fillStyle = marsGrad;
-    ctx.fillRect(sphereX - sphereR, sphereY - sphereR, sphereR * 2, sphereR * 2);
-
-    if (marsCutawayImg) {
-      try {
-        ctx.globalAlpha = 0.85;
-        ctx.drawImage(
-          marsCutawayImg,
-          sphereX - sphereR,
-          sphereY - sphereR,
-          sphereR * 2,
-          sphereR * 2
-        );
-        ctx.globalAlpha = 1;
-      } catch {
-        // Fallback gradient already drawn
-      }
-    }
-
-    // Inner Glowing 1,830-km Molten Core Heartbeat Arc
-    const coreGlow = ctx.createRadialGradient(
-      sphereX,
-      sphereY + 55,
-      6,
-      sphereX,
-      sphereY + 55,
-      85
-    );
-    coreGlow.addColorStop(0, 'rgba(254, 240, 138, 0.92)');
-    coreGlow.addColorStop(0.55, 'rgba(245, 158, 11, 0.55)');
-    coreGlow.addColorStop(1, 'rgba(220, 38, 38, 0)');
-    ctx.fillStyle = coreGlow;
-    ctx.beginPath();
-    ctx.arc(sphereX, sphereY + 55, 85, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Metallic Gold Rim around Mars Sphere
-    ctx.strokeStyle = '#FFD1A6';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.arc(sphereX, sphereY, sphereR, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 4. Embossed 3D Golden InSight Lander Silhouette Resting on Top of Mars
-    const landerY = sphereY - 12;
-
-    // Left & Right Decagonal UltraFlex Solar Wings
-    [-112, 112].forEach((offsetX) => {
-      const wx = sphereX + offsetX;
-      const wy = landerY;
-      ctx.fillStyle = '#142842';
-      ctx.strokeStyle = '#FFD1A6';
-      ctx.lineWidth = 4;
+    } else {
+      // High-detail procedural Mars + InSight Terrain Block Diorama while image decodes
+      const marsX = cx - 145;
+      const marsY = boxY + 185;
+      const marsR = 128;
+      const marsGrad = ctx.createRadialGradient(
+        marsX - 38,
+        marsY - 38,
+        14,
+        marsX,
+        marsY,
+        marsR
+      );
+      marsGrad.addColorStop(0, '#FFD1A6');
+      marsGrad.addColorStop(0.35, '#E76F51');
+      marsGrad.addColorStop(0.75, '#9A3412');
+      marsGrad.addColorStop(1, '#2B0E06');
+      ctx.fillStyle = marsGrad;
       ctx.beginPath();
-      for (let s = 0; s < 10; s++) {
-        const a = (s / 10) * Math.PI * 2;
-        const px = wx + Math.cos(a) * 52;
-        const py = wy + Math.sin(a) * 26;
-        if (s === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
+      ctx.arc(marsX, marsY, marsR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Isometric Martian terrain block on the right
+      const tx = cx + 75;
+      const ty = boxY + 215;
+      ctx.fillStyle = '#B8542C';
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - 75);
+      ctx.lineTo(tx + 170, ty + 5);
+      ctx.lineTo(tx, ty + 85);
+      ctx.lineTo(tx - 170, ty + 5);
       ctx.closePath();
       ctx.fill();
-      ctx.stroke();
-
-      // Radial solar ribs
-      ctx.strokeStyle = 'rgba(244, 162, 97, 0.65)';
-      ctx.lineWidth = 1.8;
-      for (let s = 0; s < 5; s++) {
-        const a = (s / 5) * Math.PI;
-        ctx.beginPath();
-        ctx.moveTo(wx - Math.cos(a) * 48, wy - Math.sin(a) * 24);
-        ctx.lineTo(wx + Math.cos(a) * 48, wy + Math.sin(a) * 24);
-        ctx.stroke();
-      }
-    });
-
-    // Central Octagonal Lander Deck
-    ctx.fillStyle = '#F4A261';
-    ctx.strokeStyle = '#FFF8F2';
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.roundRect(sphereX - 52, landerY - 18, 104, 34, 8);
-    ctx.fill();
-    ctx.stroke();
-
-    // 3 Stationary Titanium Landing Legs
-    ctx.strokeStyle = '#FFE4B5';
-    ctx.lineWidth = 4.5;
-    [
-      [-38, -56],
-      [0, 0],
-      [38, 56],
-    ].forEach(([topX, botX]) => {
-      ctx.beginPath();
-      ctx.moveTo(sphereX + topX, landerY + 16);
-      ctx.lineTo(sphereX + botX, landerY + 48);
-      ctx.stroke();
-    });
-
-    // 1.8m Robotic Arm (IDA) & Deployed Copper SEIS Dome
-    ctx.strokeStyle = '#64DFDF';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(sphereX + 18, landerY - 18);
-    ctx.lineTo(sphereX + 44, landerY - 56);
-    ctx.lineTo(sphereX + 78, landerY - 32);
-    ctx.stroke();
-
-    // Deployed Copper SEIS Dome on Right
-    ctx.fillStyle = '#E07A3C';
-    ctx.strokeStyle = '#FFD1A6';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(sphereX + 86, landerY + 46, 20, Math.PI, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    }
 
     ctx.restore(); // End inner hexagon clip
 
-    // 5. Crisp, Verified Editorial Typography Positioned Inside Wide Hexagon Zone
+    // 4. STRICT TEXT HIERARCHY & EXACT WORDING (Top to Bottom, Centered, Zero Overlap)
     ctx.textAlign = 'center';
 
-    // Top Arc Title
+    // Line 1 (Main Title): "InSight’s Last Diary"
+    ctx.fillStyle = '#FFF8F2';
+    ctx.font = '800 38px "Outfit", "Plus Jakarta Sans", sans-serif';
+    ctx.fillText('InSight’s Last Diary', cx, 236);
+
+    // Line 2 (Subtitle): "The Hardware Fell Silent. The Discoveries Did Not."
     ctx.fillStyle = '#FFD1A6';
-    ctx.font = '800 27px "Plus Jakarta Sans", sans-serif';
-    ctx.fillText('INSIGHT: THE LAST DIARY FROM MARS', cx, 272);
+    ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText('The Hardware Fell Silent. The Discoveries Did Not.', cx, 276);
 
-    // Subtitle (Strictly "NASA SPACE APPS CHALLENGE 2026 · CHALLENGE 01")
-    ctx.fillStyle = '#64DFDF';
-    ctx.font = '700 18.5px "Plus Jakarta Sans", sans-serif';
-    ctx.fillText('NASA SPACE APPS CHALLENGE 2026 · CHALLENGE 01', cx, 306);
-
-    // Center Metallic Explorer Nameplate Plaque
-    const plaqueY = 726;
-    const plaqueW = 700;
-    const plaqueH = 82;
-    ctx.fillStyle = '#180C08';
+    // Name Plate Box: [User's Custom Explorer Name, e.g., MINH ANH]
+    const plaqueY = 710;
+    const plaqueW = 660;
+    const plaqueH = 76;
+    ctx.fillStyle = '#120A0A';
     ctx.strokeStyle = '#F4A261';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.roundRect(cx - plaqueW / 2, plaqueY, plaqueW, plaqueH, 18);
+    ctx.roundRect(cx - plaqueW / 2, plaqueY, plaqueW, plaqueH, 16);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#FFF8F2';
-    ctx.font = '700 34px "Outfit", "Plus Jakarta Sans", sans-serif';
-    ctx.fillText(generatedCallsign.slice(0, 26), cx, plaqueY + 53);
+    ctx.font = '800 34px "Outfit", "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(generatedCallsign.slice(0, 26), cx, plaqueY + 50);
 
-    // Verified InSight Telemetry Line
-    ctx.fillStyle = '#64DFDF';
-    ctx.font = '700 16px "Plus Jakarta Sans", sans-serif';
-    ctx.fillText(
-      'NSSDCA ID: 2018-042A · ELYSIUM PLANITIA (4.502°N, 135.623°E) · 1,319 MARSQUAKES',
-      cx,
-      846
-    );
+    // Line 3 (Below Name): "NASA SPACE APPS CHALLENGE 2026"
+    ctx.fillStyle = '#00F5D4';
+    ctx.font = '800 20px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText('NASA SPACE APPS CHALLENGE 2026', cx, 826);
 
-    // Official Team Footer Line
+    // Line 4: "ELYSIUM PLANITIA (4.502°N, 135.623°E) · 1,319 MARSQUAKES"
+    ctx.fillStyle = '#F3E5D8';
+    ctx.font = '700 17px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText('ELYSIUM PLANITIA (4.502°N, 135.623°E) · 1,319 MARSQUAKES', cx, 864);
+
+    // Line 5 (Bottom Footer): "TEAM NAU EXPLORERS"
     ctx.fillStyle = '#FFD1A6';
-    ctx.font = '700 18.5px "Plus Jakarta Sans", sans-serif';
-    ctx.fillText('TEAM NAU EXPLORERS (ID: NS01048) · NGHE AN UNIVERSITY', cx, 884);
-  }, [generatedCallsign, marsCutawayImg]);
+    ctx.font = '800 21px "Outfit", "Plus Jakarta Sans", sans-serif';
+    ctx.fillText('TEAM NAU EXPLORERS', cx, 904);
+  }, [generatedCallsign, dioramaImg]);
 
-  const handlePointerMove4D = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerMoveTilt = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const nx = (e.clientX - rect.left) / rect.width; // 0..1
-    const ny = (e.clientY - rect.top) / rect.height; // 0..1
-    const rotateY = (nx - 0.5) * 22; // -11deg to +11deg
-    const rotateX = (0.5 - ny) * 22; // -11deg to +11deg
+    const nx = (e.clientX - rect.left) / rect.width;
+    const ny = (e.clientY - rect.top) / rect.height;
+    const rotateY = (nx - 0.5) * 22;
+    const rotateX = (0.5 - ny) * 22;
     setTilt({
       rotateX,
       rotateY,
@@ -330,18 +264,18 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
     });
   };
 
-  const handlePointerLeave4D = () => {
+  const handlePointerLeaveTilt = () => {
     setTilt({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50 });
   };
 
-  const handleDownload4KPng = () => {
+  const handleDownloadBadgePng = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     try {
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       const safeName = generatedCallsign.replace(/[^a-zA-Z0-9_-]/g, '-');
-      link.download = `InSight-4K-Mission-Badge-${safeName}.png`;
+      link.download = `InSight-Mission-Badge-${safeName}.png`;
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
@@ -354,9 +288,9 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
   };
 
   return (
-    <div className="rounded-2xl border border-[#F4A261]/35 nasa-basalt-glass p-4 space-y-3 shadow-2xl">
+    <div className="rounded-2xl border border-[#F4A261]/35 bg-[#120A0D]/95 p-4 space-y-3 shadow-2xl">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-bold text-[#64DFDF] uppercase tracking-wider">
+        <span className="text-xs font-bold text-[#00F5D4] uppercase tracking-wider">
           {lang === 'en'
             ? 'Interactive Holographic Mission Badge · NSSDCA 2018-042A'
             : 'Huy hiệu sứ mệnh Hologram tương tác · NSSDCA 2018-042A'}
@@ -405,37 +339,33 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
       {/* Interactive Tilt Stage with Holographic Foil Glare */}
       <div
         data-no-swipe="true"
-        className="p-3 rounded-2xl border border-[#F4A261]/25 bg-[#150B08] flex flex-col items-center space-y-2.5"
+        className="p-3 rounded-2xl border border-[#F4A261]/25 bg-[#0C080E] flex flex-col items-center space-y-2.5"
       >
         <div
-          onPointerMove={handlePointerMove4D}
-          onPointerLeave={handlePointerLeave4D}
-          style={{
-            perspective: '900px',
-          }}
-          className="relative w-full max-w-[235px] aspect-square flex items-center justify-center cursor-pointer select-none"
+          onPointerMove={handlePointerMoveTilt}
+          onPointerLeave={handlePointerLeaveTilt}
+          className="relative w-full max-w-[270px] aspect-square flex items-center justify-center cursor-pointer select-none"
         >
           <div
             style={{
-              transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+              transform: `perspective(900px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
               transition: 'transform 120ms ease-out',
-              transformStyle: 'preserve-3d',
             }}
             className="relative w-full h-full rounded-2xl overflow-hidden"
           >
             <canvas
               ref={canvasRef}
-              width={1200}
-              height={1200}
+              width={600}
+              height={600}
               data-testid="mission-emblem-8k-canvas"
               className="w-full h-full block"
             />
-            {/* Dynamic Holographic Foil Sheen Layer */}
+            {/* Dynamic Interactive Foil Specular Highlight */}
             <div
               style={{
-                background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 240, 210, 0.28) 0%, rgba(100, 223, 223, 0.14) 35%, rgba(0, 0, 0, 0) 70%)`,
+                background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 240, 210, 0.22) 0%, rgba(0, 245, 212, 0.1) 35%, rgba(0, 0, 0, 0) 70%)`,
               }}
-              className="pointer-events-none absolute inset-0 holo-foil-overlay mix-blend-screen"
+              className="pointer-events-none absolute inset-0"
             />
           </div>
         </div>
@@ -443,8 +373,8 @@ export const MissionEmblemGenerator: React.FC<MissionEmblemGeneratorProps> = ({
         <button
           type="button"
           data-testid="download-badge-png-btn"
-          onClick={handleDownload4KPng}
-          className="w-full py-2.5 px-4 text-xs font-bold rounded-xl bg-[#64DFDF] text-[#101C26] hover:bg-[#99F6E4] transition-colors shadow-lg"
+          onClick={handleDownloadBadgePng}
+          className="w-full py-2.5 px-4 text-xs font-bold rounded-xl bg-[#00F5D4] text-[#09151B] hover:bg-[#99F6E4] transition-colors shadow-lg"
         >
           {downloadedNotice
             ? lang === 'en'

@@ -183,7 +183,7 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
     );
   }, [simState, lang]);
 
-  // Earphone-Safe Normalized Web Audio Synthesis (DynamicsCompressorNode + Warm BiquadFilter + 0.3s Fade Envelope)
+  // High-Power 400%-Boosted Audio Engine (95Hz, 145Hz, 220Hz harmonics + Pink Noise + GainNode 2.8 + DynamicsCompressorNode)
   const playNormalizedTelemetryAudio = (preset: AudioTrackPreset) => {
     try {
       if (stopAudioTimerRef.current) {
@@ -203,108 +203,194 @@ export const SeismicSonificationLab: React.FC<SeismicSonificationLabProps> = ({ 
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
       audioCtxRef.current = ctx;
       setActiveAudioPreset(preset);
 
-      const duration = 3.8;
+      const duration = 4.2;
       const now = ctx.currentTime;
 
-      // DynamicsCompressorNode for earphone safety & clear laptop speaker presence
+      // High-Power DynamicsCompressorNode (threshold: -26, knee: 10, ratio: 3.5, attack: 0.002, release: 0.2)
       const compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.setValueAtTime(-20, now);
-      compressor.knee.setValueAtTime(18, now);
-      compressor.ratio.setValueAtTime(6, now);
-      compressor.attack.setValueAtTime(0.015, now);
-      compressor.release.setValueAtTime(0.25, now);
+      compressor.threshold.setValueAtTime(-26, now);
+      compressor.knee.setValueAtTime(10, now);
+      compressor.ratio.setValueAtTime(3.5, now);
+      compressor.attack.setValueAtTime(0.002, now);
+      compressor.release.setValueAtTime(0.2, now);
 
-      // Warm Lowpass Filter to eliminate harshness
-      const lowpass = ctx.createBiquadFilter();
-      lowpass.type = 'lowpass';
-      lowpass.Q.setValueAtTime(1.2, now);
+      // High-Gain Boost Node (gain.value = 2.8 for 400% speaker presence)
+      const highPowerBoost = ctx.createGain();
+      highPowerBoost.gain.setValueAtTime(2.8, now);
 
-      // Master Gain with smooth 0.3s fade-in and 0.35s fade-out
-      const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(0.001, now);
-      masterGain.gain.linearRampToValueAtTime(0.38, now + 0.3);
-      masterGain.gain.setValueAtTime(0.38, now + duration - 0.35);
-      masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      // Envelope Gain with smooth 0.25s attack and 0.35s release
+      const envelopeGain = ctx.createGain();
+      envelopeGain.gain.setValueAtTime(0.01, now);
+      envelopeGain.gain.linearRampToValueAtTime(1.0, now + 0.25);
+      envelopeGain.gain.setValueAtTime(1.0, now + duration - 0.35);
+      envelopeGain.gain.exponentialRampToValueAtTime(0.005, now + duration);
 
-      // Filtered Pink/Brown Noise Bed for authentic Martian atmospheric wind/rumble texture
+      // Warm Resonant BiquadFilter for audible upper-bass and low-mid clarity
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.Q.setValueAtTime(1.8, now);
+
+      // Paul Kellet Pink-Noise Generator for rich Martian atmospheric wind gusts
       const bufferSize = Math.floor(ctx.sampleRate * duration);
       const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0);
-      let lastOut = 0.0;
+      let b0 = 0;
+      let b1 = 0;
+      let b2 = 0;
+      let b3 = 0;
+      let b4 = 0;
+      let b5 = 0;
+      let b6 = 0;
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
-        data[i] = (lastOut + 0.04 * white) / 1.04;
-        lastOut = data[i];
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        const pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+        b6 = white * 0.115926;
+        // Swelling wind gust envelope
+        const gust = 0.68 + 0.32 * Math.sin((i / ctx.sampleRate) * Math.PI * 1.6);
+        data[i] = pink * 0.14 * gust;
       }
       const noiseSource = ctx.createBufferSource();
       noiseSource.buffer = noiseBuffer;
-
       const noiseGain = ctx.createGain();
-      const osc = ctx.createOscillator();
+
+      // Layered Sub-Bass + Audible Upper-Bass & Low-Mid Harmonics (95 Hz, 145 Hz, 220 Hz)
       const subOsc = ctx.createOscillator();
+      const harm95 = ctx.createOscillator();
+      const harm145 = ctx.createOscillator();
+      const harm220 = ctx.createOscillator();
+
+      const subGain = ctx.createGain();
+      const harm95Gain = ctx.createGain();
+      const harm145Gain = ctx.createGain();
+      const harm220Gain = ctx.createGain();
 
       if (preset === 'wind_natural') {
-        // Track 1: Amplified Martian Wind on Solar Panels (Natural Pitch)
-        lowpass.frequency.setValueAtTime(195, now);
-        noiseGain.gain.setValueAtTime(0.65, now);
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(62, now);
-        osc.frequency.exponentialRampToValueAtTime(84, now + 1.8);
-        osc.frequency.exponentialRampToValueAtTime(58, now + duration);
-
-        subOsc.type = 'triangle';
-        subOsc.frequency.setValueAtTime(45, now);
-      } else if (preset === 'wind_seis_2oct') {
-        // Track 2: Amplified Martian Wind via SEIS (Pitched Up 2 Octaves for Human Ears, 4x frequency)
-        lowpass.frequency.setValueAtTime(480, now);
-        noiseGain.gain.setValueAtTime(0.45, now);
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(196, now);
-        osc.frequency.exponentialRampToValueAtTime(268, now + 1.4);
-        osc.frequency.exponentialRampToValueAtTime(178, now + duration);
-
-        subOsc.type = 'triangle';
-        subOsc.frequency.setValueAtTime(110, now);
-        subOsc.frequency.exponentialRampToValueAtTime(142, now + 1.8);
-      } else {
-        // Track 3: Amplified Sol 128 Marsquake & Atmospheric Pressure Rumble
-        lowpass.frequency.setValueAtTime(240, now);
-        noiseGain.gain.setValueAtTime(0.75, now);
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(55, now);
-        osc.frequency.exponentialRampToValueAtTime(118, now + 0.9);
-        osc.frequency.exponentialRampToValueAtTime(48, now + duration);
+        // Track 1: Amplified Martian Wind on Solar Panels (Natural Pitch + 95/145/220Hz resonance)
+        filter.frequency.setValueAtTime(520, now);
+        filter.frequency.exponentialRampToValueAtTime(760, now + 1.8);
+        filter.frequency.exponentialRampToValueAtTime(460, now + duration);
+        noiseGain.gain.setValueAtTime(0.95, now);
 
         subOsc.type = 'sine';
-        subOsc.frequency.setValueAtTime(42, now);
-        subOsc.frequency.exponentialRampToValueAtTime(72, now + 1.2);
+        subOsc.frequency.setValueAtTime(58, now);
+        subOsc.frequency.exponentialRampToValueAtTime(76, now + 2.0);
+        subGain.gain.setValueAtTime(0.55, now);
+
+        harm95.type = 'triangle';
+        harm95.frequency.setValueAtTime(95, now);
+        harm95.frequency.exponentialRampToValueAtTime(118, now + 1.9);
+        harm95.frequency.exponentialRampToValueAtTime(92, now + duration);
+        harm95Gain.gain.setValueAtTime(0.52, now);
+
+        harm145.type = 'sine';
+        harm145.frequency.setValueAtTime(145, now);
+        harm145.frequency.exponentialRampToValueAtTime(174, now + 1.9);
+        harm145Gain.gain.setValueAtTime(0.42, now);
+
+        harm220.type = 'sine';
+        harm220.frequency.setValueAtTime(220, now);
+        harm220.frequency.exponentialRampToValueAtTime(248, now + 2.0);
+        harm220Gain.gain.setValueAtTime(0.28, now);
+      } else if (preset === 'wind_seis_2oct') {
+        // Track 2: Amplified Martian Wind via SEIS (Pitched Up 2 Octaves for Human Ears)
+        filter.frequency.setValueAtTime(1150, now);
+        filter.frequency.exponentialRampToValueAtTime(1580, now + 1.6);
+        filter.frequency.exponentialRampToValueAtTime(920, now + duration);
+        noiseGain.gain.setValueAtTime(0.85, now);
+
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(95, now);
+        subOsc.frequency.exponentialRampToValueAtTime(132, now + 1.6);
+        subGain.gain.setValueAtTime(0.48, now);
+
+        harm95.type = 'triangle';
+        harm95.frequency.setValueAtTime(145, now);
+        harm95.frequency.exponentialRampToValueAtTime(196, now + 1.6);
+        harm95Gain.gain.setValueAtTime(0.55, now);
+
+        harm145.type = 'sine';
+        harm145.frequency.setValueAtTime(220, now);
+        harm145.frequency.exponentialRampToValueAtTime(294, now + 1.6);
+        harm145.frequency.exponentialRampToValueAtTime(210, now + duration);
+        harm145Gain.gain.setValueAtTime(0.58, now);
+
+        harm220.type = 'triangle';
+        harm220.frequency.setValueAtTime(330, now);
+        harm220.frequency.exponentialRampToValueAtTime(440, now + 1.7);
+        harm220Gain.gain.setValueAtTime(0.38, now);
+      } else {
+        // Track 3: Amplified Sol 128 Marsquake & Atmospheric Pressure Rumble
+        filter.frequency.setValueAtTime(680, now);
+        filter.frequency.exponentialRampToValueAtTime(980, now + 1.1);
+        filter.frequency.exponentialRampToValueAtTime(420, now + duration);
+        noiseGain.gain.setValueAtTime(1.1, now);
+
+        subOsc.type = 'sawtooth';
+        subOsc.frequency.setValueAtTime(48, now);
+        subOsc.frequency.exponentialRampToValueAtTime(86, now + 1.0);
+        subOsc.frequency.exponentialRampToValueAtTime(44, now + duration);
+        subGain.gain.setValueAtTime(0.52, now);
+
+        harm95.type = 'triangle';
+        harm95.frequency.setValueAtTime(95, now);
+        harm95.frequency.exponentialRampToValueAtTime(138, now + 1.1);
+        harm95.frequency.exponentialRampToValueAtTime(82, now + duration);
+        harm95Gain.gain.setValueAtTime(0.62, now);
+
+        harm145.type = 'triangle';
+        harm145.frequency.setValueAtTime(145, now);
+        harm145.frequency.exponentialRampToValueAtTime(205, now + 1.1);
+        harm145.frequency.exponentialRampToValueAtTime(125, now + duration);
+        harm145Gain.gain.setValueAtTime(0.52, now);
+
+        harm220.type = 'sine';
+        harm220.frequency.setValueAtTime(220, now);
+        harm220.frequency.exponentialRampToValueAtTime(285, now + 1.1);
+        harm220.frequency.exponentialRampToValueAtTime(180, now + duration);
+        harm220Gain.gain.setValueAtTime(0.38, now);
       }
 
-      const oscGain = ctx.createGain();
-      oscGain.gain.setValueAtTime(0.28, now);
-
       noiseSource.connect(noiseGain);
-      noiseGain.connect(lowpass);
-      osc.connect(oscGain);
-      subOsc.connect(oscGain);
-      oscGain.connect(lowpass);
+      noiseGain.connect(filter);
 
-      lowpass.connect(masterGain);
-      masterGain.connect(compressor);
+      subOsc.connect(subGain);
+      harm95.connect(harm95Gain);
+      harm145.connect(harm145Gain);
+      harm220.connect(harm220Gain);
+
+      subGain.connect(filter);
+      harm95Gain.connect(filter);
+      harm145Gain.connect(filter);
+      harm220Gain.connect(filter);
+
+      filter.connect(envelopeGain);
+      envelopeGain.connect(highPowerBoost);
+      highPowerBoost.connect(compressor);
       compressor.connect(ctx.destination);
 
       noiseSource.start(now);
-      osc.start(now);
       subOsc.start(now);
+      harm95.start(now);
+      harm145.start(now);
+      harm220.start(now);
+
       noiseSource.stop(now + duration);
-      osc.stop(now + duration);
       subOsc.stop(now + duration);
+      harm95.stop(now + duration);
+      harm145.stop(now + duration);
+      harm220.stop(now + duration);
 
       stopAudioTimerRef.current = window.setTimeout(() => {
         setActiveAudioPreset(null);

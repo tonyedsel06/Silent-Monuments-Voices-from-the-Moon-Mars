@@ -88,7 +88,7 @@ export const TEAM_METADATA = {
   teamName: 'NAU EXPLORERS',
   officialTeamId: 'NS01048',
   nssdcaId: '2018-042A',
-  institution: 'Nghe An University (Trường Đại học Nghệ An), Vietnam',
+  institution: 'Nghe An University, Vietnam',
   localEvent: 'NASA Space Apps Challenge Hanoi 2026 (14–15 November 2026)',
   targetAudience: {
     en: 'School-age space enthusiasts (ages 10–15) and STEM educators',
@@ -651,8 +651,8 @@ export const MARTIAN_INTERIOR_LAYERS: MartianLayerSpec[] = [
   {
     id: 'crust',
     name: {
-      en: '1. The Crust (Lớp Vỏ Sao Hỏa)',
-      vi: '1. Lớp Vỏ Hành Tinh (The Crust)',
+      en: '1. The Volcanic Crust',
+      vi: '1. Lớp Vỏ Hành Tinh',
     },
     depthRange: {
       en: 'Thickness: ~24 to 72 km (15–45 miles) · 3 Sub-layers at Elysium Planitia',
@@ -678,8 +678,8 @@ export const MARTIAN_INTERIOR_LAYERS: MartianLayerSpec[] = [
   {
     id: 'mantle',
     name: {
-      en: '2. The "Lumpy" Mantle (Lớp Phủ Lổn Nhổn)',
-      vi: '2. Lớp Phủ "Lổn Nhổn" (The Mantle)',
+      en: '2. The "Lumpy" Silicate Mantle',
+      vi: '2. Lớp Phủ Đá "Lổn Nhổn"',
     },
     depthRange: {
       en: 'Thickness: ~1,550 km (960 miles) beneath the crust',
@@ -705,8 +705,8 @@ export const MARTIAN_INTERIOR_LAYERS: MartianLayerSpec[] = [
   {
     id: 'core',
     name: {
-      en: '3. The Molten Core (Lõi Sắt Nóng Chảy)',
-      vi: '3. Lõi Hợp Kim Sắt Nóng Chảy (The Core)',
+      en: '3. The Molten Liquid Core',
+      vi: '3. Lõi Hợp Kim Sắt Nóng Chảy',
     },
     depthRange: {
       en: 'Radius: ~1,830 km (1,140 miles) — Larger & less dense than pre-mission models',

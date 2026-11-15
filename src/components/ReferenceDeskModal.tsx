@@ -62,11 +62,10 @@ export const ReferenceDeskModal: React.FC<ReferenceDeskModalProps> = ({
             </div>
             <p className="text-[#F3E5D8]/90">
               <strong>{lang === 'en' ? 'Team:' : 'Đội thi:'}</strong> {TEAM_METADATA.teamName} (ID:{' '}
-              {TEAM_METADATA.officialTeamId}) · {TEAM_METADATA.institution} ·{' '}
-              {TEAM_METADATA.localEvent}
+              {TEAM_METADATA.officialTeamId}) · {TEAM_METADATA.institution}
             </p>
             <p className="text-[#F3E5D8]/90">
-              <strong>{lang === 'en' ? 'Members (5):' : 'Thành viên (5):'}</strong>{' '}
+              <strong>{lang === 'en' ? 'Members:' : 'Thành viên:'}</strong>{' '}
               {TEAM_METADATA.members.join(' · ')}
             </p>
             <p className="text-[#64DFDF]">

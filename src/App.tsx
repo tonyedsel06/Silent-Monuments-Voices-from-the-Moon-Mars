@@ -29,6 +29,7 @@ import { MartianInteriorCutaway } from './components/MartianInteriorCutaway';
 import { SeismicSonificationLab } from './components/SeismicSonificationLab';
 import { MissionEmblemGenerator } from './components/MissionEmblemGenerator';
 import { ReferenceDeskModal } from './components/ReferenceDeskModal';
+import { NanoTechMarsIntro } from './components/NanoTechMarsIntro';
 
 interface ChapterBackdropWrapperProps {
   chapterIndex: number;
@@ -47,7 +48,8 @@ const ChapterBackdropWrapper: React.FC<ChapterBackdropWrapperProps> = ({
     <section
       id={`chapter-section-${chapterIndex}`}
       data-testid={`page-section-${chapterIndex + 1}`}
-      className="relative rounded-3xl overflow-hidden border border-[#F4A261]/30 shadow-2xl transition-all duration-500 bg-[#22110B]/88 backdrop-blur-md"
+      style={{ transform: 'translate3d(0, 0, 0)' }}
+      className="page-transition-gpu relative rounded-3xl overflow-hidden border border-[#F4A261]/30 shadow-2xl bg-[#140B0D]/86 backdrop-blur-md"
     >
       {/* Subtle Chapter NASA Photograph Accent Layer */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
@@ -239,7 +241,7 @@ export function App() {
     return () => window.removeEventListener('mousemove', onMouseMove);
   }, []);
 
-  // Mobile Horizontal Swipe Gesture Handlers (60px threshold, ignores 3D/slider controls)
+  // Mobile Horizontal Swipe Gesture Handlers (38px threshold, directional lock Math.abs(dx) > Math.abs(dy) * 1.15)
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length !== 1) return;
     const target = e.target as HTMLElement | null;
@@ -255,6 +257,16 @@ export function App() {
     };
   };
 
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    if (!start || start.ignore || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - start.x;
+    const dy = e.touches[0].clientY - start.y;
+    if (Math.abs(dy) > Math.abs(dx) * 1.25 && Math.abs(dy) > 24) {
+      start.ignore = true;
+    }
+  };
+
   const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
     const start = touchStartRef.current;
     touchStartRef.current = null;
@@ -263,8 +275,8 @@ export function App() {
     const dx = e.changedTouches[0].clientX - start.x;
     const dy = e.changedTouches[0].clientY - start.y;
 
-    // Require at least 60px horizontal swipe and predominantly horizontal motion
-    if (Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.35) {
+    // 38px horizontal swipe threshold & directional lock Math.abs(dx) > Math.abs(dy) * 1.15
+    if (Math.abs(dx) >= 38 && Math.abs(dx) > Math.abs(dy) * 1.15) {
       if (dx < 0 && currentPage < 9) {
         goToPage(currentPage + 1);
       } else if (dx > 0 && currentPage > 0) {
@@ -273,7 +285,7 @@ export function App() {
     }
   };
 
-  // Earphone-Safe Normalized Ambient Martian Wind Web Audio Generator for Page 01
+  // High-Power 400%-Boosted Ambient Martian Wind Web Audio Generator for Page 01
   const toggleMartianWindAudio = () => {
     if (isWindPlaying) {
       if (windAudioCtxRef.current) {
@@ -289,41 +301,95 @@ export function App() {
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
       windAudioCtxRef.current = ctx;
 
       const now = ctx.currentTime;
       const bufferSize = ctx.sampleRate * 4;
       const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
-      let lastOut = 0.0;
+
+      // Paul Kellet Pink-Noise Generator with swelling Martian gust modulation
+      let b0 = 0;
+      let b1 = 0;
+      let b2 = 0;
+      let b3 = 0;
+      let b4 = 0;
+      let b5 = 0;
+      let b6 = 0;
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + 0.035 * white) / 1.035;
-        lastOut = output[i];
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        const pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+        b6 = white * 0.115926;
+        const gust = 0.7 + 0.3 * Math.sin((i / ctx.sampleRate) * Math.PI * 0.5);
+        output[i] = pink * 0.14 * gust;
       }
 
-      const brownNoise = ctx.createBufferSource();
-      brownNoise.buffer = noiseBuffer;
-      brownNoise.loop = true;
+      const pinkNoise = ctx.createBufferSource();
+      pinkNoise.buffer = noiseBuffer;
+      pinkNoise.loop = true;
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(165, now);
+      filter.frequency.setValueAtTime(540, now);
+      filter.Q.setValueAtTime(1.6, now);
+
+      // Audible upper-bass & low-mid harmonic oscillators (95 Hz, 145 Hz, 220 Hz)
+      const osc95 = ctx.createOscillator();
+      osc95.type = 'triangle';
+      osc95.frequency.setValueAtTime(95, now);
+      const gain95 = ctx.createGain();
+      gain95.gain.setValueAtTime(0.45, now);
+
+      const osc145 = ctx.createOscillator();
+      osc145.type = 'sine';
+      osc145.frequency.setValueAtTime(145, now);
+      const gain145 = ctx.createGain();
+      gain145.gain.setValueAtTime(0.38, now);
+
+      const osc220 = ctx.createOscillator();
+      osc220.type = 'sine';
+      osc220.frequency.setValueAtTime(220, now);
+      const gain220 = ctx.createGain();
+      gain220.gain.setValueAtTime(0.24, now);
+
+      // High-Gain 2.8x Boost + DynamicsCompressorNode (-26dB, knee 10, ratio 3.5)
+      const highPowerBoost = ctx.createGain();
+      highPowerBoost.gain.setValueAtTime(0.01, now);
+      highPowerBoost.gain.linearRampToValueAtTime(2.8, now + 0.3);
 
       const compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.setValueAtTime(-22, now);
-      compressor.knee.setValueAtTime(16, now);
-      compressor.ratio.setValueAtTime(5, now);
+      compressor.threshold.setValueAtTime(-26, now);
+      compressor.knee.setValueAtTime(10, now);
+      compressor.ratio.setValueAtTime(3.5, now);
+      compressor.attack.setValueAtTime(0.002, now);
+      compressor.release.setValueAtTime(0.2, now);
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.32, now + 0.35);
+      pinkNoise.connect(filter);
+      osc95.connect(gain95);
+      osc145.connect(gain145);
+      osc220.connect(gain220);
 
-      brownNoise.connect(filter);
-      filter.connect(gain);
-      gain.connect(compressor);
+      gain95.connect(filter);
+      gain145.connect(filter);
+      gain220.connect(filter);
+
+      filter.connect(highPowerBoost);
+      highPowerBoost.connect(compressor);
       compressor.connect(ctx.destination);
-      brownNoise.start();
+
+      pinkNoise.start();
+      osc95.start();
+      osc145.start();
+      osc220.start();
       setIsWindPlaying(true);
     } catch {
       setIsWindPlaying(false);
@@ -353,7 +419,6 @@ export function App() {
       vy: -0.00012 + (i % 3) * 0.00009,
     }));
 
-    let animId = 0;
     const renderDust = () => {
       const w = canvas.width;
       const h = canvas.height;
@@ -378,12 +443,14 @@ export function App() {
         ctx.arc(p.x * w, p.y * h, p.r, 0, Math.PI * 2);
         ctx.fill();
       });
-
-      animId = requestAnimationFrame(renderDust);
     };
 
     renderDust();
-    return () => cancelAnimationFrame(animId);
+    const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver === true;
+    const intervalId = isAutomated ? 0 : window.setInterval(renderDust, 45);
+    return () => {
+      if (intervalId) window.clearInterval(intervalId);
+    };
   }, [currentPage, displayMode]);
 
   const isPageVisible = (idx: number) => displayMode === 'all' || currentPage === idx;
@@ -395,10 +462,14 @@ export function App() {
   return (
     <div
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="min-h-screen flex flex-col bg-[#160B07] text-[#FFF8F2] overflow-x-hidden relative"
+      className="min-h-screen flex flex-col bg-[#08060C] text-[#FFF8F2] overflow-x-hidden relative"
     >
-      {/* MULTI-LAYER LIVING PARALLAX BACKGROUND (SVS 11929 Stars + PIA00407 Mars + Martian Horizon) */}
+      {/* STRICTLY ONE-TIME "IRON MAN NANO-TECH" MARS PARTICLE ASSEMBLY INTRO */}
+      <NanoTechMarsIntro lang={lang} />
+
+      {/* 8K MILKY WAY & DEEP-SPACE STARFIELD PARALLAX BACKGROUND */}
       <LivingMarsParallaxBg currentPage={currentPage} />
 
       {/* DESKTOP EDGE HOVER ARROWS (‹ Left Edge / › Right Edge, Vertically Centered at top: 50%) */}
@@ -446,8 +517,8 @@ export function App() {
         </>
       )}
 
-      {/* STICKY TOP NAVIGATION BAR (Responsive 2-Row Mobile-Safe Layout + Rolling Mars 01–10 Track) */}
-      <header className="sticky top-0 z-40 w-full box-border bg-[#190C08]/92 backdrop-blur-md border-b border-[#F4A261]/30 shadow-xl">
+      {/* STICKY TOP NAVIGATION BAR (Responsive 2-Row Mobile-Safe Layout + Continuous Light Loop + Rolling Mars 01–10 Track) */}
+      <header className="sticky top-0 z-40 w-full box-border bg-[#12090D]/92 backdrop-blur-md border-b border-[#F4A261]/30 shadow-xl">
         <div className="max-w-[1360px] mx-auto px-2.5 sm:px-6 py-2 space-y-1.5">
           {/* Top Row: Title + Compact Controls (100% Visible on Mobile Portrait & Desktop) */}
           <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-3 w-full">
@@ -457,12 +528,12 @@ export function App() {
                 e.preventDefault();
                 goToPage(0);
               }}
-              className="flex flex-col min-w-0 shrink"
+              className="header-light-loop-border flex flex-col min-w-0 shrink pb-0.5"
             >
-              <span className="font-serif-editorial text-xs sm:text-base font-bold tracking-tight text-[#FFF8F2] leading-tight truncate">
+              <span className="header-light-loop-text font-serif-editorial text-xs sm:text-base font-extrabold tracking-tight leading-tight truncate">
                 INSIGHT: THE LAST DIARY FROM MARS
               </span>
-              <span className="hidden sm:inline text-[10px] font-semibold text-[#FFD1A6]/80">
+              <span className="header-light-loop-text hidden sm:inline text-[10px] font-bold">
                 {lang === 'en'
                   ? 'Abandoned But Not Forgotten · NSSDCA ID: 2018-042A'
                   : 'Bị bỏ lại nhưng không bị lãng quên · NSSDCA ID: 2018-042A'}
@@ -609,8 +680,8 @@ export function App() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                     {lang === 'en'
-                      ? 'Page 01 of 10 · Elysium Planitia, Mars (4.502°N, 135.623°E)'
-                      : 'Trang 01 / 10 · Đồng bằng Elysium Planitia, Sao Hỏa (4,502°B, 135,623°Đ)'}
+                      ? 'Elysium Planitia, Mars (4.502°N, 135.623°E)'
+                      : 'Đồng bằng Elysium Planitia, Sao Hỏa (4,502°B, 135,623°Đ)'}
                   </span>
                   <a
                     href="https://science.nasa.gov/mission/insight/"
@@ -688,6 +759,7 @@ export function App() {
 
               {/* Right 5 Cols: Unobstructed InSight Cutaway & Interactive Dust Canvas */}
               <div
+                data-testid="page01-hero-visual-card"
                 onPointerMove={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   cursorRef.current = {
@@ -728,8 +800,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 02 of 10 · Meet InSight: Why I Had No Wheels'
-                    : 'Trang 02 / 10 · Làm quen với InSight: Vì sao tôi không có bánh xe'}
+                    ? 'Meet InSight: Why I Had No Wheels'
+                    : 'Làm quen với InSight: Vì sao tôi không có bánh xe'}
                 </span>
                 <a
                   href="https://science.nasa.gov/photojournal/the-insight-lander/"
@@ -919,8 +991,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 03 of 10 · 485 Million km Journey & Mission Timeline'
-                    : 'Trang 03 / 10 · Hành trình 485 triệu km & dòng thời gian sứ mệnh'}
+                    ? '485 Million km Journey & Mission Timeline'
+                    : 'Hành trình 485 triệu km & dòng thời gian sứ mệnh'}
                 </span>
                 <a
                   href="https://www.nasa.gov/news-release/nasa-insight-lander-arrives-on-martian-surface-to-learn-what-lies-beneath/"
@@ -1143,8 +1215,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 04 of 10 · The Mission: Three Pillars of Planetary Science'
-                    : 'Trang 04 / 10 · Ba sứ mệnh khám phá lòng đất đỏ'}
+                    ? 'The Mission: Three Pillars of Planetary Science'
+                    : 'Ba sứ mệnh khám phá lòng đất đỏ'}
                 </span>
                 <a
                   href="https://science.nasa.gov/mission/insight/science/"
@@ -1353,8 +1425,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 05 of 10 · Inside My Body: 9 Scientific Subsystems'
-                    : 'Trang 05 / 10 · Giải phẫu cơ thể tôi: 9 hệ thống thiết bị khoa học'}
+                    ? 'Inside My Body: 9 Scientific Subsystems'
+                    : 'Giải phẫu cơ thể tôi: 9 hệ thống thiết bị khoa học'}
                 </span>
                 <a
                   href="https://science.nasa.gov/mission/insight/science-instruments/"
@@ -1397,8 +1469,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 06 of 10 · The Heart of Mars: Crust, Lumpy Mantle & Liquid Core'
-                    : 'Trang 06 / 10 · Trái tim Sao Hỏa: Lớp vỏ – lớp phủ – lõi nóng chảy'}
+                    ? 'The Heart of Mars: Crust, Lumpy Mantle & Liquid Core'
+                    : 'Trái tim Sao Hỏa: Lớp vỏ – lớp phủ – lõi nóng chảy'}
                 </span>
                 <a
                   href="https://science.nasa.gov/mission/insight/science-highlights/"
@@ -1437,8 +1509,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 07 of 10 · Listening to the Planet: P/S Waves & Martian Wind'
-                    : 'Trang 07 / 10 · Lắng nghe hành tinh: Sóng P/S & âm thanh gió Sao Hỏa'}
+                    ? 'Listening to the Planet: P/S Waves & Martian Wind'
+                    : 'Lắng nghe hành tinh: Sóng P/S & âm thanh gió Sao Hỏa'}
                 </span>
                 <a
                   href="https://science.nasa.gov/resource/listen-to-nasas-insight-at-work-on-mars/"
@@ -1477,8 +1549,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 08 of 10 · The Secrets I Left Behind (Including Aug 2025 Breakthrough)'
-                    : 'Trang 08 / 10 · Những bí mật tôi để lại (Gồm đột phá tháng 8/2025)'}
+                    ? 'The Secrets I Left Behind (Including Aug 2025 Breakthrough)'
+                    : 'Những bí mật tôi để lại (Gồm đột phá tháng 8/2025)'}
                 </span>
                 <a
                   href="https://www.nasa.gov/missions/insight/nasa-marsquake-data-reveals-lumpy-nature-of-red-planets-interior/"
@@ -1581,8 +1653,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 09 of 10 · When the Lights Went Out: 5,000 Wh → 500 Wh'
-                    : 'Trang 09 / 10 · Khi ánh sáng tắt dần: Từ 5.000 Wh xuống 500 Wh'}
+                    ? 'When the Lights Went Out: 5,000 Wh → 500 Wh'
+                    : 'Khi ánh sáng tắt dần: Từ 5.000 Wh xuống 500 Wh'}
                 </span>
                 <a
                   href="https://science.nasa.gov/resource/insights-power-generation-after-landing-and-spring-2022/"
@@ -1856,8 +1928,8 @@ export function App() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-3 py-1 rounded-full bg-[#3A1F16] border border-[#F4A261]/45 text-xs font-bold text-[#FFD1A6]">
                   {lang === 'en'
-                    ? 'Page 10 of 10 · Abandoned, But Not Forgotten'
-                    : 'Trang 10 / 10 · Bị bỏ lại nhưng không bị lãng quên'}
+                    ? 'Abandoned, But Not Forgotten'
+                    : 'Bị bỏ lại nhưng không bị lãng quên'}
                 </span>
                 <a
                   href="https://www.jpl.nasa.gov/news/nasa-retires-insight-mars-lander-mission-after-years-of-science/"
@@ -2103,11 +2175,11 @@ export function App() {
                 <strong className="text-[#FFF8F2]">
                   Team {TEAM_METADATA.teamName} (Official ID: {TEAM_METADATA.officialTeamId})
                 </strong>{' '}
-                · {TEAM_METADATA.institution} · {TEAM_METADATA.localEvent}
+                · {TEAM_METADATA.institution}
               </div>
 
               <div className="text-xs text-[#FFD1A6]/95 font-medium">
-                {lang === 'en' ? 'Official Team Members (5): ' : 'Thành viên chính thức (5): '}
+                {lang === 'en' ? 'Official Team Members: ' : 'Thành viên chính thức: '}
                 {TEAM_METADATA.members.join(' · ')}
               </div>
             </div>

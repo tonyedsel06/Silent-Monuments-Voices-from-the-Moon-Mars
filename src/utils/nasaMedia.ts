@@ -33,22 +33,28 @@ export const INSIGHT_MEDIA_ASSETS = {
   PIA26635_NASA: 'https://images-assets.nasa.gov/image/PIA26635/PIA26635~orig.jpg',
   PIA00407_MARS_VISTA:
     'https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia00/pia00407/PIA00407.jpg?w=2000&h=2000&fit=crop&crop=faces%2Cfocalpoint',
+  PIA00407_ORIG: 'https://images-assets.nasa.gov/image/PIA00407/PIA00407~orig.jpg',
   PIA00407_MARS_1600:
     'https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia00/pia00407/PIA00407.jpg?w=1600',
-  MARS_EAST_HILLS_HORIZON: 'https://nssdc.gsfc.nasa.gov/planetary/image/mera_east_hills.jpg',
+  MILKY_WAY_4K:
+    '/assets/aistudio/1-pia26635-illustration-giant-asteroid-impacting-ancient-mars_782be599.webp',
+  MARS_EAST_HILLS_HORIZON: '/assets/aistudio/PIA22227_ae4c0612.jpg',
   PIA22876_ORIG: 'https://images-assets.nasa.gov/image/PIA22876/PIA22876~orig.jpg',
   PIA22876_MED: 'https://images-assets.nasa.gov/image/PIA22876/PIA22876~medium.jpg',
   PIA25287_ORIG: 'https://images-assets.nasa.gov/image/PIA25287/PIA25287~orig.jpg',
   PIA25287_MED: 'https://images-assets.nasa.gov/image/PIA25287/PIA25287~medium.jpg',
   PIA22948_ORIG: 'https://images-assets.nasa.gov/image/PIA22948/PIA22948~orig.jpg',
   PIA23201_ORIG: 'https://images-assets.nasa.gov/image/PIA23201/PIA23201~orig.jpg',
+  MARS_INSIGHT_DIORAMA_LOCAL: '/assets/aistudio/image_89fb51ee.png',
+  INSIGHT_3D_VIEWER_REF_LOCAL: '/assets/aistudio/image_4df8bdbb.png',
+  MARS_CUTAWAY_REF_LOCAL: '/assets/aistudio/image_a648fb25.png',
 };
 
 const FALLBACK_CHAIN = [
-  INSIGHT_MEDIA_ASSETS.PIA00407_MARS_1600,
-  INSIGHT_MEDIA_ASSETS.PIA19664_NASA,
-  INSIGHT_MEDIA_ASSETS.MARS_EAST_HILLS_HORIZON,
   INSIGHT_MEDIA_ASSETS.PIA22227_LOCAL,
+  INSIGHT_MEDIA_ASSETS.PIA17358_LOCAL,
+  INSIGHT_MEDIA_ASSETS.PIA19811_LOCAL,
+  INSIGHT_MEDIA_ASSETS.PIA26636_LOCAL,
 ];
 
 /**
@@ -61,7 +67,12 @@ export function handleNasaImageError(
   const img = e.currentTarget;
   const currentStep = Number(img.dataset.fallbackStep ?? '0');
 
-  if (currentStep === 0 && preferredFallback && img.src !== preferredFallback) {
+  if (
+    currentStep === 0 &&
+    preferredFallback &&
+    preferredFallback.startsWith('/') &&
+    img.src !== preferredFallback
+  ) {
     img.dataset.fallbackStep = '1';
     img.src = preferredFallback;
     return;
